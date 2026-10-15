@@ -1,0 +1,12 @@
+# Preguntas pendientes para el abogado
+
+Abierto el 2026-10-15. Dudas que salieron al anotar el banco nivel 2 (edición 2026-10-14). Mientras no haya respuesta, el banco usa la regla provisoria indicada y deja el aviso en "revisar".
+
+1. ¿El sábado cuenta como día hábil para entregar el vale vista? El art. 59 del Código de Procedimiento Civil dice que son hábiles los días no feriados, lo que incluiría el sábado. Dos tribunales escriben en sus avisos que el día hábil anterior a un lunes es el viernes (3° Civil, aviso 9, y 8° Civil, aviso 24). Provisorio. Lunes a viernes.
+2. Cuando el aviso dice "el día anterior" y el remate es lunes, el día anterior es domingo. ¿Se entrega el viernes? Casos 7° Civil (avisos 19, 21, 22 y 23) y 28° Civil (aviso 46). Provisorio. Viernes.
+3. "72 horas" o "24 horas de anticipación". ¿Se cuentan como horas de reloj o como días hábiles? Avisos 4, 12, 51, 52, 53 y 54. Provisorio (decisión de Diego, corregida el 2026-10-15). Horas de reloj desde la hora del remate, y si el tope cae en fin de semana o feriado se adelanta al último horario hábil. ¿A qué hora cierra la Secretaría ese día? En el aviso 4 se supuso las 14:00.
+4. "En horario de atención de público al menos un día hábil anterior" (20° Civil, avisos 40, 41 y 42). ¿Cuál es la hora límite real?
+5. 21° Civil (aviso 43). "Los días martes y jueves, anterior a la realización de la subasta". Para un remate de martes, ¿se entrega el jueves anterior o el martes de la semana anterior? Provisorio. Jueves.
+6. 3° Civil (aviso 9). El aviso dice "hasta las 12 hrs." y también "de 11 a 14 hrs.". ¿Cuál vale? Provisorio. De 11 a 12.
+7. Avisos que no dicen cuándo se entrega la garantía (27, 28, 33, 50, 55, 57a, 58a, 58b y 59). ¿Lo habitual es llevarla el mismo día del remate, o hay que mirar siempre las bases?
+8. Errores de publicación. ¿Qué errores del aviso pueden servir para pedir que se anule o suspenda el remate? Por ejemplo, rol mal impreso (CC-936-2026, aviso 17), rol sin guion (C-24622022 en el aviso 6, C-182072017 en el 45, C-286902019 en el 48) o datos que se contradicen dentro del mismo aviso (horario del vale vista en el 9, monto de la garantía en el 17). Diego lo ha escuchado de abogados y quiere que el programa le avise de cada error.

@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 2026-10-15 (cierre de sesión). Bitácoras en BITACORA_2026-10-14.md y BITACORA_2026-10-15.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 15 de Octubre de 2026, cierre de la sesión de la tarde. Bitácoras en BITACORA_2026-10-14.md y BITACORA_2026-10-15.md (esta última tiene la madrugada y la tarde, puntos 1 a 21). Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -19,22 +19,32 @@ La regla del vale vista se interpreta desde el texto de cada aviso, nunca se asu
 Republicaciones. Se guarda cada publicación y se avisa si cambian las bases entre una y otra.
 Sincronizar con Google Calendar o el celular queda para una etapa futura.
 Las entregas de vale vista se organizan por tribunal, porque es a donde Diego debe ir. Si dos remates agendados del mismo tribunal tienen la entrega el mismo día, el calendario los muestra juntos en una sola tarea (tribunal, día, cantidad de vales vista y roles). Idea acordada el 2026-10-15 para la interfaz.
-Agenda sin estado "descartado". Si Diego no irá a un remate, lo quita del calendario con un botón X. A Diego le indican a qué remate ir, por eso ningún aviso se elimina por filtros. Los que no pasan quedan visibles como "fuera de filtro".
+Agenda sin estado "descartado". Si Diego no irá a un remate, lo quita del calendario con un botón X. A Diego le indican a qué remate ir, por eso ningún aviso se elimina por filtros. Los que no pasan quedan visibles como "fuera de filtro". EXCEPCIÓN (Diego, 2026-10-15). Los remates de JUEZ PARTIDOR se descartan del todo y no aparecen en la búsqueda.
 Feriados de Chile cargados desde fuente oficial y aviso en diciembre si falta el año siguiente.
 La lectura debe ser perfecta por diseño. La IA nunca tiene la última palabra. Lo de formato fijo (rol, montos, fechas) lo lee el código. Lo de texto libre lo interpreta la IA citando la frase exacta, y el código verifica que la frase exista. Lo que no se pueda verificar se marca en rojo.
+Las 72 horas (y las 24) se cuentan en horas de reloj desde la hora del remate. Si el tope cae en fin de semana o feriado, se adelanta al último horario hábil. Si el aviso solo dice hasta cuándo se entrega el vale vista, el desde es el día siguiente a la edición. Decisiones del 15 de Octubre.
+Día hábil provisorio de lunes a viernes sin feriados. El art. 59 del Código de Procedimiento Civil haría hábil el sábado, pero dos tribunales escriben en sus avisos que el día hábil anterior a un lunes es el viernes. Queda como pregunta para el abogado (PREGUNTAS_ABOGADO.md).
+Cada remate debe mostrar en su ficha las alertas de su aviso (errores de escritura, roles mal impresos, contradicciones, condiciones raras como garantía del 20% o sobre la tasación, caución sin vale vista, aviso previo por correo) y el link directo a su página del Mercurio. Pedido de Diego del 15 de Octubre. Un error del aviso podría usarse para anular el remate.
 No se parcha el Mercurio del abogado ahora. El motor de lectura se construye aquí, se prueba con el banco de pruebas y después se traspasa al Mercurio de una sola vez.
 
 ## Base de datos
 
-HALLAZGO 2026-10-15 (pendiente de aplicar en la parte 3). Una misma causa puede tener muchos remates. El 2026-09-01 hay 26 avisos del rol C-5656-2013 (28° Juzgado Civil), cada uno con otra propiedad y otra fecha. La agenda no puede ser única por causa. Un remate se identifica por causa más fecha y hora del remate más inmueble.
-
 Ver db\LEEME_BASE_DATOS.md. Siete cajones. Ediciones, Páginas, Avisos, Citas, Causas con sus cambios, Mi agenda y Feriados.
+
+Cambios pendientes de aplicar en la parte 3.5 (todos con evidencia en el banco nivel 2 o en la bitácora del 15).
+1. Un remate se identifica por causa más fecha y hora más inmueble. El 1 de Septiembre hay 26 avisos del rol C-5656-2013. Además un mismo aviso puede traer varios remates (aviso 3 del 14 de Octubre con 2 oficinas, aviso 30 con 4 lotes, cada uno con su mínimo).
+2. Guardar la dirección de cada página del Mercurio (ej. /2026/10/14/B/B-20261014-011) para el link directo. El lector ya la conoce, falta guardarla.
+3. Modalidad nueva en_linea (Google Meet, vendaya.cl). La base hoy solo acepta zoom, presencial, mixta y sin_dato.
+4. Garantía sobre la tasación (no sobre el mínimo) y garantía como monto fijo.
+5. Cajón o campos de alertas por aviso.
+6. Filtro nuevo. Los remates de JUEZ PARTIDOR se descartan del todo (ver decisiones).
 
 ## Evidencia reunida (leer antes de diseñar o cambiar la lectura)
 
 AUDITORIA_LECTURA_MERCURIO_2026-10-14.md. Por qué falla la lectura actual del Mercurio (avisos partidos entre páginas y entre trozos, avisos sin rol botados en silencio, datos cruzados entre avisos vecinos, redirección "PÁGINA C 8" no detectada, historial que congela errores).
 RECONOCIMIENTO_EDICIONES_2026-10-14.md. Dónde aparecen los remates en 36 ediciones y cómo se continúan. Base de las reglas de navegación.
-banco_pruebas\LEEME_BANCO_PRUEBAS.md. Ediciones 2026-08-06 y 2026-10-14 con su inventario correcto (153 avisos) y la lista de trampas del diario.
+banco_pruebas\LEEME_BANCO_PRUEBAS.md. Ediciones 2026-08-06 y 2026-10-14 con su inventario correcto (95 + 61 avisos) y la lista de trampas del diario. Incluye el banco nivel 2 del 14 de Octubre (61 remates con fecha, hora, modalidad, vale vista, mínimo, garantía y dirección, cada dato con su cita).
+PREGUNTAS_ABOGADO.md. Ocho dudas legales pendientes, cada una con su regla provisoria.
 
 ## Reglas de navegación (sobre evidencia, n = 36 ediciones)
 
@@ -52,38 +62,46 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
 
 ✅ Idea, dudas y decisiones
 ✅ Auditoría de la lectura del Mercurio
-✅ Banco de pruebas nivel 1 (153 avisos)
-✅ Prototipo de rollo único y corte por aviso
+✅ Banco de pruebas nivel 1 (95 + 61 avisos, el 14 de Octubre corregido de 59 a 61)
 ✅ Reconocimiento de 36 ediciones y reglas de navegación
-✅ Respaldo en GitHub privado DFNR2026/AgendarRemates (commit 7f68909, huellas verificadas en clon)
-✅ Proyecto propio en Claude
-✅ Base de datos diseñada y probada (db\esquema.sql, ver db\LEEME_BASE_DATOS.md)
-✅ Motor parte 1, navegación (motor\navegacion_logica.py y motor\lector_mercurio.py). 15 pruebas sin internet y 7 fechas en vivo con 0 alarmas, huellas idénticas al banco
-🔄 Motor parte 2. Rollo único y corte por aviso (motor\cortador.py) y orden por posición (motor\orden_columnas.py). Banco 95/95 y 59/59 avisos, 150/150 roles, 0 inventados, también con orden por posición. En 7 ediciones no vistas ningún rol quedó fuera de un aviso y solo queda 1 trozo dudoso (2026-10-09, un aviso que imprime dos roles distintos, errata del diario que se deja para revisión). Código y pruebas listos el 2026-10-15. Falta el commit
-⬜ Motor parte 3. Extracción con citas. Primero código, IA solo donde el código no alcance. Decisión de Diego (2026-10-15). Comparar DeepSeek V4-Flash contra el Haiku más moderno con el banco nivel 2, elegir por exactitud y calcular el costo mensual de cada uno con precios vigentes
+✅ Respaldo en GitHub privado DFNR2026/AgendarRemates
+✅ Base de datos diseñada y probada (falta aplicar los cambios de la parte 3.5)
+✅ Motor parte 1, navegación
+✅ Motor parte 2, rollo único y corte por aviso (commits 0ebf8f5 a 084a577, push hecho por Diego)
+🔄 Motor parte 3, extracción con citas
+   ✅ 3.1 Formato del banco nivel 2
+   ✅ 3.2 Banco nivel 2 anotado (61 remates del 14 de Octubre)
+   ✅ 3.3 pruebas\test_banco_nivel2.py (431 citas, fechas, montos, vale vista recalculado)
+   ✅ 3.4 Revisión de Diego (17 avisos sin errores de lectura, se dio por cerrada)
+   ✅ 3.4b Cortador arreglado. Separa los avisos de JUEZ PARTIDOR y TERCER LLAMADO que iban pegados. Corrigió 5 de 7 fechas, dos de ellas contaminaban avisos de juzgados reales
+   ⬜ Commit de lo de la tarde del 15 (prompt entregado a Claude Code)
+   ⬜ 3.5 Cambios a la base de datos
+   ⬜ 3.6 Código que saca lo de formato fijo, medido contra el banco nivel 2
+   ⬜ 3.7 DeepSeek V4-Flash contra el Haiku más moderno, solo donde el código no alcance, con precios vigentes
 ⬜ Motor parte 4. Cuadre de cuentas
-⬜ Banco de pruebas nivel 2 (fechas, modalidad, vale vista, montos)
-⬜ Interfaz con buscador y calendario
+⬜ Interfaz con buscador, calendario, alertas y link a la página
 ⬜ Traspaso del motor al Mercurio
 ⬜ (Futuro) Google Calendar o celular
 
 ## Cómo se corre
 
-En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, playwright 1.60). Credenciales en config.py (fuera de git). Leer una edición. .venv\Scripts\python -m motor.lector_mercurio --fecha AAAA-MM-DD. Pruebas sin internet. .venv\Scripts\python -m pruebas.test_navegacion_logica y .venv\Scripts\python -m pruebas.test_cortador (ambas deben terminar en TODO OK).
+En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, playwright 1.60). Credenciales en config.py (fuera de git). Leer una edición. .venv\Scripts\python -m motor.lector_mercurio --fecha AAAA-MM-DD. Pruebas sin internet. .venv\Scripts\python -m pruebas.test_navegacion_logica, .venv\Scripts\python -m pruebas.test_cortador y .venv\Scripts\python -m pruebas.test_banco_nivel2 (las tres deben terminar en TODO OK).
 
 ## Próximo paso (al abrir un chat nuevo)
 
-1. Confirmar con git log que existen los commits de la parte 2 (prompt de commit entregado el 2026-10-15, reporte en REPORTE_COMMIT_PARTE2_2026-10-15.md). El push solo con "apruebo push" de Diego.
-2. Correr las dos pruebas y verificar TODO OK antes de tocar nada.
-3. Partir la parte 3 por el banco nivel 2. Tomar los 59 avisos del 2026-10-14 y anotar a mano, con la frase exacta del aviso como respaldo, la fecha y hora del remate, la modalidad (Zoom, presencial o mixta), la regla del vale vista (fecha exacta o rango, tal como la dice el aviso), el monto mínimo y la garantía. Sin ese inventario no se puede medir a ninguna IA.
-4. Después, el código saca lo de formato fijo y se mide contra el banco nivel 2. Recién entonces se compara DeepSeek V4-Flash contra el Haiku más moderno en lo que el código no alcance, con precios vigentes buscados en la web.
-5. Riesgo anotado para la parte 4. Un aviso sin rol puede quedar pegado a otro sin alerta (visto el 2026-10-11). El cuadre de cuentas debe contar las fechas de remate por aviso y marcar los que traigan más de una.
+1. Confirmar con git log que existe el commit de la tarde del 15 (reporte en REPORTE_COMMIT_PARTE3A_2026-10-15.md). El push solo con "apruebo push" de Diego.
+2. Correr las tres pruebas y verificar TODO OK antes de tocar nada.
+3. Parte 3.5, base de datos. Proponer a Diego el diseño de los seis cambios de la sección "Base de datos" antes de escribir código. Primero el diseño, después el código, después la prueba (crear la base dos veces sin errores y cargar los 61 remates del banco nivel 2).
+4. Después, parte 3.6. El código saca lo de formato fijo y se mide contra el banco nivel 2.
+5. Riesgo anotado para la parte 4. Contar fechas de remate por aviso y marcar los que traigan más de una (red de seguridad para avisos pegados que el cortador no vea).
+6. Pendiente menor. Algunos avisos terminan con "EXTRACTO DE", que es el comienzo del título del aviso siguiente. No cambia datos.
 
 Nota. "qué usa IA.png" es un pantallazo de Diego para recordar dónde se usa IA en el proyecto. Es de referencia personal y no va a git.
 
 ## Forma de trabajo con Diego
 
 Español latinoamericano neutro, sin voseo. Sin dos puntos ni punto y coma al redactar.
+Los meses JAMÁS se escriben en número (Noviembre o Nov., nunca 11). Vale para el chat, las planillas, los informes y la interfaz del programa. Pedido de Diego del 2026-10-15.
 Ir paso a paso, con el mapa "Dónde estamos" al cerrar hitos.
 Separar lo verificado de lo supuesto y dar un porcentaje de confianza cuando sea menor a 90%. Ningún arreglo sin causa raíz con evidencia.
 Diego no ejecuta comandos. El código lo hace Claude o Cline (prompts en un solo bloque, y Cline siempre deja un reporte .md al final).
