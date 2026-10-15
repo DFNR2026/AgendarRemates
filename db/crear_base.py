@@ -7,10 +7,20 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent
 BASE = RAIZ.parent / "agendar_remates.db"
 
+VERSION_ESQUEMA = "2"
+
 def crear(ruta_base=BASE):
     con = sqlite3.connect(ruta_base)
+    con.execute("PRAGMA foreign_keys = ON")
+    # Una base de otra versión no se toca. El esquema usa CREATE TABLE IF NOT EXISTS y dejaría tablas viejas a medias.
+    hay_meta = con.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='meta'").fetchone()
+    if hay_meta:
+        fila = con.execute("SELECT valor FROM meta WHERE clave='version_esquema'").fetchone()
+        if fila and fila[0] != VERSION_ESQUEMA:
+            con.close()
+            raise SystemExit(f"La base {ruta_base} es de la versión {fila[0]} del esquema y este programa usa la {VERSION_ESQUEMA}. No se tocó nada.")
     con.executescript((RAIZ / "esquema.sql").read_text(encoding="utf-8"))
-    con.execute("INSERT OR REPLACE INTO meta(clave, valor) VALUES ('version_esquema', '1')")
+    con.execute("INSERT OR REPLACE INTO meta(clave, valor) VALUES ('version_esquema', ?)", (VERSION_ESQUEMA,))
     for csv_feriados in sorted(RAIZ.glob("feriados_*.csv")):
         with open(csv_feriados, encoding="utf-8", newline="") as f:
             for fila in csv.DictReader(f):
