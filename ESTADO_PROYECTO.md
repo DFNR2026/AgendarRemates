@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 2026-10-14. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 2026-10-14 (cierre de sesión). Bitácora de la sesión en BITACORA_2026-10-14.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -18,8 +18,14 @@ Interfaz en HTML servida por un programa local en Python con base SQLite.
 La regla del vale vista se interpreta desde el texto de cada aviso, nunca se asume por la costumbre del tribunal. La historia del tribunal solo sirve como alarma cuando un aviso dice algo distinto.
 Republicaciones. Se guarda cada publicación y se avisa si cambian las bases entre una y otra.
 Sincronizar con Google Calendar o el celular queda para una etapa futura.
+Agenda sin estado "descartado". Si Diego no irá a un remate, lo quita del calendario con un botón X. A Diego le indican a qué remate ir, por eso ningún aviso se elimina por filtros. Los que no pasan quedan visibles como "fuera de filtro".
+Feriados de Chile cargados desde fuente oficial y aviso en diciembre si falta el año siguiente.
 La lectura debe ser perfecta por diseño. La IA nunca tiene la última palabra. Lo de formato fijo (rol, montos, fechas) lo lee el código. Lo de texto libre lo interpreta la IA citando la frase exacta, y el código verifica que la frase exista. Lo que no se pueda verificar se marca en rojo.
 No se parcha el Mercurio del abogado ahora. El motor de lectura se construye aquí, se prueba con el banco de pruebas y después se traspasa al Mercurio de una sola vez.
+
+## Base de datos
+
+Ver db\LEEME_BASE_DATOS.md. Siete cajones. Ediciones, Páginas, Avisos, Citas, Causas con sus cambios, Mi agenda y Feriados.
 
 ## Evidencia reunida (leer antes de diseñar o cambiar la lectura)
 
@@ -33,7 +39,7 @@ Revisar todos los cuerpos del día y tomar toda página con la cornisa "1616 Rem
 Las flechas "MÁS AVISOS ECONÓMICOS CLASIFICADOS EN PÁG./PÁGINA X N" y "VIENEN DE PÁGINA X N" sirven para ordenar y confirmar costuras. Hay flechas de otras secciones (defunciones) que se ignoran.
 Si dos cuerpos repiten avisos (B y G los viernes), se unen sin duplicar.
 Alarma si una flecha apunta a una página sin cornisa o si una página con cornisa no se conecta con nada.
-Lectura de cada página con el visor del propio diario (PDFViewerApplication del visor, texto de la página), unos 2 segundos por página.
+Lectura de cada página con el visor del propio diario (PDFViewerApplication del visor, texto de la página), unos 2 segundos por página. OBLIGATORIO activar el modo HD del visor al inicio de cada sesión. Sin HD el visor muestra imágenes y no hay texto. El texto se arma uniendo los renglones con salto de línea (forma "salto"), única forma que reproduce exacto el texto del banco.
 
 ## Diseño de lectura (prototipo probado sobre el banco)
 
@@ -46,13 +52,21 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
 ✅ Banco de pruebas nivel 1 (153 avisos)
 ✅ Prototipo de rollo único y corte por aviso
 ✅ Reconocimiento de 36 ediciones y reglas de navegación
-⬜ Respaldo del proyecto (repositorio git privado)
-⬜ Diseñar la base de datos
-⬜ Motor de lectura nuevo (navegación, rollo, corte, extracción con citas, cuadre de cuentas)
+✅ Respaldo en GitHub privado DFNR2026/AgendarRemates (commit 7f68909, huellas verificadas en clon)
+✅ Proyecto propio en Claude
+✅ Base de datos diseñada y probada (db\esquema.sql, ver db\LEEME_BASE_DATOS.md)
+✅ Motor parte 1, navegación (motor\navegacion_logica.py y motor\lector_mercurio.py). 15 pruebas sin internet y 7 fechas en vivo con 0 alarmas, huellas idénticas al banco
+⬜ Motor parte 2. Rollo único y corte por aviso
+⬜ Motor parte 3. Extracción con citas
+⬜ Motor parte 4. Cuadre de cuentas
 ⬜ Banco de pruebas nivel 2 (fechas, modalidad, vale vista, montos)
 ⬜ Interfaz con buscador y calendario
 ⬜ Traspaso del motor al Mercurio
 ⬜ (Futuro) Google Calendar o celular
+
+## Cómo se corre
+
+En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, playwright 1.60). Credenciales en config.py (fuera de git). Leer una edición. .venv\Scripts\python -m motor.lector_mercurio --fecha AAAA-MM-DD. Pruebas sin internet. .venv\Scripts\python -m pruebas.test_navegacion_logica
 
 ## Forma de trabajo con Diego
 
