@@ -399,17 +399,27 @@
   },
   {
    "n": 57,
+   "rol": null,
+   "tribunal": "Juez partidor Benjamín Uriarte Molina",
+   "pagina": "C8",
+   "nota": "remate en Villarrica, sin rol. AGREGADO el 2026-10-15. El inventario original lo había dejado pegado al aviso de Cobranza de Concepción. Lo detectó el cortador y se confirmó leyendo el texto"
+  },
+  {
+   "n": 58,
    "rol": "1962-2023",
    "tribunal": "Juzgado de Letras de Colina",
    "pagina": "C8",
    "nota": ""
   },
   {
-   "n": 58,
+   "n": 59,
    "rol": "3908-2025",
    "tribunal": "Juzgado de Cobranza Laboral y Previsional de Santiago",
    "pagina": "C8",
    "nota": "es un RIT, no un Rol"
   }
+ ],
+ "correcciones": [
+  "2026-10-15. Se agrega el aviso 59 (juez partidor Benjamín Uriarte Molina, Villarrica, sin rol). Antes el inventario tenía 58 avisos. El error fue del inventario manual, no del programa."
  ]
 }

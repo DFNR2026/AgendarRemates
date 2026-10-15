@@ -6,7 +6,7 @@ Creado el 2026-10-14. Sirve para medir el motor de lectura nuevo contra respuest
 
 Carpeta 2026-08-06. Seis trozos de texto de las páginas B 011, 012 y 013, copiados desde D:\Mercurio\payloads_diag_v2. Cada página se reconstruye uniendo el trozo .0 con el trozo .1 sin sus primeros 2.000 caracteres (el solape se comprobó idéntico en las tres páginas). Incluye inventario_correcto_2026-08-06.json con 95 avisos.
 
-Carpeta 2026-10-14. Texto completo de las páginas B 11 y C 8, descargado desde el visor en Chrome. Las huellas SHA-256 de HUELLAS_ESPERADAS.txt se comprobaron contra los archivos. Incluye inventario_correcto_2026-10-14.json con 58 avisos.
+Carpeta 2026-10-14. Texto completo de las páginas B 11 y C 8, descargado desde el visor en Chrome. Las huellas SHA-256 de HUELLAS_ESPERADAS.txt se comprobaron contra los archivos. Incluye inventario_correcto_2026-10-14.json con 58 avisos. CORRECCIÓN 2026-10-15. Son 59 avisos. El inventario manual había dejado pegado un remate de juez partidor en Villarrica (sin rol) al aviso de Cobranza de Concepción. Lo detectó el cortador y se confirmó leyendo el texto. Queda anotado dentro del json.
 
 Reporte_2026-08-06.xlsx y Reporte_2026-10-14.xlsx son los Excel que entregó el programa viejo esos días, para comparar.
 
@@ -31,3 +31,9 @@ Roles sin guion (C-39902025), sin la palabra Rol (expediente C-5915-2025), con p
 Avisos sin rol impreso (Iturra Saldías, partidores) y RIT de juzgados laborales.
 Avisos que empiezan sin la palabra REMATE, con el tribunal en palabras (VIGÉSIMO SEXTO, TRIGÉSIMO, DÉCIMO QUINTO (15°)) o pegados al final del aviso anterior (SecretarioREMATE).
 Avisos de hasta 7.900 caracteres.
+
+## Posiciones impresas (agregado el 2026-10-15)
+
+2026-10-14. mercurio_2026-10-14_B11.geo.json y mercurio_2026-10-14_C8.geo.json. Posición de cada trozo de texto en la página, capturada el 2026-10-15. Los .txt de esa recaptura tienen la misma huella SHA-256 que los del banco, así que las posiciones corresponden exactamente a estos textos.
+2026-10-11. F9 y F15 (texto y posiciones). No tienen inventario manual. Se usan como casos de prueba del orden por posición: en F9 el visor entrega las columnas en orden 1, 2, 4, 5, 6, 7, 3, y al pie de F15 hay una franja "1300 EMPLEOS" que cruza las columnas.
+2026-10-09. B11 (texto y posiciones). Sin inventario manual. Caso de prueba del corte: "entregado materialmente en la secretaría del tribunal" no es un cierre de aviso, y el aviso siguiente empieza en "POR RESOLUCIÓN DEL 1° JUZGADO".
