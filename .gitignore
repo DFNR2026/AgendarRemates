@@ -1,7 +1,11 @@
-config.py
+*.db
+*.db-journal
+*.log
+*.pyc
+.env
 .venv/
 __pycache__/
-*.pyc
+capturas/
+config.py
 logs/
-*.log
-.env
+perfil_navegador/
