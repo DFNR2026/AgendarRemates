@@ -65,7 +65,10 @@ async ([rutas, paralelo, union, timeout]) => {
           // union 'salto' = renglones unidos por salto de línea, igual que el texto del visor (verificado contra el banco el 2026-10-14)
           const txt = union === 'salto' ? tc.items.map(it => it.str).join('\n')
                     : tc.items.map(it => it.str + (it.hasEOL ? '\n' : union)).join('');
-          f.remove(); return res({ ruta, ok: true, txt, items: tc.items.length });
+          // Posición de cada renglón en la página (x, y, ancho, alto). Sirve para ordenar columnas por cómo están impresas.
+          const geo = tc.items.map(it => [it.str, +it.transform[4].toFixed(1), +it.transform[5].toFixed(1), +(it.width || 0).toFixed(1), +(it.height || 0).toFixed(1)]);
+          const vista = pg.getViewport({ scale: 1 });
+          f.remove(); return res({ ruta, ok: true, txt, items: tc.items.length, geo, ancho: vista.width, alto: vista.height });
         } catch (e) { f.remove(); return res({ ruta, ok: false, err: String(e) }); }
       }
       if (Date.now() - t0 > timeout) { f.remove(); return res({ ruta, ok: false, err: 'tiempo agotado' }); }
@@ -193,7 +196,9 @@ async def leer_edicion(fecha: date, visible: bool = False, union: str = "salto",
                 if not r["ok"]:
                     alarmas.append(f"No se pudo leer {s}{num} ({pid}). {r.get('err')}")
                     continue
-                paginas.append(analizar_pagina(Pagina(s, num, pid, r["txt"])))
+                pg = analizar_pagina(Pagina(s, num, pid, r["txt"]))
+                pg.geo = {"ancho": r.get("ancho"), "alto": r.get("alto"), "items": r.get("geo")}
+                paginas.append(pg)
         await ctx.close()
 
     avance(f"Navegador cerrado. {len(paginas)} páginas leídas. Ordenando")
@@ -205,6 +210,7 @@ async def leer_edicion(fecha: date, visible: bool = False, union: str = "salto",
         if p.cornisas or p.salidas or p.entradas:
             nombre = f"{p.cuerpo}{p.numero:02d}_{p.id_pagina}.txt"
             (carpeta / nombre).write_text(p.texto, encoding="utf-8", newline="")
+            (carpeta / nombre.replace(".txt", ".geo.json")).write_text(json.dumps(getattr(p, "geo", None), ensure_ascii=False), encoding="utf-8")
             resumen_paginas.append({"pagina": p.nombre, "id": p.id_pagina, "archivo": nombre,
                                     "cornisas": p.cornisas, "salidas": p.salidas, "entradas": p.entradas,
                                     "caracteres": len(p.texto),
