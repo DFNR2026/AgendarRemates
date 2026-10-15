@@ -6,7 +6,7 @@ Creado el 2026-10-14. Sirve para medir el motor de lectura nuevo contra respuest
 
 Carpeta 2026-08-06. Seis trozos de texto de las páginas B 011, 012 y 013, copiados desde D:\Mercurio\payloads_diag_v2. Cada página se reconstruye uniendo el trozo .0 con el trozo .1 sin sus primeros 2.000 caracteres (el solape se comprobó idéntico en las tres páginas). Incluye inventario_correcto_2026-08-06.json con 95 avisos.
 
-Carpeta 2026-10-14. Texto completo de las páginas B 11 y C 8, descargado desde el visor en Chrome. Las huellas SHA-256 de HUELLAS_ESPERADAS.txt se comprobaron contra los archivos. Incluye inventario_correcto_2026-10-14.json con 58 avisos. CORRECCIÓN 2026-10-15. Son 59 avisos. El inventario manual había dejado pegado un remate de juez partidor en Villarrica (sin rol) al aviso de Cobranza de Concepción. Lo detectó el cortador y se confirmó leyendo el texto. Queda anotado dentro del json.
+Carpeta 2026-10-14. Texto completo de las páginas B 11 y C 8, descargado desde el visor en Chrome. Las huellas SHA-256 de HUELLAS_ESPERADAS.txt se comprobaron contra los archivos. Incluye inventario_correcto_2026-10-14.json con 58 avisos. CORRECCIÓN 2026-10-15. Son 59 avisos. El inventario manual había dejado pegado un remate de juez partidor en Villarrica (sin rol) al aviso de Cobranza de Concepción. Lo detectó el cortador y se confirmó leyendo el texto. Queda anotado dentro del json. SEGUNDA CORRECCIÓN 2026-10-15 (tarde). Son 61 avisos. Dos remates de juez partidor (Díaz Loayza en Calera de Tango y Lescot en Maipú) iban pegados al aviso anterior, en el inventario manual y en el cortador. Diego confirmó en el diario que están impresos aparte.
 
 Reporte_2026-08-06.xlsx y Reporte_2026-10-14.xlsx son los Excel que entregó el programa viejo esos días, para comparar.
 
@@ -37,3 +37,11 @@ Avisos de hasta 7.900 caracteres.
 2026-10-14. mercurio_2026-10-14_B11.geo.json y mercurio_2026-10-14_C8.geo.json. Posición de cada trozo de texto en la página, capturada el 2026-10-15. Los .txt de esa recaptura tienen la misma huella SHA-256 que los del banco, así que las posiciones corresponden exactamente a estos textos.
 2026-10-11. F9 y F15 (texto y posiciones). No tienen inventario manual. Se usan como casos de prueba del orden por posición: en F9 el visor entrega las columnas en orden 1, 2, 4, 5, 6, 7, 3, y al pie de F15 hay una franja "1300 EMPLEOS" que cruza las columnas.
 2026-10-09. B11 (texto y posiciones). Sin inventario manual. Caso de prueba del corte: "entregado materialmente en la secretaría del tribunal" no es un cierre de aviso, y el aviso siguiente empieza en "POR RESOLUCIÓN DEL 1° JUZGADO".
+
+## Nivel 2 (agregado el 2026-10-15)
+
+2026-10-14\banco_nivel2_2026-10-14.json. Los 61 remates del 14 de Octubre con fecha y hora del remate, modalidad, regla y fechas del vale vista, mínimo, garantía y dirección del inmueble. Cada dato lleva la frase exacta del diario (cita). El número n de cada remate es su número de aviso en el cortador. Las reglas usadas (día hábil, horas de reloj, desde estimado) están escritas dentro del archivo.
+Lo anotó Claude. Diego revisó a mano 17 avisos sin encontrar errores de lectura, y sus comentarios quedan en el campo revision_diego. Los montos y porcentajes se comprobaron por código contra su cita.
+Se comprueba con python -m pruebas.test_banco_nivel2 (citas presentes en el texto, fechas válidas, modalidades, vale vista recalculado desde la regla).
+REVISION_DIEGO_nivel2_2026-10-14_v2.xlsx es la planilla con la que Diego revisó. La versión 1 quedó reemplazada y no va a git.
+Lo que el banco enseñó. La mayoría de lo marcado "revisar" son fallas de redacción del aviso, no de lectura. Hay avisos con varios remates, garantías del 20% o sobre la tasación, cauciones sin vale vista, vale vista seis días antes o en el mismo remate, y roles mal impresos.

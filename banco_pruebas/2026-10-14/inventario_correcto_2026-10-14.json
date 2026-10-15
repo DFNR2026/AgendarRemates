@@ -402,17 +402,31 @@
    "rol": null,
    "tribunal": "Juez partidor Benjamín Uriarte Molina",
    "pagina": "C8",
-   "nota": "remate en Villarrica, sin rol. AGREGADO el 2026-10-15. El inventario original lo había dejado pegado al aviso de Cobranza de Concepción. Lo detectó el cortador y se confirmó leyendo el texto"
+   "nota": "remate en Villarrica, sin rol. AGREGADO el 2026-10-15. El inventario original lo había dejado pegado al aviso de Cobranza de Concepción. Lo detectó el cortador y se confirmó leyendo el texto. Empieza al pie de una columna de C8 y sigue arriba en la columna siguiente de la misma página (capturas de Diego del 2026-10-15, y el cortador lo ubica solo en C8)"
   },
   {
    "n": 58,
+   "rol": null,
+   "tribunal": "Juez partidor Alex Díaz Loayza",
+   "pagina": "C8",
+   "nota": "TERCER LLAMADO, partición Distribuidora de Combustibles Chena con Galleguillos, parcela en Calera de Tango, sin rol. AGREGADO el 2026-10-15. Iba pegado al aviso de Villarrica. Diego confirmó en el diario que está impreso aparte, con línea divisoria y título propio"
+  },
+  {
+   "n": 59,
    "rol": "1962-2023",
    "tribunal": "Juzgado de Letras de Colina",
    "pagina": "C8",
    "nota": ""
   },
   {
-   "n": 59,
+   "n": 60,
+   "rol": null,
+   "tribunal": "Juez partidor Cristián Lescot Jerez",
+   "pagina": "C8",
+   "nota": "departamento en Maipú, remate vía vendaya.cl y presencial, sin rol. AGREGADO el 2026-10-15. Iba pegado al aviso de Colina"
+  },
+  {
+   "n": 61,
    "rol": "3908-2025",
    "tribunal": "Juzgado de Cobranza Laboral y Previsional de Santiago",
    "pagina": "C8",
@@ -420,6 +434,7 @@
   }
  ],
  "correcciones": [
-  "2026-10-15. Se agrega el aviso 59 (juez partidor Benjamín Uriarte Molina, Villarrica, sin rol). Antes el inventario tenía 58 avisos. El error fue del inventario manual, no del programa."
+  "2026-10-15. Se agrega el aviso 59 (juez partidor Benjamín Uriarte Molina, Villarrica, sin rol). Antes el inventario tenía 58 avisos. El error fue del inventario manual, no del programa.",
+  "2026-10-15 (tarde). Son 61 avisos, no 59. Se agregan el n 58 (juez partidor Alex Díaz Loayza, Calera de Tango) y el n 60 (juez partidor Cristián Lescot Jerez, Maipú). Ambos iban pegados al aviso anterior, tanto en el inventario manual como en el cortador. Diego confirmó en el diario que están impresos aparte. Colina pasa de n 58 a n 59 y Cobranza de Santiago de n 59 a n 61. En banco_nivel2 siguen como 57a, 57b, 58a y 58b hasta que se arregle el cortador."
  ]
 }
