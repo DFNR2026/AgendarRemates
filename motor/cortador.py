@@ -84,6 +84,8 @@ INICIO = re.compile(
     r"|EXTRACTO\s+(?:PARTICI|NOTIFICACI)"
     r"|ANTE\s+JUEZ"
     r"|(?:[A-ZÁÉÍÓÚÑ]+\s+){1,4}REMATA\b"                                  # COMUNA PROVIDENCIA REMATA (partidor sin rol, visto el 2026-10-11)
+    r"|JUEZ\s+PARTIDOR\b"                                                  # JUEZ PARTIDOR, CRISTIÁN LESCOT Jerez, rematará (sin rol, visto el 2026-10-14)
+    r"|(?:PRIMER|SEGUNDO|TERCER)\s+LLAMADO\b"                              # TERCER LLAMADO - AVISO DE REmate (sin rol, visto el 2026-10-14)
     r")")
 CIERRE = re.compile(r"(?:(?:El|La)\s+)?Secretar[ií]\w*(?:\s*\(\w+\))?(?:\s*/\s*a)?\.?|Actuario[^.]{0,60}\.|Ministro de Fe\.?", re.I)
 

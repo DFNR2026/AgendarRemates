@@ -72,14 +72,16 @@ if len(avisos) != 19 or dudosos != [1]:
 # F15 del 2026-10-11. Al pie hay una franja "1300 EMPLEOS" que cruza las columnas. No debe mezclarse con los remates.
 # Además trae tres avisos que antes salían pegados en un solo trozo (corregido el 2026-10-15):
 # Temuco (RIT C-357-2024, sin cierre) | JUZGADO DE LETRAS DE COLINA (Rol C-10387-2019) | COMUNA PROVIDENCIA REMATA (partidor, sin rol).
+# Desde el 2026-10-15 (tarde) son 13 y no 12. El partidor "JUEZ PARTIDOR SEBASTIÁN SANchez Lopez" iba pegado al de Paulina Urzua Davis.
 rollo, avisos = _cortar_sola("F15")
 intrusos = [w for w in ("Profesionales se necesitan", "MUNDO LABORAL", "EMPLEOS") if w in rollo]
 dudosos = [a.orden for a in avisos if a.revisar or len(a.roles) > 1]
 separados = (any(a.rol == "357" and len(a.roles) == 1 for a in avisos)
              and any(a.rol == "10387" and a.texto.startswith("JUZGADO DE LETRAS DE COLINA") and "REMATA" not in a.texto for a in avisos)
-             and any(a.texto.startswith("COMUNA PROVIDENCIA REMATA") for a in avisos))
-print(f"\n=== 2026-10-11 F15 sola (orden por posición) ===\nAvisos {len(avisos)} (esperados 12) | empleos dentro del rollo {intrusos} (esperado []) | dudosos {dudosos} (esperado []) | Temuco, Colina y partidor separados {separados}")
-if len(avisos) != 12 or intrusos or dudosos or not separados:
+             and any(a.texto.startswith("COMUNA PROVIDENCIA REMATA") for a in avisos)
+             and any(a.texto.startswith("JUEZ PARTIDOR SEBASTIÁN") for a in avisos))
+print(f"\n=== 2026-10-11 F15 sola (orden por posición) ===\nAvisos {len(avisos)} (esperados 13) | empleos dentro del rollo {intrusos} (esperado []) | dudosos {dudosos} (esperado []) | Temuco, Colina y partidor separados {separados}")
+if len(avisos) != 13 or intrusos or dudosos or not separados:
     fallas += 1
 
 # B11 del 2026-10-09. "entregado materialmente en la secretaría del tribunal" no es un cierre: el aviso del rol 1911-2020
