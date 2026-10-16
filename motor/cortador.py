@@ -33,10 +33,25 @@ def recortar_pagina(texto: str, es_ultima: bool) -> str:
     return t
 
 
+def _guion_fin_de_renglon(m):
+    """Guion al final de un renglón (2026-10-16). Medido en las 7 ediciones (14.765 casos).
+    Letra + minúscula ("Condo-" "minio", "SAN-" "tiago") es palabra cortada. Se une sin guion.
+    MAYÚSCULA + MAYÚSCULA se une como antes (solo 2 casos, el "Rol N° C-" "C-936-2026" que el diario imprime mal).
+    Todo lo demás es un guion real y se deja. Antes se borraba y fabricaba roles "mal impresos" que el diario no imprimió
+    ("Rol: C-2462-" "2022" quedaba "C-24622022", "Rol C-" "2461-2022" quedaba "C2461-2022").
+    Después de un punto o de un espacio queda el guion y un espacio ("$ 54.327.614.-" "precio" queda "614.- precio")."""
+    a, b = m.group(1), m.group(2)
+    if a.isalpha() and (b.islower() or (a.isupper() and b.isupper())):
+        return a
+    if a == "." or a.isspace():
+        return a + "- "
+    return a + "-"
+
+
 def limpiar(texto: str) -> str:
     t = CORNISA_LINEAS.sub("", texto)
     t = FLECHAS.sub("\n", t)   # salto, no espacio: así la palabra cortada por guion antes de la flecha se une
-    t = re.sub(r"-\s*\n\s*(?=\S)", "", t)    # palabra cortada por guion al final de renglón (si queda al final de la página, se une en construir_rollo)
+    t = re.sub(r"([\s\S])-\s*\n\s*(?=(\S))", _guion_fin_de_renglon, t)   # guion al final de renglón (si queda al final de la página, se une en construir_rollo)
     return re.sub(r"\s+", " ", t).strip()
 
 

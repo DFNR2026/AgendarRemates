@@ -131,5 +131,26 @@ print(f"\n=== 2026-10-13 (B8 a B10) ===\nAvisos {len(avisos)} (esperados 67) | d
 if len(avisos) != 67 or dudosos or not ok13:
     fallas += 1
 
+# Guion al final de renglón (2026-10-16). Solo se une sin guion la palabra cortada (letra + minúscula). El guion real se deja.
+# Casos reales verificados en el texto crudo. Antes salían "C-24622022", "C2461-2022" (alertas falsas de rol) y "614.precio".
+rollo14, m14 = construir_rollo([(n, leer_pagina(B / f"2026-10-14/mercurio_2026-10-14_{n}.txt")) for n in ("B11", "C8")])
+p14 = {a.orden: a for a in cortar(rollo14, m14)}
+rollo06, m06 = construir_rollo([(n, leer_pagina(B / f"2026-10-06/mercurio_2026-10-06_{n}.txt")) for n in ("B7", "B8", "B9", "B10")])
+p06 = {a.orden: a for a in cortar(rollo06, m06)}
+gui = {
+    "14-10 aviso 6 Rol: C-2462-2022": p14[6].rol_impreso == "Rol: C-2462-2022",
+    "14-10 aviso 45 rol C-18207-2017": p14[45].rol_impreso == "rol C-18207-2017",
+    "14-10 aviso 48 Rol N° C-28690-2019": p14[48].rol_impreso == "Rol N° C-28690-2019",
+    "14-10 aviso 17 sigue CC-936-2026 (errata real)": p14[17].rol_impreso == "Rol N° CC-936-2026",
+    "06-10 aviso 2 Rol C-2461-2022": p06[2].rol_impreso == "Rol C-2461-2022",
+    "06-10 monto 614.- precio": "$54.327.614.- precio" in rollo06 and "614.precio" not in rollo06,
+    "Santander-Chile con guion": "Santander-Chile" in rollo06 and "SantanderChile" not in rollo06,
+    "SAN-tiago unido": "SAN- tiago" not in rollo14 + rollo06 and "SAN-tiago" not in rollo14 + rollo06,
+    "Condo-minio unido": "Condo- minio" not in rollo06 and "Condominio" in rollo06,
+}
+print(f"\n=== Guion al final de renglón ===\n{gui}")
+if not all(gui.values()):
+    fallas += 1
+
 print("\nRESULTADO.", "TODO OK" if not fallas else f"{fallas} ediciones con diferencias")
 sys.exit(1 if fallas else 0)
