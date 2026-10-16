@@ -78,12 +78,15 @@ ORDINAL = rf"(?:\d{{1,2}}\s*(?:°|º|er|ER|o)?|(?:{_ORD_PAL})(?:\s+(?:{_ORD_PAL}
 INICIO = re.compile(
     r"(?:EXTRACTO\s+|AVISO\s+)?REMATE\b"                                   # REMATE en mayúsculas, aunque venga pegado (SecretarioREMATE)
     r"|EXTRACTO\.?\s+JUZGADO\b"                                             # EXTRACTO. JUZGADO COBRANZA (visto el 06-08, pegado a un correo)
+    r"|(?<=[a-záéíóúñ] )\d{1,2}\s*[°º]\s+JUZGADO\s+CIVIL\b(?=.{0,120}?\b(?:[Rr]ematar[áa]|[Rr]emata|[Ss]ubastar[áa])\b)"
+                                                                            # "pagarse al contado 15° JUZGADO CIVIL SANTIAGO. ... Rematará" sin punto antes (visto el 2026-10-06)
     r"|(?:(?<=\. )|(?<=\.’ )|(?<=\.” )|(?<=\.\) )|^)(?:"                    # o un encabezado de tribunal al comenzar una oración
     rf"(?:ANTE\s+(?:EL\s+)?)?{ORDINAL}\s+(?:JUZGADO|TRIBUNAL|JUZ)"
     r"|JUZGADO\s+(?:DE\s+)?(?:COBRANZA|LETRAS|FAMILIA)"
     r"|EXTRACTO\s+(?:PARTICI|NOTIFICACI)"
-    r"|ANTE\s+JUEZ"
+    r"|(?:EXTRACTO\.?\s+)?ANTE\s+(?:(?:EL|LA)\s+)?(?:SEÑORA?\s+)?JUEZ"          # EXTRACTO. ANTE EL SEÑOR JUEZ Árbitro (pegado al 30° Civil, visto el 2026-10-06)
     r"|(?:[A-ZÁÉÍÓÚÑ]+\s+){1,4}REMATA\b"                                  # COMUNA PROVIDENCIA REMATA (partidor sin rol, visto el 2026-10-11)
+    r"|JUEZA?\s+[ÁA]RBITR[OA]\b"                                          # JUEZ ÁRBITRO ARTURO GÓMEZ Tomás (pegado a Cobranza, visto el 2026-10-06)
     r"|JUEZ\s+PARTIDOR\b"                                                  # JUEZ PARTIDOR, CRISTIÁN LESCOT Jerez, rematará (sin rol, visto el 2026-10-14)
     r"|(?:PRIMER|SEGUNDO|TERCER)\s+LLAMADO\b"                              # TERCER LLAMADO - AVISO DE REmate (sin rol, visto el 2026-10-14)
     r")")

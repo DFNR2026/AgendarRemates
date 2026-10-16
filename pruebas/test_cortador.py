@@ -98,5 +98,38 @@ print(f"\n=== 2026-10-09 B11 sola (orden por posición) ===\nAvisos {len(avisos)
 if len(avisos) != 43 or dudosos != [10, 43] or not (ok_1911 and ok_5598):
     fallas += 1
 
+# 2026-10-06 completo (B7 a B10). Parte 3.6b. Tres avisos iban pegados a otro.
+# 55. "pagarse al contado 15° JUZGADO CIVIL SANTIAGO. ... Rematará" (sin punto antes). Rancagua sin rol | Linares rol C-2991-2024.
+# 102. 30° Civil (rol C-9481-2023) | "EXTRACTO. ANTE EL SEÑOR JUEZ Árbitro Juan Pablo Gracia Domic".
+# 106. Juzgado de Cobranza | "JUEZ ÁRBITRO ARTURO GÓMEZ Tomás". La edición pasa de 107 a 110 avisos.
+def _rollo(fecha, nombres):
+    return construir_rollo([(n, leer_pagina(B / f"{fecha}/mercurio_{fecha}_{n}.txt")) for n in nombres])
+
+rollo, marcas = _rollo("2026-10-06", ("B7", "B8", "B9", "B10"))
+avisos = cortar(rollo, marcas)
+por = {a.orden: a for a in avisos}
+c06 = {
+    "15° Civil Rancagua sin rol": por[55].rol is None and por[55].texto.endswith("deberá pagarse al contado"),
+    "15° Civil Linares": por[56].rol == "2991" and por[56].texto.startswith("15° JUZGADO CIVIL SANTIAGO"),
+    "30° Civil solo": por[103].rol == "9481" and "Árbitro" not in por[103].texto,
+    "Gracia Domic aparte": por[104].texto.startswith("EXTRACTO. ANTE EL SEÑOR JUEZ Árbitro Juan Pablo Gracia Domic"),
+    "Cobranza sola": por[108].texto.startswith("EXTRACTO. JUZGADO COBRANZA") and "GÓMEZ" not in por[108].texto,
+    "Gómez aparte": por[109].texto.startswith("JUEZ ÁRBITRO ARTURO GÓMEZ"),
+}
+dudosos = [a.orden for a in avisos if a.revisar or len(a.roles) > 1]
+print(f"\n=== 2026-10-06 (B7 a B10) ===\nAvisos {len(avisos)} (esperados 110) | dudosos {dudosos} (esperado []) | {c06}")
+if len(avisos) != 110 or dudosos or not all(c06.values()):
+    fallas += 1
+
+# 2026-10-13 completo (B8 a B10). El aviso de Gracia Domic iba pegado al 30° Civil (rol C-3014-2021). Pasa de 66 a 67 avisos.
+rollo, marcas = _rollo("2026-10-13", ("B8", "B9", "B10"))
+avisos = cortar(rollo, marcas)
+ok13 = (any(a.rol == "3014" and a.texto.endswith("Secretaría.") for a in avisos)
+        and any(a.texto.startswith("EXTRACTO. ANTE EL SEÑOR JUEZ Árbitro Juan Pablo Gracia Domic") for a in avisos))
+dudosos = [a.orden for a in avisos if a.revisar or len(a.roles) > 1]
+print(f"\n=== 2026-10-13 (B8 a B10) ===\nAvisos {len(avisos)} (esperados 67) | dudosos {dudosos} (esperado []) | 30° Civil y Gracia Domic separados {ok13}")
+if len(avisos) != 67 or dudosos or not ok13:
+    fallas += 1
+
 print("\nRESULTADO.", "TODO OK" if not fallas else f"{fallas} ediciones con diferencias")
 sys.exit(1 if fallas else 0)
