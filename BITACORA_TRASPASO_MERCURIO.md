@@ -53,6 +53,8 @@ Pendiente desde el 14 de Octubre. Pedir al abogado dos o tres casos concretos (f
 - (15 de Octubre) Los roles mal impresos se detectan por código. Prefijo con letras de más (CC-936-2026) o número y año pegados sin guion (C-24622022). La regla está en db\carga.py (rol_mal_impreso) y en el 14 de Octubre encontró exactamente los 4 anotados a mano (6, 17, 45 y 48), sin falsas alarmas en los otros 53. Sirve para que el Mercurio avise de errores del aviso.
 
 - (16 de Octubre) Los viernes el diario trae los remates dos veces (cuerpos B y G). Unirlos "por rol" sería peligroso, porque un mismo rol puede traer muchos remates (26 del C-5656-2013 el 1 de Septiembre). La unión debe hacerse por la huella del texto del aviso. Verificado que en Agendar_Remates todavía no está programada.
+- (16 de Octubre) Unión hecha en Agendar_Remates (motor\procesar_edicion.py, unir_rollos). Huella con solo letras y números en minúscula, porque la lectura de B y G difiere en espacios (7 de 127 avisos el 09-10). Repeticiones contadas. Verificado en el 09-10 (127 de 127 unidos, n = 1 viernes).
+- (16 de Octubre) Trampa del diario. Un rol puede quedar partido al final de un renglón ("C-3862-" y "2025"). Quien una palabras cortadas por guion debe hacerlo solo entre letras minúsculas, o fabrica un rol "mal impreso" que el diario no imprimió. Verificado en el texto crudo del 06-10 y del 09-10.
 - (16 de Octubre) Una alerta nunca debe afirmar que el aviso no dice algo cuando lo que pasa es que el programa no lo leyó. Pasó dos veces (garantía y vale vista) y se corrigió con textos distintos.
 
 ## 4. Lo que la llave del Mercurio no distingue (para revisar en el traspaso)

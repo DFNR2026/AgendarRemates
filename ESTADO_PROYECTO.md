@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 16 de Octubre de 2026, unión del motor con la base. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 16 de Octubre de 2026, unión de los rollos B y G de los viernes. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -92,7 +92,10 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
    ✅ 3.6b Cortador. Separa "EXTRACTO. ANTE EL SEÑOR JUEZ Árbitro", "JUEZ ÁRBITRO" y "15° JUZGADO CIVIL" sin punto antes. Medido señal por señal en 8 rollos, solo cambiaron los casos esperados (06-10 de 107 a 110). Banco de validación renumerado (60 a 62 registros). Bitácora del 15, punto 45
    ✅ Commit de la 3.6b (da8fa69 a 95788f5, push hecho)
    ✅ Unión del motor con la base (motor\procesar_edicion.py). El 14 de Octubre cargado por el motor calza con el banco salvo diferencias explicadas. El 13 de Octubre cargado en base de prueba. Bitácora del 16
-   ⬜ Commit de la unión (Claude Code)
+   ✅ Commit de la unión (bc6f6bc y 9a3a438, push hecho)
+   ✅ Unión de los rollos B y G sin duplicar, por huella del texto (09-10, 127 avisos y no 254). Las 7 ediciones capturadas cargan en bases de prueba. Bitácora del 16, puntos 10 a 18
+   ⬜ Commit de la unión B y G (Claude Code)
+   ⬜ Guion al final de renglón que se come el guion del rol (alerta falsa de rol mal impreso). Bitácora del 16, punto 12
    ⬜ 3.7 DeepSeek V4-Flash contra el Haiku más moderno, solo donde el código no alcance, con precios vigentes
 ⬜ Motor parte 4. Cuadre de cuentas
 ⬜ Interfaz con buscador, calendario, alertas y link a la página (incluye agregar una causa a mano al calendario, idea de Diego del 15 de Octubre)
@@ -105,10 +108,10 @@ En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, 
 
 ## Próximo paso (al abrir un chat nuevo)
 
-1. Confirmar con git log el commit de la unión del motor con la base (hecho en Claude Code, reporte REPORTE_COMMIT_UNION_2026-10-16.md) y si se hizo el push. El push solo con "apruebo push" de Diego.
+1. Confirmar con git log el commit de la unión de los rollos B y G (hecho en Claude Code, reporte REPORTE_COMMIT_UNION_BG_2026-10-16.md) y si se hizo el push. El push solo con "apruebo push" de Diego.
 2. Correr las nueve pruebas y verificar TODO OK antes de tocar nada.
-3. Pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
-4. HECHO el 16 de Octubre (motor\procesar_edicion.py). Pendientes que dejó. Unir los rollos B y G de los viernes sin duplicar, por huella del texto y no por rol (decisión de Diego, paso aparte). Inmueble del lote 4 del aviso 30 del 14-10. Decidir cuándo se carga la base real.
+3. Arreglo del cortador. Unir la palabra cortada por guion al final de renglón solo cuando hay letra minúscula antes y después (hoy borra el guion del rol "C-3862-" + "2025" y fabrica una alerta falsa de rol mal impreso). Medir con pruebas\foto_cortador.py en las 7 fechas y revisar qué citas de los bancos cambian. Después, pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
+4. HECHO el 16 de Octubre (motor\procesar_edicion.py), con la unión de los rollos B y G por huella del texto. Pendientes que dejó. Inmueble del lote 4 del aviso 30 del 14-10. Decidir cuándo se carga la base real.
 5. Parte 3.7. IA solo donde el código no alcanza (regla del vale vista, dirección e inmueble, partes), con cita comprobada por código. DeepSeek V4-Flash contra el Haiku más moderno, con precios vigentes.
 6. Decisiones abiertas de Diego. El "desde" del vale vista (pregunta 9 al abogado). Diseño de las visitas al tribunal (lista de días y horarios permitidos por vale vista).
 7. Parte 4. Cuadre de cuentas y republicaciones (más de la mitad de los avisos se repiten al día siguiente, punto 33 de la bitácora del 15).
