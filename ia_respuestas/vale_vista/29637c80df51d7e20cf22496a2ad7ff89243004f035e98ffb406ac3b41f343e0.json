@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "a más tardar a las 13 horas del día anterior a la realización de la subasta",
+   "frases_extra": [],
+   "contradiccion": "ser entregado materialmente en el Tribunal, a más tardar a las 13 horas del día anterior a la realización de la subasta"
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "a más tardar a las 13 horas del día anterior a la realización de la subasta",
+   "frases_extra": [
+    "debe ser entregado materialmente en el Tribunal, a más tardar a las 13 horas del día anterior a la realización de la subasta"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 2437,
+   "salida": 152,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 2437,
+   "salida": 154,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

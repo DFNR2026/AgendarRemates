@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "para lo cual deberán asistir el día inmediatamente anterior a la subasta, entre las 12:00 y 14:00 horas en el Tribunal",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "Garantía 10% del mínimo, mediante vale vista endosable a la orden del tribunal para lo cual deberán asistir el día inmediatamente anterior a la subasta, entre las 12:00 y 14:00 horas en el Tribunal",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 966,
+   "salida": 132,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 966,
+   "salida": 164,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

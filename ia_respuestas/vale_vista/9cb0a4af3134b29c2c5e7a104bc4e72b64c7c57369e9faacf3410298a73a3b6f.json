@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "viernes_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "postores deberán comparecer al Tribunal el día viernes anterior a fecha subasta, de 12:00 a 13:00 horas, a fin de entregar vale vista",
+   "frases_extra": [
+    "En caso de recaer dicho viernes en día feriado, la entrega deber efectuarse el día hábil anterior mismo horario."
+   ],
+   "contradiccion": "Los postores, a más tardar a las 14:00 horas del día hábil anterior a realización de la subasta, deberán enviar un correo electrónico al mail del tribunaljcsantiago15 @pjud.cl, indicando en el asunto “Remate“ junto con rol de la causa y fecha de realización, manifestando intención de participar."
+  },
+  {
+   "regla": "viernes_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "postores deberán comparecer al Tribunal el día viernes anterior a fecha subasta, de 12:00 a 13:00 horas, a fin de entregar vale vista",
+   "frases_extra": [
+    "En caso de recaer dicho viernes en día feriado, la entrega deber efectuarse el día hábil anterior mismo horario."
+   ],
+   "contradiccion": "Los postores, a más tardar a las 14:00 horas del día hábil anterior a realización de la subasta, deberán enviar un correo electrónico al mail del tribunaljcsantiago15 @pjud.cl"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 991,
+   "salida": 297,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 991,
+   "salida": 256,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

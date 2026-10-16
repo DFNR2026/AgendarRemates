@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": null,
+   "horas": null,
+   "fecha": "2026-10-19",
+   "hora_desde": "09:00",
+   "hora_hasta": "11:00",
+   "frase_regla": "Dicho documento deberá ser entregado en dependencias del tribunal el día 19 de octubre de 2026, entre las 9:00 y las 11:00 horas",
+   "frases_extra": [
+    "Deberá acompañarse vale vista a la orden del tribunal, equivalente al 10% del mínimo fijado para el remate, con indicación del tomador para facilitar su devolución."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "11:00",
+   "frase_regla": "Dicho documento deberá ser entregado en dependencias del tribunal el día 19 de octubre de 2026, entre las 9:00 y las 11:00 horas",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1116,
+   "salida": 206,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1116,
+   "salida": 139,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

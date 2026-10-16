@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 12,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Interesados deben rendir caución 10% del mínimo mediante vale vista endosable tomado a nombre del tribunal entregado a más tardar 12 horas día anterior al remate",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 12,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "entregado a más tardar 12 horas día anterior al remate",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 400,
+   "salida": 137,
+   "cache_lectura": 0,
+   "cache_escritura": 2561,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 400,
+   "salida": 96,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

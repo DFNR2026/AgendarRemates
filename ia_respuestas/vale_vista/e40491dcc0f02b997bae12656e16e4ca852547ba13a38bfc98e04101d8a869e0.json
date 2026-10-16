@@ -1,0 +1,48 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "fecha_fija",
+   "dias": null,
+   "horas": null,
+   "fecha": "2026-06-19",
+   "hora_desde": "12:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "Los postores deberán comparecer al tribunal el día 19/06/2026, de 12:00 a 13:00 horas, a fin de entregar el vale vista",
+   "frases_extra": [
+    "Para ello deberán comunicar su asistencia al tribunal al correo electrónico jcsantiago15@pjud.cl, señalando el nombre y rut de la persona que asistirá a entregar el vale vista como también el rol de la causa.",
+    "Dicha información solo ser recibida hasta el 18/06/2026."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "fecha_fija",
+   "dias": null,
+   "horas": null,
+   "fecha": "2026-06-19",
+   "hora_desde": "12:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "Los postores deberán comparecer al tribunal el día 19/06/2026, de 12:00 a 13:00 horas, a fin de entregar el vale vista",
+   "frases_extra": [],
+   "contradiccion": "Los postores, a más tardar a las 14:00 horas del día 24/06/2026 deberán enviar un correo electrónico al siguiente mail del tribunal jcsantiago15@pjud.cl, indicando en el asunto ’remate’ junto con el rol de la causa y la fecha de realización, manifestando su intención de participar."
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 853,
+   "salida": 245,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 853,
+   "salida": 252,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

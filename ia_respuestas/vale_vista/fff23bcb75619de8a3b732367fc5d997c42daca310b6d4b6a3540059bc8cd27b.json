@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 48,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Vale vista, deberá entregarse forma presencial secretario del tribunal o quien subrogue 48 horas antes dia remate.",
+   "frases_extra": [
+    "Ambos casos a más tardar 48 horas antes día subasta ingresar escrito por oficina judicial virtual, dando cuenta comparecencia personal que acompaña vale vista, adjuntando copia de dicho documento o haber consignado por cupón de pago, debiendo anexar dicho documento."
+   ],
+   "contradiccion": "Ambos casos a más tardar 48 horas antes día subasta ingresar escrito por oficina judicial virtual, dando cuenta comparecencia personal que acompaña vale vista, adjuntando copia de dicho documento o haber consignado por cupón de pago, debiendo anexar dicho documento."
+  },
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 48,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Vale vista, deberá entregarse forma presencial secretario del tribunal o quien subrogue 48 horas antes dia remate.",
+   "frases_extra": [
+    "Ambos casos a más tardar 48 horas antes día subasta ingresar escrito por oficina judicial virtual, dando cuenta comparecencia personal que acompaña vale vista, adjuntando copia de dicho documento o haber consignado por cupón de pago, debiendo anexar dicho documento."
+   ],
+   "contradiccion": "Ambos casos a más tardar 48 horas antes día subasta ingresar escrito por oficina judicial virtual, dando cuenta comparecencia personal que acompaña vale vista, adjuntando copia de dicho documento o haber consignado por cupón de pago, debiendo anexar dicho documento."
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 601,
+   "salida": 327,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 601,
+   "salida": 327,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

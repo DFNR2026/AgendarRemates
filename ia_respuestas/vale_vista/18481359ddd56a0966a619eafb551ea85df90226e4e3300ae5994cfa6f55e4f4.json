@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior_sabado_a_viernes",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "El vale vista deberá ser presentado en la secretaría del tribunal el día anterior al fijado para la subasta, entre las 12:00 y 14:00 horas",
+   "frases_extra": [
+    "el que si recayere en día sábado deberá ser presentado el día viernes anterior"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior_sabado_a_viernes",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "El vale vista deberá ser presentado en la secretaría del tribunal el día anterior al fijado para la subasta, entre las 12:00 y 14:00 horas",
+   "frases_extra": [
+    "el que si recayere en día sábado deberá ser presentado el día viernes anterior"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 830,
+   "salida": 174,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 830,
+   "salida": 174,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

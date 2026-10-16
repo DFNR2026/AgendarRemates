@@ -1,0 +1,50 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "debe ser entregado materialmente en el Tribunal, a más tardar a las 13 horas del día anterior a la realización de la subasta",
+   "frases_extra": [
+    "Para efectos de endoso del vale vista, los tomadores podrán concurrir al Tribunal cualquier día de la semana, entre las 8:00 y 14:00 horas y requerir la firma del ministro de fe del Tribunal o alguno de los jueces."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "a más tardar a las 13 horas del día anterior a la realización de la subasta",
+   "frases_extra": [
+    "debe ser entregado materialmente en el Tribunal, a más tardar a las 13 horas del día anterior a la realización de la subasta",
+    "el vale vista debe ser acompañado mediante la respectiva presentación en la Oficina Judicial Virtual (acompañando copia del Vale Vista y de la Cedula de Identidad del Postor) y ser acompañado materialmente en el tribunal a más tardar a las 13 horas del día anterior a la realización de la subasta"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1678,
+   "salida": 216,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1678,
+   "salida": 267,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "otra",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Deberá acompañarse vale vista a la orden del tribunal, equivalente al 10% del mínimo fijado para el remate, con indicación del tomador para facilitar su devolución.",
+   "frases_extra": [
+    "Los oferentes deberán acompañar conjuntamente con el vale vista su cedula de identidad vigente."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "otra",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": null,
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1313,
+   "salida": 172,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1313,
+   "salida": 74,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

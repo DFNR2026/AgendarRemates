@@ -1,0 +1,50 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "a más tardar a las 13 horas del día anterior a la realización de la subasta",
+   "frases_extra": [
+    "ser entregarlo materialmente en el tribunal, a más tardar a las 13 horas del día anterior a la realización de la subasta"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "otra",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "a más tardar a las 13 horas del día anterior a la realización de la subasta",
+   "frases_extra": [
+    "Sin perjuicio de lo anterior, deberán acompañar a la causa un escrito ‘Acompaña documento ‘(acompañando copia del Vale Vista y de la cedula de identidad del postor) el cual deberá ser ingresado por la OJV y ser entregarlo materialmente en el tribunal, a más tardar a las 13 horas del día anterior a la realización de la subasta.",
+    "Para aquellos remates en que no pueda hacerse la postulación como postor en el módulo ‘Remates’, el vale vista debe ser acompañado mediante la respectiva presentación en la Oficina Judicial Virtual (acompañando copia del Vale Vista y de la cedula de identidad del postor) y ser acompañado materialmente en el tribunal, a más tardar a las 13 horas del día anterior a la realización de la subasta."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 2432,
+   "salida": 153,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 2432,
+   "salida": 385,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

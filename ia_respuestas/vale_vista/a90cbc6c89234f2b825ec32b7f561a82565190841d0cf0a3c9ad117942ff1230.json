@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "deberá entregarse presencialmente a señora Secretaria Tribunal, a más tardar 12:00 horas día anterior fijado para remate",
+   "frases_extra": [
+    "enviar correo electrónico a jcsantiago17_ remates@pjud.cl, indicando en asunto ‘Remate Rol C-13505-2023’ , señalando datos personales, adjuntando comprobante legible de garantía y cédula de identidad, correo electrónico y número telefónico contacto, todo ello antes de 12:00 horas día anterior al fijado para remate"
+   ],
+   "contradiccion": "enviar correo electrónico a jcsantiago17_ remates@pjud.cl, indicando en asunto ‘Remate Rol C-13505-2023’ , señalando datos personales, adjuntando comprobante legible de garantía y cédula de identidad, correo electrónico y número telefónico contacto, todo ello antes de 12:00 horas día anterior al fijado para remate"
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "deberá entregarse presencialmente a señora Secretaria Tribunal, a más tardar 12:00 horas día anterior fijado para remate",
+   "frases_extra": [
+    "enviar correo electrónico a jcsantiago17_ remates@pjud.cl, indicando en asunto ‘Remate Rol C-13505-2023’ , señalando datos personales, adjuntando comprobante legible de garantía y cédula de identidad, correo electrónico y número telefónico contacto, todo ello antes de 12:00 horas día anterior al fijado para remate"
+   ],
+   "contradiccion": "enviar correo electrónico a jcsantiago17_ remates@pjud.cl, indicando en asunto ‘Remate Rol C-13505-2023’ , señalando datos personales, adjuntando comprobante legible de garantía y cédula de identidad, correo electrónico y número telefónico contacto, todo ello antes de 12:00 horas día anterior al fijado para remate"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1317,
+   "salida": 385,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1317,
+   "salida": 385,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

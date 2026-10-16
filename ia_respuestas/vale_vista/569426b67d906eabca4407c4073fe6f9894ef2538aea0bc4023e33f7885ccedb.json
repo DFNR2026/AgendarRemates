@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 72,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "En el caso de optar por vale vista, éste deberá acompañarse materialmente en la secretaría del tribunal, con 72 horas de antelación al día y hora de realización del remate",
+   "frases_extra": [
+    "Sin perjuicio, de lo anterior, y en el mismo plazo antes señalado, el interesado deberá remitir correo electrónico a la casilla ya referida, dando cuenta de haber dejado el vale vista en la secretaría del tribunal"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 72,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "En el caso de optar por vale vista, éste deberá acompañarse materialmente en la secretaría del tribunal, con 72 horas de antelación al día y hora de realización del remate",
+   "frases_extra": [
+    "Sin perjuicio, de lo anterior, y en el mismo plazo antes señalado, el interesado deberá remitir correo electrónico a la casilla ya referida, dando cuenta de haber dejado el vale vista en la secretaría del tribunal"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1733,
+   "salida": 222,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1733,
+   "salida": 222,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

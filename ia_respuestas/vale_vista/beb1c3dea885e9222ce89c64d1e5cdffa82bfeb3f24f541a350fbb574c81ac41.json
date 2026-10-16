@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "10:00",
+   "hora_hasta": "12:30",
+   "frase_regla": "La entrega material del Vale Vista deberá verificarse el día jueves inmediatamente anterior a la fecha de la subasta, entre las 10:00 y las 12:30 horas.",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "10:00",
+   "hora_hasta": "12:30",
+   "frase_regla": "La entrega material del Vale Vista deberá verificarse el día jueves inmediatamente anterior a la fecha de la subasta, entre las 10:00 y las 12:30 horas.",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 999,
+   "salida": 143,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 999,
+   "salida": 143,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,50 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "otra",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Deberá acompañarse vale vista a la orden del tribunal, equivalente al 10% del mínimo fijado para el remate, con indicación del tomador para facilitar su devolución.",
+   "frases_extra": [
+    "Los oferentes deberán acompañar conjuntamente con el vale vista su cedula de identidad vigente."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "otra",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Deberá acompañarse vale vista a la orden del tribunal, equivalente al 10% del mínimo fijado para el remate, con indicación del tomador para facilitar su devolución.",
+   "frases_extra": [
+    "Los oferentes deberán acompañar conjuntamente con el vale vista su cedula de identidad vigente.",
+    "Se hace presente que el vale vista, deberá ser tomado, por quien eventualmente se adjudicará el inmueble o derechos subastados, no admitiéndose que estos sean tomados por terceras personas, bajo apercibimiento de no ser recibidos ni admitidos en la subasta"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1399,
+   "salida": 172,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1399,
+   "salida": 273,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}
