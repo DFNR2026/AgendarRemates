@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 15 de Octubre de 2026, cierre de la parte 3.5. Bitácoras en BITACORA_2026-10-14.md y BITACORA_2026-10-15.md (esta última tiene la madrugada y la tarde, puntos 1 a 21). Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 15 de Octubre de 2026, cierre de la parte 3.6. Bitácoras en BITACORA_2026-10-14.md y BITACORA_2026-10-15.md (esta última tiene la madrugada y la tarde, puntos 1 a 21). Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -14,6 +14,8 @@ Programa visual para que Diego agende los remates judiciales de propiedades a lo
 Carpeta madre D:\Agendar_Remates. D:\Mercurio es solo fuente de consulta y no se modifica.
 Corre en el PC de Diego. No se descarta otro PC a futuro, así que rutas relativas y configuración en un solo archivo.
 Se mantienen los filtros originales del Mercurio (solo RM, no BancoEstado, no Estación Central, rol desde 2018, dominio anterior a 2020), aplicados después de leer. La lectura nunca se salta avisos.
+CORRECCIÓN de Diego (15 de Octubre, tarde). Agendar_Remates NO filtra. Filtrar es la tarea principal del Mercurio. La finalidad de este proyecto es el calendario, organizar la entrega del vale vista y la ida al remate, y saber si es por Zoom o presencial. La única exclusión es la de JUEZ PARTIDOR. Por eso la parte 3.6 no extrae comuna, fojas ni año de dominio. Eso queda para el traspaso al Mercurio.
+Garantía cuyo aviso no dice sobre qué se calcula (ej. "caución del 10%"). Decisión de Diego. Se asume el mínimo y el HUD lo muestra destacado como ASUMIDO, porque el aviso no lo dice. Ojo. El art. 494 del Código de Procedimiento Civil habla del 10% "de la valoración de dichos bienes", no del mínimo (pregunta 11 al abogado).
 Interfaz en HTML servida por un programa local en Python con base SQLite.
 La regla del vale vista se interpreta desde el texto de cada aviso, nunca se asume por la costumbre del tribunal. La historia del tribunal solo sirve como alarma cuando un aviso dice algo distinto.
 Republicaciones. Se guarda cada publicación y se avisa si cambian las bases entre una y otra.
@@ -22,7 +24,8 @@ Las entregas de vale vista se organizan por tribunal, porque es a donde Diego de
 CORRECCIÓN de Diego (15 de Octubre, tarde). El calendario muestra la fecha del remate y la ventana completa del vale vista (desde y hasta). Diego decide qué día ir, el programa nunca elige por él. Al marcar el vale vista como entregado, la ventana deja de mostrarse para ese remate. Lo que junta remates del mismo tribunal se llama "visita al tribunal", no tarea. Cómo agrupar está por diseñar. Observación de Diego. Las restricciones son una mezcla (solo martes y jueves, horarios distintos, 72 horas desde la hora del remate, día anterior exacto), así que no basta cruzar tramos de días. Cada vale vista debe pasar a su lista de días y horarios permitidos antes de cruzarse. Por ahora v_entregas_vv es provisoria.
 El "desde" del vale vista cuando el aviso solo dice hasta cuándo. Diego cree que es desde el mismo día de la publicación. Pregunta 9 al abogado. Mientras tanto sigue la regla del día siguiente.
 Todo remate agendado sin fecha de vale vista se avisa en el HUD como dato faltante que Diego debe resolver.
-Agenda sin estado "descartado". Si Diego no irá a un remate, lo quita del calendario con un botón X. A Diego le indican a qué remate ir, por eso ningún aviso se elimina por filtros. Los que no pasan quedan visibles como "fuera de filtro". EXCEPCIÓN (Diego, 2026-10-15). Los remates de JUEZ PARTIDOR se descartan del todo y no aparecen en la búsqueda.
+Agenda sin estado "descartado". Si Diego no irá a un remate, lo quita del calendario con un botón X. A Diego le indican a qué remate ir, por eso ningún aviso se elimina por filtros. Los que no pasan quedan visibles como "fuera de filtro". EXCEPCIÓN (Diego, 2026-10-15). Los remates de JUEZ PARTIDOR se descartan del todo y no aparecen en la búsqueda. Incluye los remates de partición ante juez o jueza ÁRBITRO (decisión del 15 de Octubre, noche). Regla PARTICION en db\carga.py.
+Rol sin guion después de la letra (C2461-2022). Se avisa como detalle menor, con tono normal (decisión del 15 de Octubre, noche).
 Feriados de Chile cargados desde fuente oficial y aviso en diciembre si falta el año siguiente.
 La lectura debe ser perfecta por diseño. La IA nunca tiene la última palabra. Lo de formato fijo (rol, montos, fechas) lo lee el código. Lo de texto libre lo interpreta la IA citando la frase exacta, y el código verifica que la frase exista. Lo que no se pueda verificar se marca en rojo.
 Las 72 horas (y las 24) se cuentan en horas de reloj desde la hora del remate. Si el tope cae en fin de semana o feriado, se adelanta al último horario hábil. Si el aviso solo dice hasta cuándo se entrega el vale vista, el desde es el día siguiente a la edición. Decisiones del 15 de Octubre.
@@ -47,7 +50,7 @@ Cambios de la parte 3.5, TODOS APLICADOS el 15 de Octubre (se dejan como registr
 AUDITORIA_LECTURA_MERCURIO_2026-10-14.md. Por qué falla la lectura actual del Mercurio (avisos partidos entre páginas y entre trozos, avisos sin rol botados en silencio, datos cruzados entre avisos vecinos, redirección "PÁGINA C 8" no detectada, historial que congela errores).
 RECONOCIMIENTO_EDICIONES_2026-10-14.md. Dónde aparecen los remates en 36 ediciones y cómo se continúan. Base de las reglas de navegación.
 banco_pruebas\LEEME_BANCO_PRUEBAS.md. Ediciones 2026-08-06 y 2026-10-14 con su inventario correcto (95 + 61 avisos) y la lista de trampas del diario. Incluye el banco nivel 2 del 14 de Octubre (61 remates con fecha, hora, modalidad, vale vista, mínimo, garantía y dirección, cada dato con su cita).
-PREGUNTAS_ABOGADO.md. Nueve dudas legales pendientes, cada una con su regla provisoria.
+PREGUNTAS_ABOGADO.md. Once dudas legales pendientes, cada una con su regla provisoria.
 BITACORA_TRASPASO_MERCURIO.md. Todo lo aprendido aquí que sirve para arreglar el Mercurio (fallas, soluciones ya hechas, trampas del diario y pendientes). Toda lección nueva que sirva para el Mercurio se anota ahí. Creada el 15 de Octubre a pedido de Diego.
 
 ## Reglas de navegación (sobre evidencia, n = 36 ediciones)
@@ -85,25 +88,27 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
       ✅ Etapa 2. Carga del banco, 61 avisos y 65 remates (db\carga.py, pruebas\test_carga_banco.py)
       ✅ Etapa 3. Vistas (buscador, alertas, calendario, entregas de vale vista por tribunal y día, historial). pruebas\test_vistas.py
       ✅ Commit de cierre de la 3.5 (34ff86c y el de documentos, sin push)
-   ⬜ 3.6 Código que saca lo de formato fijo, medido contra el banco nivel 2
+   ✅ 3.6 Código de formato fijo (motor\extraccion.py, función extraer). Validación limpia contra el 6 de Octubre, 7 equivocados de 360 datos. Tras 3 arreglos, 1 (discutible). Fecha, hora y tribunal con 0 equivocados
    ⬜ 3.7 DeepSeek V4-Flash contra el Haiku más moderno, solo donde el código no alcance, con precios vigentes
 ⬜ Motor parte 4. Cuadre de cuentas
-⬜ Interfaz con buscador, calendario, alertas y link a la página
+⬜ Interfaz con buscador, calendario, alertas y link a la página (incluye agregar una causa a mano al calendario, idea de Diego del 15 de Octubre)
 ⬜ Traspaso del motor al Mercurio (guía en BITACORA_TRASPASO_MERCURIO.md)
 ⬜ (Futuro) Google Calendar o celular
 
 ## Cómo se corre
 
-En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, playwright 1.60). Credenciales en config.py (fuera de git). Leer una edición. .venv\Scripts\python -m motor.lector_mercurio --fecha AAAA-MM-DD. Pruebas sin internet. .venv\Scripts\python -m pruebas.test_navegacion_logica, .venv\Scripts\python -m pruebas.test_cortador y .venv\Scripts\python -m pruebas.test_banco_nivel2 , .venv\Scripts\python -m pruebas.test_esquema, .venv\Scripts\python -m pruebas.test_carga_banco y .venv\Scripts\python -m pruebas.test_vistas (las seis deben terminar en TODO OK).
+En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, playwright 1.60). Credenciales en config.py (fuera de git). Leer una edición. .venv\Scripts\python -m motor.lector_mercurio --fecha AAAA-MM-DD. Pruebas sin internet. .venv\Scripts\python -m pruebas.test_navegacion_logica, .venv\Scripts\python -m pruebas.test_cortador y .venv\Scripts\python -m pruebas.test_banco_nivel2 , .venv\Scripts\python -m pruebas.test_esquema, .venv\Scripts\python -m pruebas.test_carga_banco, .venv\Scripts\python -m pruebas.test_vistas, .venv\Scripts\python -m pruebas.test_banco_validacion y .venv\Scripts\python -m pruebas.test_extraccion (las ocho deben terminar en TODO OK). Medición aparte con .venv\Scripts\python -m pruebas.medir_extraccion 14 (o 06).
 
 ## Próximo paso (al abrir un chat nuevo)
 
-1. Confirmar con git log los commits de cierre de la 3.5 (34ff86c y el de documentos). El push solo con "apruebo push" de Diego.
-2. Correr las seis pruebas y verificar TODO OK antes de tocar nada.
-3. Parte 3.6. El código saca lo de formato fijo (rol, tribunal, fechas, horas, montos, porcentajes) y se mide contra el banco nivel 2. Primero el diseño para Diego, después el código. Requisitos ya anotados. El tribunal se guarda en una forma única (ordinal en número), porque el diario lo escribe también en palabras. La salida usa el formato del banco nivel 2 para entrar directo a db\carga.py.
-4. Decisiones abiertas de Diego. El "desde" del vale vista cuando el aviso solo dice hasta cuándo (pregunta 9 al abogado). El diseño de las visitas al tribunal (cada vale vista como lista de días y horarios permitidos), que va con la interfaz.
-5. Riesgo anotado para la parte 4. Contar fechas de remate por aviso y marcar los que traigan más de una (red de seguridad para avisos pegados que el cortador no vea). En la parte 4 también se mide la regla de republicaciones con las 7 fechas.
-6. Pendiente menor. Algunos avisos terminan con "EXTRACTO DE", que es el comienzo del título del aviso siguiente. No cambia datos.
+1. Confirmar con git log el commit de la parte 3.6 (hecho en Claude Code) y si se hizo el push. El push solo con "apruebo push" de Diego.
+2. Correr las ocho pruebas y verificar TODO OK antes de tocar nada.
+3. Arreglo del cortador (paso aparte). Reconocer como comienzo de aviso "EXTRACTO. ANTE EL SEÑOR JUEZ Árbitro" y "JUEZ ÁRBITRO" (va pegado al 30° Civil en 06-10, 09-10 y 13-10, y el aviso 106 del 06-10 parece igual) y el caso del 15° Civil del 06-10 aviso 55 ("pagarse al contado 15° JUZGADO CIVIL SANTIAGO", sin punto antes). Medir antes y después en las 7 fechas. Ojo, cambia la numeración del 06-10 y hay que renumerar banco_validacion_2026-10-06.json.
+4. Conectar extraer() con db\carga.py, para cargar una edición real leída por el motor.
+5. Parte 3.7. IA solo donde el código no alcanza (regla del vale vista, dirección e inmueble, partes), con cita comprobada por código. DeepSeek V4-Flash contra el Haiku más moderno, con precios vigentes.
+6. Decisiones abiertas de Diego. El "desde" del vale vista (pregunta 9 al abogado). Diseño de las visitas al tribunal (lista de días y horarios permitidos por vale vista).
+7. Parte 4. Cuadre de cuentas y republicaciones (más de la mitad de los avisos se repiten al día siguiente, punto 33 de la bitácora del 15).
+8. Pendiente menor. Algunos avisos terminan con "EXTRACTO DE", que es el comienzo del aviso siguiente.
 
 Nota. "qué usa IA.png" es un pantallazo de Diego para recordar dónde se usa IA en el proyecto. Es de referencia personal y no va a git.
 
@@ -115,4 +120,5 @@ Los prompts de apertura de un chat nuevo se entregan en el chat, en un recuadro 
 Ir paso a paso, con el mapa "Dónde estamos" al cerrar hitos.
 Separar lo verificado de lo supuesto y dar un porcentaje de confianza cuando sea menor a 90%. Ningún arreglo sin causa raíz con evidencia.
 Diego no ejecuta comandos. El código lo hace Claude o Cline (prompts en un solo bloque, y Cline siempre deja un reporte .md al final).
+Commit y push SIEMPRE en Claude Code, con prompt y reporte .md (decisión de Diego del 15 de Octubre). El shell de Claude en el PC no tiene la clave de GitHub. Pendiente. Push de 34ff86c y 45d6a50.
 Al cerrar un trabajo, listar lo que se puso sin que Diego lo confirmara.

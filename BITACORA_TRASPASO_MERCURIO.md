@@ -64,3 +64,4 @@ Pendiente desde el 14 de Octubre. Pedir al abogado dos o tres casos concretos (f
 - Pendiente menor del cortador. Algunos avisos terminan con "EXTRACTO DE", que es el comienzo del título del siguiente.
 - Preguntar a Diego y al abogado si el filtro de JUEZ PARTIDOR (decisión de Diego para su agenda) también se quiere en el Mercurio.
 - Antes de tocar el Mercurio, leer sus reglas inamovibles y su código actual, y repetir el banco de pruebas con el motor ya traspasado.
+- (15 de Octubre) Agendar_Remates decidió no filtrar (decisión de Diego). La extracción de comuna, fojas y año de dominio, que el Mercurio necesita para sus filtros, no se construye aquí. Habrá que hacerla en el traspaso, con las mismas reglas de este proyecto (cita exacta comprobada por código, vacío con alerta antes que adivinar).
