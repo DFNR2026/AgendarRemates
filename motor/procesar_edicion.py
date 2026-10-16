@@ -6,10 +6,10 @@ Todavía no hay vale vista ni dirección (parte 3.7), así que cada remate queda
 
 Uso. python -m motor.procesar_edicion AAAA-MM-DD RUTA_BASE   (desde D:\\Agendar_Remates)
 Lee capturas\\AAAA-MM-DD (páginas y navegacion.json que guarda el lector). No carga en agendar_remates.db
-hasta que Diego lo apruebe. Una edición con dos rollos (B y G los viernes) se rechaza, porque unirlos sin duplicar
-es un paso aparte.
+hasta que Diego lo apruebe. Una edición con dos rollos (B y G los viernes) se une sin duplicar por la huella del texto
+de cada aviso (16 de Octubre, ver unir_rollos).
 """
-import json, sys
+import json, re, sys
 from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
@@ -34,28 +34,79 @@ def extraer_avisos(avisos: list, fecha: str) -> dict:
     return {a.orden: traducir(extraer(a.texto, fecha)) for a in avisos}
 
 
+def huella(texto: str) -> str:
+    """Solo letras y números en minúscula. Ignora espacios, guiones y signos, que cambian entre la lectura de B y la de G
+    (2026-10-09. 7 de 127 avisos con diferencias de espacios, 127 de 127 iguales con esta huella)."""
+    return re.sub(r"[\W_]+", "", texto.lower())
+
+
+def unir_rollos(cortados: list) -> tuple:
+    """cortados = [avisos del cortador por rollo], en el orden de la navegación. El primero es el principal.
+    Un aviso de otro rollo con gemelo (misma huella) en el principal no se carga, solo se cuenta. Las repeticiones se
+    cuentan, así dos avisos iguales de verdad no se funden en uno. Un aviso sin gemelo se carga después de los del
+    principal, con alerta. Si los gemelos imprimen el rol distinto, el aviso del principal lleva una alerta.
+    Devuelve (avisos, alertas_extra {orden: [(tipo, texto)]}, resumen)."""
+    avisos = list(cortados[0])
+    alertas, resumen = {}, []
+    for k, otro in enumerate(cortados[1:], start=2):
+        libres = {}
+        for a in avisos[:len(cortados[0])]:
+            libres.setdefault(huella(a.texto), []).append(a)
+        unidos = espacios = 0
+        solos = []
+        for b in otro:
+            gem = libres.get(huella(b.texto))
+            if gem:
+                a = gem.pop(0)
+                unidos += 1
+                espacios += a.texto != b.texto
+                if (a.rol_impreso or "") != (b.rol_impreso or ""):
+                    alertas.setdefault(a.orden, []).append(("revisar_lectura",
+                        f"El cuerpo {b.paginas[0][0]} imprime este rol distinto ({b.rol_impreso}, aquí {a.rol_impreso}). Revisa el aviso en la página."))
+            else:
+                solos.append(b)
+        for b in solos:
+            b.orden = len(avisos) + 1
+            avisos.append(b)
+            alertas.setdefault(b.orden, []).append(("revisar_lectura",
+                f"Aviso que solo aparece en el cuerpo {b.paginas[0][0]}. No tiene gemelo en el cuerpo {cortados[0][0].paginas[0][0]}."))
+        c1, c2 = cortados[0][0].paginas[0][0], otro[0].paginas[0][0] if otro else "?"
+        resumen.append(f"Cuerpo {c2} repite al {c1}. {unidos} de {len(otro)} avisos unidos por huella del texto. "
+                       f"{espacios} con diferencias de espacios. {len(solos)} solo en {c2}.")
+    return avisos, alertas, resumen
+
+
 def desde_captura(fecha: str, carpeta: Path | None = None):
-    """Arma edición, páginas y avisos desde capturas\\FECHA (navegacion.json del lector)."""
+    """Arma edición, páginas, avisos y alertas de la unión desde capturas\\FECHA (navegacion.json del lector).
+    Con varios rollos (B y G los viernes) se cortan por separado y se unen sin duplicar (unir_rollos)."""
     d = carpeta or (CAPTURAS / fecha)
     nav = json.loads((d / "navegacion.json").read_text(encoding="utf-8"))
-    if len(nav["rollos"]) != 1:
-        raise ValueError(f"La edición {fecha} tiene {len(nav['rollos'])} rollos ({nav['rollos']}). Unirlos sin duplicar es un paso aparte. No se cargó nada.")
+    if not nav["rollos"]:
+        raise ValueError(f"La edición {fecha} no tiene rollos de remates. No se cargó nada.")
     por_nombre = {p["pagina"]: p for p in nav["paginas_con_remates"]}
-    orden = nav["rollos"][0]
-    paginas = [{"nombre": n, "cuerpo": n[0], "numero": int(n[1:]), "id_pagina": por_nombre[n]["id"], "orden_rollo": k,
-                "texto": (d / por_nombre[n]["archivo"]).read_text(encoding="utf-8")}
-               for k, n in enumerate(orden, start=1)]
-    rollo, marcas = construir_rollo([(n, leer_pagina(d / por_nombre[n]["archivo"])) for n in orden])
-    avisos = cortar(rollo, marcas)
+    paginas, cortados, roles = [], [], set()
+    for rollo_nombres in nav["rollos"]:
+        for n in rollo_nombres:
+            paginas.append({"nombre": n, "cuerpo": n[0], "numero": int(n[1:]), "id_pagina": por_nombre[n]["id"],
+                            "orden_rollo": len(paginas) + 1, "texto": (d / por_nombre[n]["archivo"]).read_text(encoding="utf-8")})
+        rollo, marcas = construir_rollo([(n, leer_pagina(d / por_nombre[n]["archivo"])) for n in rollo_nombres])
+        cortados.append(cortar(rollo, marcas))
+        roles |= {(r[1], r[2]) for r in roles_en(rollo)}
+    avisos, alertas, resumen = unir_rollos(cortados)
+    alarmas = list(nav.get("alarmas") or []) + resumen
+    solo_otro = len(avisos) > len(cortados[0])
     cuerpos = " ".join(f"{c}{v.split('n=')[-1]}" for c, v in sorted(nav["cuerpos"].items()))
-    edicion = {"fecha": fecha, "leida_en": nav["leida_en"], "estado": "con_alarmas" if nav.get("alarmas") else "ok",
-               "cuerpos_revisados": cuerpos, "roles_en_texto": len({(r[1], r[2]) for r in roles_en(rollo)})}
-    return edicion, paginas, avisos
+    edicion = {"fecha": fecha, "leida_en": nav["leida_en"], "estado": "con_alarmas" if nav.get("alarmas") or solo_otro else "ok",
+               "cuerpos_revisados": cuerpos, "roles_en_texto": len(roles), "alarmas": "\n".join(alarmas) or None}
+    return edicion, paginas, avisos, alertas
 
 
 def cargar_edicion(con, fecha: str, ahora: str, carpeta: Path | None = None) -> dict:
-    edicion, paginas, avisos = desde_captura(fecha, carpeta)
-    return guardar_edicion(con, edicion, paginas, avisos, extraer_avisos(avisos, fecha), ahora, metodo="codigo")
+    edicion, paginas, avisos, alertas = desde_captura(fecha, carpeta)
+    extraido = extraer_avisos(avisos, fecha)
+    for orden, extra in alertas.items():
+        extraido[orden]["alertas"] += extra
+    return guardar_edicion(con, edicion, paginas, avisos, extraido, ahora, metodo="codigo")
 
 
 if __name__ == "__main__":

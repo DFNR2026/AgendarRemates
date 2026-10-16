@@ -127,8 +127,9 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
     if faltan:
         raise ValueError(f"Faltan los datos extraídos de los avisos {faltan}. No se cargó nada.")
     with con:
-        cur = con.execute("INSERT INTO ediciones(fecha, leida_en, estado, cuerpos_revisados, roles_en_texto) VALUES (?,?,?,?,?)",
-                          (fecha, edicion["leida_en"], edicion["estado"], edicion.get("cuerpos_revisados"), edicion.get("roles_en_texto")))
+        cur = con.execute("INSERT INTO ediciones(fecha, leida_en, estado, cuerpos_revisados, roles_en_texto, alarmas) VALUES (?,?,?,?,?,?)",
+                          (fecha, edicion["leida_en"], edicion["estado"], edicion.get("cuerpos_revisados"), edicion.get("roles_en_texto"),
+                           edicion.get("alarmas")))
         ed_id = cur.lastrowid
         id_pag = {}
         for p in paginas:
@@ -144,7 +145,10 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
             ex = extraido[a.orden]
             tribunal = ex.get("tribunal")
             causa_id = None
-            if a.tipo_id != "SIN_ROL":
+            # Una causa necesita rol Y tribunal (la base exige ambos). Si el código no encontró el tribunal (ej. trozo marcado
+            # como dos avisos pegados, 2026-10-09 aviso 120) el aviso se guarda sin causa y con alerta, en vez de romper la carga.
+            sin_tribunal = a.tipo_id != "SIN_ROL" and not tribunal
+            if a.tipo_id != "SIN_ROL" and tribunal:
                 clave = clave_causa(a.rol, a.anio, tribunal)
                 con.execute("INSERT OR IGNORE INTO causas(clave, tipo_id, rol, anio, tribunal) VALUES (?,?,?,?,?)",
                             (clave, a.tipo_id, a.rol, a.anio, tribunal))
@@ -156,6 +160,10 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
                 (ed_id, causa_id, a.orden, id_pag[a.paginas[0]], id_pag[a.paginas[-1]], a.texto, a.rol_impreso, a.tipo_id, a.rol, a.anio,
                  tribunal, "descartado" if descartado else "pasa", "juez partidor" if descartado else None))
             aviso_id = cur.lastrowid
+            if sin_tribunal:
+                con.execute("INSERT INTO alertas(aviso_id, tipo, texto, origen) VALUES (?,?,?,?)",
+                            (aviso_id, "revisar_lectura", f"El aviso tiene rol ({a.rol}-{a.anio}) pero no se encontró el tribunal. "
+                             "No se pudo unir a su causa. Revisa el aviso en la página.", "codigo"))
 
             # Remates. Uno por elemento de la lista de mínimos, o uno solo.
             m = ex.get("minimo") or {}
