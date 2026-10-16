@@ -102,7 +102,11 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
       ✅ Validación del vale vista anotada antes del código (banco_vale_vista_2026-10-06.json, 62 registros)
       ✅ Commit de la anotación (ad1e2cc, 5a48459 y 5bb64fe, sin push)
       ✅ 3.7a Código y ajuste con el 14 de Octubre (vv-2, sin razonamiento). 53 aciertos, 4 en rojo, 0 equivocados. Bitácora del 16, puntos 33 a 36
-      ⬜ Commit del código congelado (Claude Code)
+      ✅ Commit del código congelado (e328e5a, 6188890 y 0e0a242)
+      ✅ VALIDACIÓN contra el 6 de Octubre (145b481). Cifra honesta 44 aciertos, 14 en rojo, 1 equivocado de 59 (aviso 80, ámbar con un día tarde). Bitácora del 16, punto 37
+      ✅ Arreglo del día de la semana aplicado (punto 38). Con él, 0 equivocados en los dos bancos (no cambia la cifra honesta)
+      ⬜ Commit del arreglo (Claude Code)
+      ⬜ Unir el vale vista a la carga (carga.py con el método por dato y procesar_edicion llamando a Haiku)
       ⬜ 3.7a Medición de validación una sola vez contra el 6 de Octubre
       ⬜ 3.7b Dirección e inmueble ⬜ 3.7c Partes
 ⬜ Motor parte 4. Cuadre de cuentas
@@ -120,7 +124,7 @@ En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, 
 2. Correr las nueve pruebas y verificar TODO OK antes de tocar nada.
 3. HECHO el 16 de Octubre (guion al final de renglón). Pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
 4. HECHO el 16 de Octubre (motor\procesar_edicion.py), con la unión de los rollos B y G por huella del texto. Pendientes que dejó. Inmueble del lote 4 del aviso 30 del 14-10. Decidir cuándo se carga la base real.
-5. Parte 3.7a. Verificar el commit del código congelado (vv-2). Luego la validación contra el 6 de Octubre, UNA sola vez, con la aprobación de Diego (Claude Code corre medir_vale_vista 06 --llamar, porque el shell de Claude no llega a la API). Diseño en la bitácora del 16, puntos 27 y 28. Resultado del ajuste en el punto 36.
+5. Parte 3.7a. Verificar el commit del arreglo del día de la semana. Luego diseñar con Diego la unión del vale vista a la carga (carga.py con método por dato, procesar_edicion llamando a Haiku por Claude Code o desde el PC de Diego, porque el shell de Claude no llega a la API). Validación ya hecha (bitácora del 16, punto 37).
 6. Decisiones abiertas de Diego. El "desde" del vale vista (pregunta 9 al abogado). Diseño de las visitas al tribunal (lista de días y horarios permitidos por vale vista).
 7. Parte 4. Cuadre de cuentas y republicaciones (más de la mitad de los avisos se repiten al día siguiente, punto 33 de la bitácora del 15).
 8. Pendiente menor. Algunos avisos terminan con "EXTRACTO DE", que es el comienzo del aviso siguiente.

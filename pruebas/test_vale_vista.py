@@ -79,6 +79,11 @@ r27 = {**base, "regla": "en_el_remate", "dias": None, "hora_hasta": None, "hora_
        "frase_regla": "Los vales vista recepcionados serán calificados al momento de hacerse el llamado al remate.", "frases_extra": []}
 if V.resolver([r27, r27], t27, "2026-10-29", "13:00", "2026-10-14")["color"] != "rojo":
     fallas.append("Aviso 27, 'serán calificados al momento del llamado' no quedó en rojo")
+# Día de la semana. Aviso 34 del 14-10 ("el día viernes anterior") leído como día anterior da el miércoles. Debe quedar en rojo.
+x34 = next(x for x in banco if x["n"] == 34)
+r34 = {**ideal(x34["vale_vista"]), "regla": "dia_anterior"}
+if V.resolver([r34, r34], av[34].texto, x34["fecha_remate"]["valor"], x34["hora_remate"]["valor"], "2026-10-14")["color"] != "rojo":
+    fallas.append("Aviso 34 leído como día anterior (viernes en la frase, miércoles en el cálculo) no quedó en rojo")
 t56 = av[56].texto
 x56 = next(x for x in banco if x["n"] == 56)
 r56 = ideal(x56["vale_vista"])

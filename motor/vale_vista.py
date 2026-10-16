@@ -189,6 +189,7 @@ _PALABRAS = {
 }
 _DEVOLUCION = re.compile(r"devoluci|devuelt|restitu|retir", re.I)
 _DETECTOR = re.compile(r"antelaci|anticipaci|a\s+m[áa]s\s+tardar|hasta\s+las|d[íi]a\s+(?:h[áa]bil\s+)?anterior|d[íi]a\s+precedente|viernes|martes", re.I)
+_DIA_SEMANA = {"lunes": 0, "martes": 1, "miércoles": 2, "miercoles": 2, "jueves": 3, "viernes": 4}
 _NO_ES_ENTREGA = re.compile(r"correo|electr[óo]nic|cup[óo]n|oficina\s+judicial|\bO\.?J\.?V\b|escrito", re.I)
 _ANCLA_VV = re.compile(r"vale\s+(?:a\s+la\s+)?vista|garant[íi]a|cauci[óo]n", re.I)
 
@@ -330,6 +331,13 @@ def resolver(lecturas: list, texto: str, fecha_remate: str | None, hora_remate: 
         base["vv_estado"] = "revisar"; return base
     if c["vv_hasta"][:10] > fecha_remate:
         base["motivos"].append("La entrega quedaría después del remate."); base["vv_estado"] = "revisar"; return base
+    # La frase nombra un día de la semana y el cálculo cae en otro (6-10 aviso 80, "el día jueves inmediatamente anterior"
+    # leído como día anterior dio viernes, un día TARDE). Solo lunes a viernes, porque sábado y domingo aparecen en las
+    # excepciones ("si recayere en día sábado", 14-10 aviso 21) y la entrega nunca cae en fin de semana.
+    nombrados = {_DIA_SEMANA[w.lower()] for w in re.findall(r"\b(lunes|martes|mi[ée]rcoles|jueves|viernes)\b", base["cita"] or "", re.I)}
+    if nombrados and dt.date.fromisoformat(c["vv_hasta"][:10]).weekday() not in nombrados:
+        base["motivos"].append("La frase nombra un día de la semana distinto al que da el cálculo.")
+        base["vv_estado"] = "revisar"; return base
     preg = list(c["preguntas"])
     if r["regla"] == "dias_habiles_antes" and re.search(r"horario\s+de\s+atenci", base["cita"] or "", re.I):
         preg.append(4)
