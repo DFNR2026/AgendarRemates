@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 16 de Octubre de 2026, arreglo del guion al final de renglón. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 16 de Octubre de 2026, diseño de la 3.7a y validación del vale vista anotada. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -96,8 +96,14 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
    ✅ Unión de los rollos B y G sin duplicar, por huella del texto (09-10, 127 avisos y no 254). Las 7 ediciones capturadas cargan en bases de prueba. Bitácora del 16, puntos 10 a 18
    ✅ Commit de la unión B y G (d283e2e, push hecho)
    ✅ Guion al final de renglón. Solo se une la palabra cortada. Desaparecen 52 alertas falsas de rol en las 7 ediciones. Bancos corregidos sin borrar lo anterior. Bitácora del 16, puntos 19 a 25
-   ⬜ Commit del arreglo del guion (Claude Code)
-   ⬜ 3.7 DeepSeek V4-Flash contra el Haiku más moderno, solo donde el código no alcance, con precios vigentes
+   ✅ Commit del arreglo del guion (6907224, push hecho)
+   🔄 3.7 IA solo donde el código no alcanza. Modelo Claude Haiku 5.5 (precios verificados el 16 de Octubre, Sonnet descartado). Bitácora del 16, puntos 26 a 32
+      ✅ Diseño de la 3.7a (regla del vale vista) aprobado por Diego, con doble lectura, ámbar y cita con tolerancia solo de espacios
+      ✅ Validación del vale vista anotada antes del código (banco_vale_vista_2026-10-06.json, 62 registros)
+      ⬜ Commit de la anotación (Claude Code), antes de escribir instrucciones o código
+      ⬜ 3.7a Código. Instrucciones para Haiku ajustadas solo con el 14 de Octubre, verificador, cálculo de fechas (motor\vale_vista.py), respuestas guardadas
+      ⬜ 3.7a Medición de validación una sola vez contra el 6 de Octubre
+      ⬜ 3.7b Dirección e inmueble ⬜ 3.7c Partes
 ⬜ Motor parte 4. Cuadre de cuentas
 ⬜ Interfaz con buscador, calendario, alertas y link a la página (incluye agregar una causa a mano al calendario, idea de Diego del 15 de Octubre)
 ⬜ Traspaso del motor al Mercurio (guía en BITACORA_TRASPASO_MERCURIO.md)
@@ -113,7 +119,7 @@ En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, 
 2. Correr las nueve pruebas y verificar TODO OK antes de tocar nada.
 3. HECHO el 16 de Octubre (guion al final de renglón). Pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
 4. HECHO el 16 de Octubre (motor\procesar_edicion.py), con la unión de los rollos B y G por huella del texto. Pendientes que dejó. Inmueble del lote 4 del aviso 30 del 14-10. Decidir cuándo se carga la base real.
-5. Parte 3.7. IA solo donde el código no alcanza (regla del vale vista, dirección e inmueble, partes), con cita comprobada por código. DeepSeek V4-Flash contra el Haiku más moderno, con precios vigentes.
+5. Parte 3.7a. Verificar el commit de la anotación de la validación (reporte REPORTE_COMMIT_ANOTACION_VV_2026-10-16.md). Luego escribir el código con Haiku 5.5 (clave en config.py), ajustado solo con el 14 de Octubre, y medir una vez contra el 6 de Octubre. Diseño en la bitácora del 16, puntos 27 y 28.
 6. Decisiones abiertas de Diego. El "desde" del vale vista (pregunta 9 al abogado). Diseño de las visitas al tribunal (lista de días y horarios permitidos por vale vista).
 7. Parte 4. Cuadre de cuentas y republicaciones (más de la mitad de los avisos se repiten al día siguiente, punto 33 de la bitácora del 15).
 8. Pendiente menor. Algunos avisos terminan con "EXTRACTO DE", que es el comienzo del aviso siguiente.
