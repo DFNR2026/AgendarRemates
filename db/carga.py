@@ -105,14 +105,21 @@ def _citas_de(ex: dict, sub_lista: dict):
             yield comun, "vv_regla_texto", i, v.get("regla"), extra
 
 
+VV_NO_LEIDO = "El programa todavía no lee la regla del vale vista de este aviso. Revísala en el aviso."
+VV_NO_DICE = "El aviso no dice cuándo se entrega el vale vista. Debes averiguarlo en las bases o en el tribunal."
+
+
 def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extraido: dict, ahora: str,
-                    clasificar_duda=None) -> dict:
+                    clasificar_duda=None, metodo: str = "ia") -> dict:
     """Guarda una edición completa en una sola transacción. Si algo falla no queda nada a medias.
     edicion = {fecha, leida_en, estado, cuerpos_revisados, roles_en_texto}
     paginas = [{nombre 'B11', cuerpo, numero, id_pagina, texto, orden_rollo}]
     avisos  = avisos del cortador (motor.cortador.Aviso)
     extraido = {orden: datos del aviso en formato del banco nivel 2}
-    clasificar_duda = función opcional que convierte cada texto de 'dudas' en un tipo de alerta (o None si no es alerta)."""
+    clasificar_duda = función opcional que convierte cada texto de 'dudas' en un tipo de alerta (o None si no es alerta).
+    metodo = 'ia' (banco anotado) o 'codigo' (motor\\procesar_edicion.py). Va a cada cita.
+    Lo que entrega el motor trae además 'plataforma' y 'alertas' [(tipo, texto)] ya clasificadas por el código, y no trae
+    'vale_vista' (lo leerá la parte 3.7). Sin esa clave la alerta dice que el programa no lo leyó, no que el aviso no lo dice."""
     fecha = edicion["fecha"]
     if con.execute("SELECT 1 FROM ediciones WHERE fecha = ?", (fecha,)).fetchone():
         raise ValueError(f"La edición {fecha} ya está en la base. No se cargó nada.")
@@ -162,7 +169,7 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
                     "vv_regla, vv_regla_texto, vv_desde, vv_desde_origen, vv_hasta, vv_estado) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (aviso_id, k, el.get("inmueble"), (ex.get("direccion") or {}).get("valor"),
                      (ex.get("fecha_remate") or {}).get("valor"), (ex.get("hora_remate") or {}).get("valor"),
-                     mod.get("valor"), plataforma(mod.get("cita")),
+                     mod.get("valor"), ex["plataforma"] if "plataforma" in ex else plataforma(mod.get("cita")),
                      el.get("monto"), el.get("moneda"), el.get("costas_clp"),
                      g.get("porcentaje"), g.get("base") or "sin_dato", g.get("monto"), g.get("moneda"),
                      v.get("regla"), v.get("cita"), v.get("vv_desde"), v.get("vv_desde_origen"), v.get("vv_hasta"), v.get("vv_estado")))
@@ -170,7 +177,7 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
                 if not v.get("vv_hasta"):
                     con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, origen) VALUES (?,?,?,?,?)",
                                 (aviso_id, k if sub_lista else 0, "dato_faltante",
-                                 "El aviso no dice cuándo se entrega el vale vista. Debes averiguarlo en las bases o en el tribunal.", "codigo"))
+                                 VV_NO_DICE if "vale_vista" in ex else VV_NO_LEIDO, "codigo"))
                 if not descartado:
                     pendientes_bien.append((cur.lastrowid, causa_id, aviso_id, k, el.get("inmueble"), tribunal, ex))
                     if causa_id:
@@ -179,7 +186,7 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
             # Citas. El código comprueba que cada frase esté letra por letra en el texto del aviso.
             for sub, campo, n_cita, valor, cita in _citas_de(ex, sub_lista):
                 con.execute("INSERT INTO citas(aviso_id, sub_orden, campo, n_cita, valor, cita, metodo, verificada) VALUES (?,?,?,?,?,?,?,?)",
-                            (aviso_id, sub, campo, n_cita, None if valor is None else str(valor), cita, "ia", int(cita in a.texto)))
+                            (aviso_id, sub, campo, n_cita, None if valor is None else str(valor), cita, metodo, int(cita in a.texto)))
 
             # Alertas. Rol mal impreso por código. Las dudas, si hay con qué clasificarlas.
             motivo_rol = rol_mal_impreso(a.rol_impreso)
@@ -189,6 +196,8 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
             elif rol_sin_guion(a.rol_impreso):
                 con.execute("INSERT INTO alertas(aviso_id, tipo, texto, cita, origen) VALUES (?,?,?,?,?)",
                             (aviso_id, "detalle_menor", rol_sin_guion(a.rol_impreso), a.rol_impreso, "codigo"))
+            for tipo, texto in ex.get("alertas") or []:          # alertas del código (motor). Ya traen su tipo
+                con.execute("INSERT INTO alertas(aviso_id, tipo, texto, origen) VALUES (?,?,?,?)", (aviso_id, tipo, texto, "codigo"))
             for duda in (ex.get("dudas") or []) if clasificar_duda else []:
                 tipo = clasificar_duda(duda)
                 if tipo is None or (tipo == "rol_mal_impreso" and motivo_rol):
