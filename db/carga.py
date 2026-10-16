@@ -46,8 +46,18 @@ def rol_mal_impreso(impreso: str | None) -> str | None:
     s = re.sub(r"^(?:rol|rit|expediente|n\s*[°º]|[:\s])+", "", impreso.strip(), flags=re.I)
     if re.match(r"[A-Za-z]{2,}\s*-", s):
         return f"Rol impreso con letras de más en el prefijo ({impreso})"
-    if re.fullmatch(r"[A-Za-z]-\s?\d{5,}", s) and re.search(r"(?:19|20)\d\d$", s):
+    if re.fullmatch(r"[A-Za-z]-?\s?\d{5,}", s.replace(".", "")) and re.search(r"(?:19|20)\d\d$", s):
         return f"Rol impreso con el número y el año pegados, sin guion ({impreso})"
+    return None
+
+
+def rol_sin_guion(impreso: str | None) -> str | None:
+    """Detalle menor (decisión de Diego). La letra va pegada al número o separada por un espacio (C2461-2022, C 19087-2024)."""
+    if not impreso or rol_mal_impreso(impreso):
+        return None
+    s = re.sub(r"^(?:rol|rit|expediente|n\s*[°º]|[:\s])+", "", impreso.strip(), flags=re.I)
+    if re.match(r"[A-Za-z]\s?\d", s):
+        return f"Sin guion en el rol ({impreso})"
     return None
 
 
@@ -59,8 +69,14 @@ def plataforma(cita: str | None) -> str | None:
     return None
 
 
+# Remates de partición (juez o jueza partidor, partidora o árbitro). Decisión de Diego. Se descartan del todo.
+# Se busca al comienzo del aviso, sin importar mayúsculas (el diario escribe "Juez partidor", "JUEZ PARTIdor", "ANTE ARBITRO").
+PARTICION = re.compile(r"\bJUEZA?\s+(?:[ÁA]RBITRO|PARTIDORA?)\b|\bANTE\s+(?:EL\s+|LA\s+)?[ÁA]RBITRO\b|\bPARTICI[OÓ]N\b|\bPARTICIONAL\b", re.I)
+
+
 def es_partidor(tribunal: str | None, texto: str) -> bool:
-    return normalizar(tribunal).startswith("juez partidor") or bool(re.search(r"\bJUEZ\s+PARTIDOR\b", texto[:300]))
+    t = normalizar(tribunal)
+    return t.startswith(("juez partidor", "jueza partidora", "juez arbitro", "jueza arbitro")) or bool(PARTICION.search(texto[:300]))
 
 
 def _citas_de(ex: dict, sub_lista: dict):
@@ -170,6 +186,9 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
             if motivo_rol:
                 con.execute("INSERT INTO alertas(aviso_id, tipo, texto, cita, origen) VALUES (?,?,?,?,?)",
                             (aviso_id, "rol_mal_impreso", motivo_rol, a.rol_impreso, "codigo"))
+            elif rol_sin_guion(a.rol_impreso):
+                con.execute("INSERT INTO alertas(aviso_id, tipo, texto, cita, origen) VALUES (?,?,?,?,?)",
+                            (aviso_id, "detalle_menor", rol_sin_guion(a.rol_impreso), a.rol_impreso, "codigo"))
             for duda in (ex.get("dudas") or []) if clasificar_duda else []:
                 tipo = clasificar_duda(duda)
                 if tipo is None or (tipo == "rol_mal_impreso" and motivo_rol):

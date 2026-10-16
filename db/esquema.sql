@@ -146,9 +146,10 @@ CREATE TABLE IF NOT EXISTS alertas (
   -- revisar_lectura es una duda de LECTURA del programa. condicion_especial y aviso_previo son condiciones del tribunal.
   -- posible_republicacion la pone el código cuando no puede unir un remate con su bien.
   -- dato_faltante es algo que el aviso no dice y que Diego debe resolver (ej. cuándo se entrega el vale vista).
+  -- detalle_menor es un error de forma del aviso que se muestra con tono normal (ej. sin guion en el rol). Decisión de Diego.
   tipo        TEXT NOT NULL CHECK (tipo IN ('error_escritura','rol_mal_impreso','contradiccion',
                                             'condicion_especial','aviso_previo','revisar_lectura',
-                                            'posible_republicacion','dato_faltante')),
+                                            'posible_republicacion','dato_faltante','detalle_menor')),
   texto       TEXT NOT NULL,
   cita        TEXT,
   origen      TEXT NOT NULL CHECK (origen IN ('codigo','ia')),

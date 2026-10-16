@@ -79,6 +79,19 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("alerta de vale vista sin fecha en 27, 28, 33, 50, 55, 57, 59, 60 y 61", sin_fecha == {27, 28, 33, 50, 55, 57, 59, 60, 61}, str(sorted(sin_fecha)))
     revisar("sin alerta repetida por la duda del banco", uno("SELECT COUNT(*) FROM alertas x JOIN avisos a ON a.id = x.aviso_id WHERE a.orden = 59") == 1)
 
+    # Partidores reconocidos solo desde el texto, sin ayuda del tribunal anotado
+    from db.carga import es_partidor, rol_sin_guion
+    _, _, avisos_14, _ = datos_banco()
+    revisar("los 4 partidores del 14 de Octubre se reconocen solo con el texto", {a.orden for a in avisos_14 if es_partidor(None, a.texto)} == PARTIDORES)
+    revisar("un juzgado civil no se toma por partidor", not es_partidor("1° Juzgado Civil de Santiago", "REMATE 1° JUZGADO CIVIL DE SANtiago, Huérfanos 1409, se rematará"))
+    revisar("formas de partición vistas en otras ediciones", all(es_partidor(None, x) for x in (
+        "REMATE ANTE JUEZA ÁRBITRO doña Gabriela", "REMATE: ANTE ARBITRO SONIA DE las Mercedes", "REMATE. EN JUICIO DE PARTICIÓN Huenchunao",
+        "EXTRACTO REMATE. JUEZ PARTIdor Álvaro", "REMATE JUICIO PARTICIONAL juez arbitro Sergio")))
+    revisar("rol sin guion. detalle menor sí, rol mal impreso no",
+            [bool(rol_sin_guion(x)) for x in ("Rol C2461-2022", "Rol N° C13771-2025", "Rol C 19087-2024", "Rol C-2238-2020", "Rol N° 14328-2025")] == [True, True, True, False, False]
+            and rol_mal_impreso("rol C82062024") is not None and rol_sin_guion("rol C82062024") is None)
+    revisar("el 14 de Octubre no trae roles sin guion", uno("SELECT COUNT(*) FROM alertas WHERE tipo = 'detalle_menor'") == 0)
+
     # No se carga dos veces
     try:
         cargar(con); repetida = False
