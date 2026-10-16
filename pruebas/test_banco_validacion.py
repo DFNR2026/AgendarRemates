@@ -3,7 +3,9 @@ Correr desde D:\\Agendar_Remates con. python -m pruebas.test_banco_validacion
 
 Este banco lo anotó Claude ANTES de escribir el código de extracción. No se usa para ajustar reglas, solo para medir.
 Comprueba que cada cita exista letra por letra en el texto de su aviso, que cada monto, costas y porcentaje aparezca
-en su cita, que el rol calce con el del cortador, y que estén exactamente los 60 avisos de la muestra.
+en su cita, que el rol calce con el del cortador, y que estén exactamente los avisos de la muestra.
+Desde el 2026-10-15 (parte 3.6b) el cortador separa los pegados 55 y 102, así que los 60 avisos sorteados son 62
+(numeración nueva en muestra_validacion.json, campo renumeracion_2026_10_15).
 """
 import json, re, sys
 from pathlib import Path
@@ -17,7 +19,7 @@ pags = [(n, leer_pagina(D / f"mercurio_2026-10-06_{n}.txt")) for n in ("B7", "B8
 rollo, marcas = construir_rollo(pags)
 av = {a.orden: a for a in cortar(rollo, marcas)}
 banco = json.loads((D / "banco_validacion_2026-10-06.json").read_text(encoding="utf-8"))["avisos"]
-muestra = json.loads((D / "muestra_validacion.json").read_text(encoding="utf-8"))["muestra"]
+muestra = json.loads((D / "muestra_validacion.json").read_text(encoding="utf-8"))["renumeracion_2026_10_15"]["muestra_numeracion_nueva"]
 
 
 def num_en(cita, x):
@@ -58,7 +60,7 @@ for e in banco:
         if g["cita"] not in t: fallas.append(f"{e['n']} garantía cita no está. {g['cita']}")
         if g.get("porcentaje") is not None and f"{int(g['porcentaje'])}%" not in g["cita"]: fallas.append(f"{e['n']} porcentaje no aparece en su cita")
     if e["rol"] and f"{av[e['n']].rol}-{av[e['n']].anio}" != e["rol"]: fallas.append(f"{e['n']} rol distinto al del cortador")
-if sorted(e["n"] for e in banco) != sorted(muestra): fallas.append("los avisos anotados no son los 60 de la muestra")
+if sorted(e["n"] for e in banco) != sorted(muestra): fallas.append(f"los avisos anotados no son los {len(muestra)} de la muestra")
 
 print(f"Avisos anotados {len(banco)} (muestra {len(muestra)}) | pegados {sum(1 for e in banco if e.get('pegado'))} | citas revisadas {n_citas}")
 for f in fallas: print("FALLA", f)

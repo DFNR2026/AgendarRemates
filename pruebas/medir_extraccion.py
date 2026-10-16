@@ -30,6 +30,7 @@ def _resumen_minimo(m):
 
 cuenta = {c: {"acierto": 0, "vacio": 0, "equivocado": 0} for c in ("fecha_remate", "hora_remate", "minimo", "garantia", "modalidad", "tribunal")}
 detalle = []
+no_anotados = 0
 for e in banco:
     todo = extraer(av[e["n"]].texto, fecha)
     x = {"fecha_remate": todo["fecha_remate"], "hora_remate": todo["hora_remate"], "alertas": todo["alertas"]}
@@ -59,6 +60,9 @@ for e in banco:
     if es_partidor(None, av[e["n"]].texto):
         x["tribunal"]["valor"] = e["tribunal"]["valor"]
     for c in cuenta:
+        if c == "garantia" and ge.get("no_anotado"):
+            no_anotados += 1           # partes de un aviso pegado sin garantía anotada antes del código (parte 3.6b). No se cuentan
+            continue
         esperado, obtenido = e[c]["valor"], x[c]["valor"]
         if obtenido is None:
             k = "acierto" if esperado is None else "vacio"
@@ -70,4 +74,5 @@ for e in banco:
 print(f"Banco {fecha}, {len(banco)} avisos")
 for c, v in cuenta.items():
     print(f"{c:12} aciertos {v['acierto']:3} | vacíos {v['vacio']:3} | EQUIVOCADOS {v['equivocado']:3}")
+if no_anotados: print(f"garantía no anotada (no se cuenta) en {no_anotados} avisos")
 print("\n".join(detalle))
