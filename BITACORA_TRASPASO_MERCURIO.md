@@ -52,6 +52,9 @@ Pendiente desde el 14 de Octubre. Pedir al abogado dos o tres casos concretos (f
 - "REmate" con letra capital en minúscula por el estilo del diario.
 - (15 de Octubre) Los roles mal impresos se detectan por código. Prefijo con letras de más (CC-936-2026) o número y año pegados sin guion (C-24622022). La regla está en db\carga.py (rol_mal_impreso) y en el 14 de Octubre encontró exactamente los 4 anotados a mano (6, 17, 45 y 48), sin falsas alarmas en los otros 53. Sirve para que el Mercurio avise de errores del aviso.
 
+- (16 de Octubre) Los viernes el diario trae los remates dos veces (cuerpos B y G). Unirlos "por rol" sería peligroso, porque un mismo rol puede traer muchos remates (26 del C-5656-2013 el 1 de Septiembre). La unión debe hacerse por la huella del texto del aviso. Verificado que en Agendar_Remates todavía no está programada.
+- (16 de Octubre) Una alerta nunca debe afirmar que el aviso no dice algo cuando lo que pasa es que el programa no lo leyó. Pasó dos veces (garantía y vale vista) y se corrigió con textos distintos.
+
 ## 4. Lo que la llave del Mercurio no distingue (para revisar en el traspaso)
 
 - Un mismo aviso puede traer varios remates con su propio mínimo (aviso 3 del 14 de Octubre con 2 oficinas, aviso 30 con 4 lotes). Verificado.

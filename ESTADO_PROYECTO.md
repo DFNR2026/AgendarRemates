@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 15 de Octubre de 2026 (noche), cierre de la parte 3.6b (arreglo del cortador). Bitácoras en BITACORA_2026-10-14.md y BITACORA_2026-10-15.md (esta última tiene la madrugada, la tarde y la noche, puntos 1 a 45). Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 16 de Octubre de 2026, unión del motor con la base. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -90,7 +90,9 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
       ✅ Commit de cierre de la 3.5 (34ff86c y el de documentos, sin push)
    ✅ 3.6 Código de formato fijo (motor\extraccion.py, función extraer). Validación limpia contra el 6 de Octubre, 7 equivocados de 360 datos. Tras 3 arreglos, 1 (discutible). Fecha, hora y tribunal con 0 equivocados
    ✅ 3.6b Cortador. Separa "EXTRACTO. ANTE EL SEÑOR JUEZ Árbitro", "JUEZ ÁRBITRO" y "15° JUZGADO CIVIL" sin punto antes. Medido señal por señal en 8 rollos, solo cambiaron los casos esperados (06-10 de 107 a 110). Banco de validación renumerado (60 a 62 registros). Bitácora del 15, punto 45
-   ⬜ Commit de la 3.6b (Claude Code)
+   ✅ Commit de la 3.6b (da8fa69 a 95788f5, push hecho)
+   ✅ Unión del motor con la base (motor\procesar_edicion.py). El 14 de Octubre cargado por el motor calza con el banco salvo diferencias explicadas. El 13 de Octubre cargado en base de prueba. Bitácora del 16
+   ⬜ Commit de la unión (Claude Code)
    ⬜ 3.7 DeepSeek V4-Flash contra el Haiku más moderno, solo donde el código no alcance, con precios vigentes
 ⬜ Motor parte 4. Cuadre de cuentas
 ⬜ Interfaz con buscador, calendario, alertas y link a la página (incluye agregar una causa a mano al calendario, idea de Diego del 15 de Octubre)
@@ -99,14 +101,14 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
 
 ## Cómo se corre
 
-En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, playwright 1.60). Credenciales en config.py (fuera de git). Leer una edición. .venv\Scripts\python -m motor.lector_mercurio --fecha AAAA-MM-DD. Pruebas sin internet. .venv\Scripts\python -m pruebas.test_navegacion_logica, .venv\Scripts\python -m pruebas.test_cortador y .venv\Scripts\python -m pruebas.test_banco_nivel2 , .venv\Scripts\python -m pruebas.test_esquema, .venv\Scripts\python -m pruebas.test_carga_banco, .venv\Scripts\python -m pruebas.test_vistas, .venv\Scripts\python -m pruebas.test_banco_validacion y .venv\Scripts\python -m pruebas.test_extraccion (las ocho deben terminar en TODO OK). Medición aparte con .venv\Scripts\python -m pruebas.medir_extraccion 14 (o 06). Para medir un cambio del cortador en las 7 fechas capturadas. .venv\Scripts\python -m pruebas.foto_cortador sacar NOMBRE y luego comparar ANTES DESPUES (fotos en banco_pruebas\fotos_cortador).
+En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, playwright 1.60). Credenciales en config.py (fuera de git). Leer una edición. .venv\Scripts\python -m motor.lector_mercurio --fecha AAAA-MM-DD. Pruebas sin internet. .venv\Scripts\python -m pruebas.test_navegacion_logica, .venv\Scripts\python -m pruebas.test_cortador y .venv\Scripts\python -m pruebas.test_banco_nivel2 , .venv\Scripts\python -m pruebas.test_esquema, .venv\Scripts\python -m pruebas.test_carga_banco, .venv\Scripts\python -m pruebas.test_vistas, .venv\Scripts\python -m pruebas.test_banco_validacion, .venv\Scripts\python -m pruebas.test_extraccion y .venv\Scripts\python -m pruebas.test_procesar_edicion (las nueve deben terminar en TODO OK). Cargar una edición capturada en una base de prueba. .venv\Scripts\python -m motor.procesar_edicion AAAA-MM-DD RUTA_BASE (la base real espera la aprobación de Diego). Medición aparte con .venv\Scripts\python -m pruebas.medir_extraccion 14 (o 06). Para medir un cambio del cortador en las 7 fechas capturadas. .venv\Scripts\python -m pruebas.foto_cortador sacar NOMBRE y luego comparar ANTES DESPUES (fotos en banco_pruebas\fotos_cortador).
 
 ## Próximo paso (al abrir un chat nuevo)
 
-1. Confirmar con git log el commit de la parte 3.6b (hecho en Claude Code, reporte REPORTE_COMMIT_PARTE36B_2026-10-15.md) y si se hizo el push. El push solo con "apruebo push" de Diego.
-2. Correr las ocho pruebas y verificar TODO OK antes de tocar nada.
+1. Confirmar con git log el commit de la unión del motor con la base (hecho en Claude Code, reporte REPORTE_COMMIT_UNION_2026-10-16.md) y si se hizo el push. El push solo con "apruebo push" de Diego.
+2. Correr las nueve pruebas y verificar TODO OK antes de tocar nada.
 3. Pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
-4. Conectar extraer() con db\carga.py, para cargar una edición real leída por el motor.
+4. HECHO el 16 de Octubre (motor\procesar_edicion.py). Pendientes que dejó. Unir los rollos B y G de los viernes sin duplicar, por huella del texto y no por rol (decisión de Diego, paso aparte). Inmueble del lote 4 del aviso 30 del 14-10. Decidir cuándo se carga la base real.
 5. Parte 3.7. IA solo donde el código no alcanza (regla del vale vista, dirección e inmueble, partes), con cita comprobada por código. DeepSeek V4-Flash contra el Haiku más moderno, con precios vigentes.
 6. Decisiones abiertas de Diego. El "desde" del vale vista (pregunta 9 al abogado). Diseño de las visitas al tribunal (lista de días y horarios permitidos por vale vista).
 7. Parte 4. Cuadre de cuentas y republicaciones (más de la mitad de los avisos se repiten al día siguiente, punto 33 de la bitácora del 15).

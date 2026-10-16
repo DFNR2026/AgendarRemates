@@ -33,8 +33,8 @@ Las fechas salen como AAAA-MM-DD. La interfaz debe mostrarlas con el mes en pala
 
 ## Cómo se carga una edición
 
-db\carga.py guarda una edición completa en una sola transacción (si falta un aviso no carga nada, y no carga dos veces la misma edición). Recibe los avisos del cortador y lo extraído en el formato del banco nivel 2. El rol mal impreso lo detecta el código. db\cargar_banco.py carga el banco del 14 de Octubre solo en bases de prueba.
+db\carga.py guarda una edición completa en una sola transacción (si falta un aviso no carga nada, y no carga dos veces la misma edición). Recibe los avisos del cortador y lo extraído en el formato del banco nivel 2. El rol mal impreso lo detecta el código. db\cargar_banco.py carga el banco del 14 de Octubre solo en bases de prueba. Desde el 16 de Octubre motor\procesar_edicion.py carga una edición leída por el motor (corte, extraer() y traducción al formato del banco). Sus citas van con método codigo, sus alertas con el tipo que les da el código, y mientras no exista la parte 3.7 cada remate lleva la alerta "El programa todavía no lee la regla del vale vista de este aviso". Las ediciones con dos rollos se rechazan hasta programar la unión sin duplicar.
 
 ## Pruebas
 
-pruebas\test_esquema.py (crear dos veces, valores aceptados y rechazados), pruebas\test_carga_banco.py (61 avisos, 65 remates, 431 citas) y pruebas\test_vistas.py (buscador, calendario, entregas, republicación, partidor forzado, botón X). Las tres con prueba de mutación.
+pruebas\test_esquema.py (crear dos veces, valores aceptados y rechazados), pruebas\test_carga_banco.py (61 avisos, 65 remates, 431 citas) y pruebas\test_vistas.py (buscador, calendario, entregas, republicación, partidor forzado, botón X) y pruebas\test_procesar_edicion.py (el 14 de Octubre cargado por el motor contra el banco). Las cuatro con prueba de mutación.
