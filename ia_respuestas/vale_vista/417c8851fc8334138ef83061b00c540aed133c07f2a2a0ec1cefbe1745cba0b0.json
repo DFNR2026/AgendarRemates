@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 72,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "La entrega de la garantía debe ser efectuada con 72 horas de antelación a la fecha del remate",
+   "frases_extra": [
+    "la entrega de dicha garantía se efectuará presencialmente en Secretaria del Tribunal, en horario de 09:00 a 14:00 horas"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 72,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "La entrega de la garantía debe ser efectuada con 72 horas de antelación a la fecha del remate",
+   "frases_extra": [
+    "la entrega de dicha garantía se efectuará presencialmente en Secretaria del Tribunal, en horario de 09:00 a 14:00 horas"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1402,
+   "salida": 167,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1402,
+   "salida": 167,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

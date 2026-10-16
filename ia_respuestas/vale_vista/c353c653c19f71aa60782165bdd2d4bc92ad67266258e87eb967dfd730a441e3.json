@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-1",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "10:00",
+   "hora_hasta": "12:00",
+   "frase_regla": "postores deberán comparecer al Tribunal el día anterior al de la subasta, de 10:00 a 12:00 horas, a fin de entregar materialmente el vale vista endosable correspondiente al 10% del mínimo fijado para la subasta",
+   "frases_extra": [
+    "Remate se realizará en forma presencial en dependencias del tribunal"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "10:00",
+   "hora_hasta": "12:00",
+   "frase_regla": "postores deberán comparecer al Tribunal el día anterior al de la subasta, de 10:00 a 12:00 horas, a fin de entregar materialmente el vale vista endosable correspondiente al 10% del mínimo fijado para la subasta",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 868,
+   "salida": 399,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 868,
+   "salida": 530,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

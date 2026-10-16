@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-1",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 5,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "más tardar quinto día hábil anterior fecha subasta",
+   "frases_extra": [
+    "e ingresar comprobante Legible caución módulo especialmente establecido OJV"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 5,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "más tardar quinto día hábil anterior fecha subasta",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 804,
+   "salida": 561,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 804,
+   "salida": 382,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

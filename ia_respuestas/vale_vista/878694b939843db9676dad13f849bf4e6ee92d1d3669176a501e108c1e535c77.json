@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "deberá entregar el vale vista materialmente en el Tribunal, a más tardar a las 13:00 horas del día anterior a la realización de la subasta",
+   "frases_extra": [
+    "Para participar en la subasta, todo postor, deberá rendir caución a excepción de la parte ejecutante y/o el acreedor hipotecario si lo hubiere, acompañando vale vista endosable y tomado a la orden del Tribunal por el 10% del mínimo para iniciar las posturas"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "deberá entregar el vale vista materialmente en el Tribunal, a más tardar a las 13:00 horas del día anterior a la realización de la subasta",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1009,
+   "salida": 232,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1009,
+   "salida": 130,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

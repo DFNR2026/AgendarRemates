@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-1",
+ "lecturas": [
+  {
+   "regla": "sin_dato",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": null,
+   "frases_extra": [
+    "Interesados deben consignar garantía equivalente al 10% del mínimo fijado para el remate mediante vale vista a la orden del tribunal o en depósito en efectivo en la cuenta corriente del Tribunal y acompañar a los autos a través de presentación por la Oficina Judicial Virtual a fin de verificar la veracidad del vale vista de la garantía."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "sin_dato",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": null,
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 611,
+   "salida": 621,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 611,
+   "salida": 459,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

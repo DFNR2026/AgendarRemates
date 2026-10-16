@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-1",
+ "lecturas": [
+  {
+   "regla": "viernes_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "compareciendo al Tribunal el día viernes anterior a la fecha de la subasta, de 12:00 a 13:00 horas",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "viernes_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "compareciendo al Tribunal el día viernes anterior a la fecha de la subasta, de 12:00 a 13:00 horas",
+   "frases_extra": [
+    "a fin de entregar el vale vista, el que será guardado en la custodia del tribunal"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 913,
+   "salida": 610,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 913,
+   "salida": 678,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,51 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-1",
+ "lecturas": [
+  {
+   "regla": "sin_dato",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": null,
+   "frases_extra": [
+    "Todo postor, con excepción de la parte ejecutante y del acreedor hipotecario, si lo hubiere, para participar en la subasta debe acompañar materialmente vale vista endosable a la orden del Tribunal equivalente al 10% del precio mínimo fijado para la subasta.",
+    "Los vales vista recepcionados serán calificados al momento de hacerse el llamado al remate."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "sin_dato",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": null,
+   "frases_extra": [
+    "Todo postor, con excepción de la parte ejecutante y del acreedor hipotecario, si lo hubiere, para participar en la subasta debe acompañar materialmente vale vista endosable a la orden del Tribunal equivalente al 10% del precio mínimo fijado para la subasta.",
+    "Los vales vista recepcionados serán calificados al momento de hacerse el llamado al remate."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 550,
+   "salida": 768,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 550,
+   "salida": 442,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

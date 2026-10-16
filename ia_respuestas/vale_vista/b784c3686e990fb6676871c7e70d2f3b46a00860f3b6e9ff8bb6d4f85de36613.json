@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "en_el_remate",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Derecho posturas garantía suficiente $ 6.747.858 equivalente 10% mínimo, vale vista orden tribunal.",
+   "frases_extra": [
+    "Ejecutante no deberá presentar garantía para tomar parte subasta"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "en_el_remate",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Derecho posturas garantía suficiente $ 6.747.858 equivalente 10% mínimo, vale vista orden tribunal.",
+   "frases_extra": [
+    "Ejecutante no deberá presentar garantía para tomar parte subasta, abonándose a precio remate el valor del crédito tenga contra ejecutada."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 538,
+   "salida": 149,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 538,
+   "salida": 176,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

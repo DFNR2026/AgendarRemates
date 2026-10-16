@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "documento que se deberá presentar materialmente en la Secretaría del Tribunal hasta las 12:00 hrs. del día hábil anterior a la subasta",
+   "frases_extra": [
+    "si dicho día fuera sábado, hasta las 12:00 hrs. del viernes anterior a la subasta"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "documento que se deberá presentar materialmente en la Secretaría del Tribunal hasta las 12:00 hrs. del día hábil anterior a la subasta",
+   "frases_extra": [
+    "si dicho día fuera sábado, hasta las 12:00 hrs. del viernes anterior a la subasta"
+   ],
+   "contradiccion": "y enviar un correo a la casilla electrónica jcsantiago29_remates@pjud.cl, hasta las 12:00 hrs. del día hábil anterior a la subasta, y si dicho día fuera sábado, hasta las 12:00 hrs. del viernes anterior a la subasta"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1590,
+   "salida": 173,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1590,
+   "salida": 273,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

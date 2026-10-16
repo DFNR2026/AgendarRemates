@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-1",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "documento que se deberá presentar materialmente en la Secretaría del Tribunal hasta las 12:00 hrs. del día hábil anterior a la subasta",
+   "frases_extra": [
+    "y si dicho día fuera sábado, hasta las 12:00 hrs. del viernes anterior a la subasta"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "documento que se deberá presentar materialmente en la Secretaría del Tribunal hasta las 12:00 hrs. del día hábil anterior a la subasta",
+   "frases_extra": [
+    "y si dicho día fuera sábado, hasta las 12:00 hrs. del viernes anterior a la subasta"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1040,
+   "salida": 639,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1040,
+   "salida": 619,
+   "cache_lectura": 2562,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

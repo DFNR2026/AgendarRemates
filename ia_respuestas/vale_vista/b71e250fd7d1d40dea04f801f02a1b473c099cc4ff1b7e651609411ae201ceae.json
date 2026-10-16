@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 24,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "entregar copia digitalizada de carnet de identidad, nombre de postor, email y teléfono al menos 24 horas de anticipación a subasta",
+   "frases_extra": [
+    "Interesados entregar vale vista a orden de tribunal, nominativo o endosable, por 10% mínimo."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 24,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "entregar copia digitalizada de carnet de identidad, nombre de postor, email y teléfono al menos 24 horas de anticipación a subasta",
+   "frases_extra": [
+    "Interesados entregar vale vista a orden de tribunal, nominativo o endosable, por 10% mínimo."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 367,
+   "salida": 163,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 367,
+   "salida": 163,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

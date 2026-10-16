@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "deberá ser entregado materialmente en las dependencias del tribunal, ubicado en Huérfanos 1409, piso 2, hasta las 13:00 horas del día hábil inmediatamente anterior a la fecha fijada para el remate",
+   "frases_extra": [],
+   "contradiccion": "hasta las 14:00 horas del día hábil anterior a la fecha fijada para el remate"
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "deberá ser entregado materialmente en las dependencias del tribunal, ubicado en Huérfanos 1409, piso 2, hasta las 13:00 horas del día hábil inmediatamente anterior a la fecha fijada para el remate",
+   "frases_extra": [],
+   "contradiccion": "hasta las 14:00 horas del día hábil anterior a la fecha fijada para el remate"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1041,
+   "salida": 195,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1041,
+   "salida": 195,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}
