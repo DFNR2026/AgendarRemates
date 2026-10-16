@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 16 de Octubre de 2026, unión de los rollos B y G de los viernes. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 16 de Octubre de 2026, arreglo del guion al final de renglón. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -25,7 +25,7 @@ CORRECCIÓN de Diego (15 de Octubre, tarde). El calendario muestra la fecha del 
 El "desde" del vale vista cuando el aviso solo dice hasta cuándo. Diego cree que es desde el mismo día de la publicación. Pregunta 9 al abogado. Mientras tanto sigue la regla del día siguiente.
 Todo remate agendado sin fecha de vale vista se avisa en el HUD como dato faltante que Diego debe resolver.
 Agenda sin estado "descartado". Si Diego no irá a un remate, lo quita del calendario con un botón X. A Diego le indican a qué remate ir, por eso ningún aviso se elimina por filtros. Los que no pasan quedan visibles como "fuera de filtro". EXCEPCIÓN (Diego, 2026-10-15). Los remates de JUEZ PARTIDOR se descartan del todo y no aparecen en la búsqueda. Incluye los remates de partición ante juez o jueza ÁRBITRO (decisión del 15 de Octubre, noche). Regla PARTICION en db\carga.py.
-Rol sin guion después de la letra (C2461-2022). Se avisa como detalle menor, con tono normal (decisión del 15 de Octubre, noche).
+Rol sin guion después de la letra (C2461-2022). Se avisa como detalle menor, con tono normal (decisión del 15 de Octubre, noche). CORRECCIÓN del 16 de Octubre. El ejemplo C2461-2022 era falso (el diario imprime "Rol C-" y "2461-2022" en dos renglones y el programa borraba el guion). La decisión sigue, con ejemplos reales como "C 19087-2024" y "C8834-2022".
 Feriados de Chile cargados desde fuente oficial y aviso en diciembre si falta el año siguiente.
 La lectura debe ser perfecta por diseño. La IA nunca tiene la última palabra. Lo de formato fijo (rol, montos, fechas) lo lee el código. Lo de texto libre lo interpreta la IA citando la frase exacta, y el código verifica que la frase exista. Lo que no se pueda verificar se marca en rojo.
 Las 72 horas (y las 24) se cuentan en horas de reloj desde la hora del remate. Si el tope cae en fin de semana o feriado, se adelanta al último horario hábil. Si el aviso solo dice hasta cuándo se entrega el vale vista, el desde es el día siguiente a la edición. Decisiones del 15 de Octubre.
@@ -94,8 +94,9 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
    ✅ Unión del motor con la base (motor\procesar_edicion.py). El 14 de Octubre cargado por el motor calza con el banco salvo diferencias explicadas. El 13 de Octubre cargado en base de prueba. Bitácora del 16
    ✅ Commit de la unión (bc6f6bc y 9a3a438, push hecho)
    ✅ Unión de los rollos B y G sin duplicar, por huella del texto (09-10, 127 avisos y no 254). Las 7 ediciones capturadas cargan en bases de prueba. Bitácora del 16, puntos 10 a 18
-   ⬜ Commit de la unión B y G (Claude Code)
-   ⬜ Guion al final de renglón que se come el guion del rol (alerta falsa de rol mal impreso). Bitácora del 16, punto 12
+   ✅ Commit de la unión B y G (d283e2e, push hecho)
+   ✅ Guion al final de renglón. Solo se une la palabra cortada. Desaparecen 52 alertas falsas de rol en las 7 ediciones. Bancos corregidos sin borrar lo anterior. Bitácora del 16, puntos 19 a 25
+   ⬜ Commit del arreglo del guion (Claude Code)
    ⬜ 3.7 DeepSeek V4-Flash contra el Haiku más moderno, solo donde el código no alcance, con precios vigentes
 ⬜ Motor parte 4. Cuadre de cuentas
 ⬜ Interfaz con buscador, calendario, alertas y link a la página (incluye agregar una causa a mano al calendario, idea de Diego del 15 de Octubre)
@@ -108,9 +109,9 @@ En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, 
 
 ## Próximo paso (al abrir un chat nuevo)
 
-1. Confirmar con git log el commit de la unión de los rollos B y G (hecho en Claude Code, reporte REPORTE_COMMIT_UNION_BG_2026-10-16.md) y si se hizo el push. El push solo con "apruebo push" de Diego.
+1. Confirmar con git log el commit del arreglo del guion (hecho en Claude Code, reporte REPORTE_COMMIT_GUION_2026-10-16.md) y si se hizo el push. El push solo con "apruebo push" de Diego.
 2. Correr las nueve pruebas y verificar TODO OK antes de tocar nada.
-3. Arreglo del cortador. Unir la palabra cortada por guion al final de renglón solo cuando hay letra minúscula antes y después (hoy borra el guion del rol "C-3862-" + "2025" y fabrica una alerta falsa de rol mal impreso). Medir con pruebas\foto_cortador.py en las 7 fechas y revisar qué citas de los bancos cambian. Después, pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
+3. HECHO el 16 de Octubre (guion al final de renglón). Pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
 4. HECHO el 16 de Octubre (motor\procesar_edicion.py), con la unión de los rollos B y G por huella del texto. Pendientes que dejó. Inmueble del lote 4 del aviso 30 del 14-10. Decidir cuándo se carga la base real.
 5. Parte 3.7. IA solo donde el código no alcanza (regla del vale vista, dirección e inmueble, partes), con cita comprobada por código. DeepSeek V4-Flash contra el Haiku más moderno, con precios vigentes.
 6. Decisiones abiertas de Diego. El "desde" del vale vista (pregunta 9 al abogado). Diseño de las visitas al tribunal (lista de días y horarios permitidos por vale vista).

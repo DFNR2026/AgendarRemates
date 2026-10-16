@@ -27,7 +27,7 @@ Nivel 1. Que el motor encuentre todos los avisos, con su rol y su tribunal, y qu
 
 Avisos que siguen en otra página o en otro cuerpo del diario ("MÁS AVISOS ECONÓMICOS CLASIFICADOS EN PÁGINA C 8", "VIENEN DE PÁGINA B 11").
 Cornisas "1616 Remates de propiedades" en mitad de una palabra ("video confe1616 Remates de propiedades rencia").
-Roles sin guion (C-39902025), sin la palabra Rol (expediente C-5915-2025), con punto de miles (C-1.301-2026), con barra (2087/2024), con errata (CC-936-2026), sin prefijo C, o repetidos al inicio y al final del aviso.
+Roles sin guion (C-39902025, CORRECCIÓN del 16 de Octubre, ejemplo falso, el diario imprime "C-3990-" al final del renglón), sin la palabra Rol (expediente C-5915-2025), con punto de miles (C-1.301-2026), con barra (2087/2024), con errata (CC-936-2026), sin prefijo C, o repetidos al inicio y al final del aviso.
 Avisos sin rol impreso (Iturra Saldías, partidores) y RIT de juzgados laborales.
 Avisos que empiezan sin la palabra REMATE, con el tribunal en palabras (VIGÉSIMO SEXTO, TRIGÉSIMO, DÉCIMO QUINTO (15°)) o pegados al final del aviso anterior (SecretarioREMATE).
 Avisos de hasta 7.900 caracteres.
