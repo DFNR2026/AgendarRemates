@@ -2,7 +2,7 @@
 Correr desde D:\\Agendar_Remates con. python -m pruebas.test_carga_banco
 
 Los resultados esperados vienen de fuentes independientes de la carga. El banco nivel 2 (fechas, mínimos),
-la bitácora del 15 de Octubre (roles mal impresos en 6, 17, 45 y 48, contradicciones en 9 y 17) y el inventario (4 partidores).
+la bitácora del 15 de Octubre (rol mal impreso en 17. Los de 6, 45 y 48 eran falsos, bitácora del 16, contradicciones en 9 y 17) y el inventario (4 partidores).
 """
 import json, sqlite3, sys, tempfile
 from pathlib import Path
@@ -67,7 +67,9 @@ with tempfile.TemporaryDirectory() as tmp:
 
     # Alertas
     roles = {r[0] for r in q("SELECT a.orden FROM alertas x JOIN avisos a ON a.id = x.aviso_id WHERE x.tipo = 'rol_mal_impreso' AND x.origen = 'codigo'")}
-    revisar("rol mal impreso detectado por código en 6, 17, 45 y 48", roles == {6, 17, 45, 48}, str(sorted(roles)))
+    # Hasta el 2026-10-15 se esperaban 6, 17, 45 y 48. Los avisos 6, 45 y 48 eran FALSOS. El cortador borraba el guion del rol partido
+    # entre dos renglones ("Rol: C-2462-" y "2022"). Corregido el 2026-10-16 (bitácora del 16). Solo el 17 (CC-936-2026) es real.
+    revisar("rol mal impreso detectado por código solo en el 17", roles == {17}, str(sorted(roles)))
     revisar("sin alerta de rol repetida en el 17", uno("SELECT COUNT(*) FROM alertas x JOIN avisos a ON a.id = x.aviso_id WHERE a.orden = 17 AND x.tipo = 'rol_mal_impreso'") == 1)
     contra = {r[0] for r in q("SELECT a.orden FROM alertas x JOIN avisos a ON a.id = x.aviso_id WHERE x.tipo = 'contradiccion'")}
     revisar("contradicciones en 9 y 17", contra == {9, 17}, str(sorted(contra)))
@@ -88,7 +90,7 @@ with tempfile.TemporaryDirectory() as tmp:
         "REMATE ANTE JUEZA ÁRBITRO doña Gabriela", "REMATE: ANTE ARBITRO SONIA DE las Mercedes", "REMATE. EN JUICIO DE PARTICIÓN Huenchunao",
         "EXTRACTO REMATE. JUEZ PARTIdor Álvaro", "REMATE JUICIO PARTICIONAL juez arbitro Sergio")))
     revisar("rol sin guion. detalle menor sí, rol mal impreso no",
-            [bool(rol_sin_guion(x)) for x in ("Rol C2461-2022", "Rol N° C13771-2025", "Rol C 19087-2024", "Rol C-2238-2020", "Rol N° 14328-2025")] == [True, True, True, False, False]
+            [bool(rol_sin_guion(x)) for x in ("Rol C8834-2022", "Rol N° C13771-2025", "Rol C 19087-2024", "Rol C-2238-2020", "Rol N° 14328-2025")] == [True, True, True, False, False]
             and rol_mal_impreso("rol C82062024") is not None and rol_sin_guion("rol C82062024") is None)
     revisar("el 14 de Octubre no trae roles sin guion", uno("SELECT COUNT(*) FROM alertas WHERE tipo = 'detalle_menor'") == 0)
 

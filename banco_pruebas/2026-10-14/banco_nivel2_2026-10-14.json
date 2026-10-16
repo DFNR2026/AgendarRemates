@@ -898,7 +898,7 @@
     "monto": 5056.536936,
     "moneda": "UF",
     "costas_clp": 403000,
-    "cita": "El mínimo para la subasta será la suma de UF 5.056,536936.equivalente en pesos al día de la subasta, más suma de $ 403.000.- por concepto costas"
+    "cita": "El mínimo para la subasta será la suma de UF 5.056,536936.- equivalente en pesos al día de la subasta, más suma de $ 403.000.- por concepto costas"
    },
    "garantia": {
     "porcentaje": 10,
@@ -927,7 +927,15 @@
     "fecha": "2026-10-15",
     "ok": "sí",
     "comentario": null
-   }
+   },
+   "correcciones_2026_10_16": [
+    {
+     "campo": "aviso 18.minimo.cita",
+     "antes": "El mínimo para la subasta será la suma de UF 5.056,536936.equivalente en pesos al día de la subasta, más suma de $ 403.000.- por concepto costas",
+     "despues": "El mínimo para la subasta será la suma de UF 5.056,536936.- equivalente en pesos al día de la subasta, más suma de $ 403.000.- por concepto costas",
+     "motivo": "Cita escrita sobre el texto del cortador anterior, que borraba el guion al final de un renglón aunque no fuera palabra cortada (el '.-' de los montos se pegaba a la palabra siguiente). Corregida el 2026-10-16 con el texto del cortador nuevo. Bitácora del 16."
+    }
+   ]
   },
   {
    "n": 19,
@@ -949,7 +957,7 @@
     "monto": 240.702479,
     "moneda": "UF",
     "costas_clp": 155000,
-    "cita": "Mínimo para las posturas subasta asciende a 240,702479 Unidades de Fomento, avaluados en pesos a la fecha de la subasta, más la suma de $ 155.000.por concepto de costas"
+    "cita": "Mínimo para las posturas subasta asciende a 240,702479 Unidades de Fomento, avaluados en pesos a la fecha de la subasta, más la suma de $ 155.000.- por concepto de costas"
    },
    "garantia": {
     "porcentaje": 10,
@@ -980,7 +988,15 @@
     "fecha": "2026-10-15",
     "ok": "sí",
     "comentario": null
-   }
+   },
+   "correcciones_2026_10_16": [
+    {
+     "campo": "aviso 19.minimo.cita",
+     "antes": "Mínimo para las posturas subasta asciende a 240,702479 Unidades de Fomento, avaluados en pesos a la fecha de la subasta, más la suma de $ 155.000.por concepto de costas",
+     "despues": "Mínimo para las posturas subasta asciende a 240,702479 Unidades de Fomento, avaluados en pesos a la fecha de la subasta, más la suma de $ 155.000.- por concepto de costas",
+     "motivo": "Cita escrita sobre el texto del cortador anterior, que borraba el guion al final de un renglón aunque no fuera palabra cortada (el '.-' de los montos se pegaba a la palabra siguiente). Corregida el 2026-10-16 con el texto del cortador nuevo. Bitácora del 16."
+    }
+   ]
   },
   {
    "n": 20,
@@ -2405,7 +2421,7 @@
     "monto": 814,
     "moneda": "UF",
     "costas_clp": 478900,
-    "cita": "Mínimo subasta será 814 Unidades de Fomento en su equivalente en pesos al día del remate más $ 478.900.por costas"
+    "cita": "Mínimo subasta será 814 Unidades de Fomento en su equivalente en pesos al día del remate más $ 478.900.- por costas"
    },
    "garantia": {
     "porcentaje": 10,
@@ -2429,6 +2445,14 @@
    },
    "dudas": [
     "Chillán. Quedará fuera de filtro."
+   ],
+   "correcciones_2026_10_16": [
+    {
+     "campo": "aviso 50.minimo.cita",
+     "antes": "Mínimo subasta será 814 Unidades de Fomento en su equivalente en pesos al día del remate más $ 478.900.por costas",
+     "despues": "Mínimo subasta será 814 Unidades de Fomento en su equivalente en pesos al día del remate más $ 478.900.- por costas",
+     "motivo": "Cita escrita sobre el texto del cortador anterior, que borraba el guion al final de un renglón aunque no fuera palabra cortada (el '.-' de los montos se pegaba a la palabra siguiente). Corregida el 2026-10-16 con el texto del cortador nuevo. Bitácora del 16."
+    }
    ]
   },
   {

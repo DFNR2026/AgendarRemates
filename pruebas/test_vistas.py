@@ -43,7 +43,7 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("solo el aviso 20 trae dos links (B11 y C8)", q("SELECT orden, ruta_inicio, ruta_fin FROM v_buscador WHERE ruta_fin IS NOT NULL") ==
             [(20, "/2026/10/14/B/B-20261014-011", "/2026/10/14/C/L64MFDBT")])
     revisar("alertas sin partidores y errores del aviso marcados", not {r[0] for r in q("SELECT orden FROM v_alertas")} & PARTIDORES
-            and {r[0] for r in q("SELECT orden FROM v_alertas WHERE error_del_aviso")} == {6, 9, 17, 21, 45, 48})
+            and {r[0] for r in q("SELECT orden FROM v_alertas WHERE error_del_aviso")} == {9, 17, 21})   # 6, 45 y 48 eran roles falsos (bitácora del 16)
 
     # 2. Calendario por remate
     for orden, sub in ((3, 1), (30, 1), (30, 3), (19, 1), (22, 1), (23, 1), (5, 1), (6, 1), (59, 1)):

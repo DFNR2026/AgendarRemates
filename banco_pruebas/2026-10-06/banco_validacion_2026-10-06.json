@@ -73,8 +73,15 @@
     "cita": "caución 10% mínimo"
    },
    "dudas": [
-    "Modalidad deducida de 'en recinto del tribunal'.",
-    "Rol impreso sin guion después de la C (C2461-2022)."
+    "Modalidad deducida de 'en recinto del tribunal'."
+   ],
+   "correcciones_2026_10_16": [
+    {
+     "campo": "aviso 2.dudas",
+     "antes": "Rol impreso sin guion después de la C (C2461-2022).",
+     "despues": null,
+     "motivo": "Duda FALSA. El diario imprime el rol bien, partido entre dos renglones (ej. 'Rol C-' y '2461-2022'). El cortador anterior borraba ese guion. Verificado en el texto crudo el 2026-10-16."
+    }
    ]
   },
   {
@@ -426,8 +433,14 @@
     "moneda": null,
     "cita": "por un monto equivalente al 10% del precio mínimo"
    },
-   "dudas": [
-    "Rol impreso con el número y el año pegados (C-6992026). Se lee 699-2026, pero podría ser otro corte."
+   "dudas": [],
+   "correcciones_2026_10_16": [
+    {
+     "campo": "aviso 22.dudas",
+     "antes": "Rol impreso con el número y el año pegados (C-6992026). Se lee 699-2026, pero podría ser otro corte.",
+     "despues": null,
+     "motivo": "Duda FALSA. El diario imprime el rol bien, partido entre dos renglones (ej. 'Rol C-' y '2461-2022'). El cortador anterior borraba ese guion. Verificado en el texto crudo el 2026-10-16."
+    }
    ]
   },
   {
@@ -462,8 +475,15 @@
     "cita": "por un monto equivalente al 10% del precio mínimo"
    },
    "dudas": [
-    "Rol impreso con el número y el año pegados (C-157812025).",
     "Aviso partido entre B7 y B8."
+   ],
+   "correcciones_2026_10_16": [
+    {
+     "campo": "aviso 23.dudas",
+     "antes": "Rol impreso con el número y el año pegados (C-157812025).",
+     "despues": null,
+     "motivo": "Duda FALSA. El diario imprime el rol bien, partido entre dos renglones (ej. 'Rol C-' y '2461-2022'). El cortador anterior borraba ese guion. Verificado en el texto crudo el 2026-10-16."
+    }
    ]
   },
   {
@@ -557,7 +577,7 @@
     "monto": 1742.2482,
     "moneda": "UF",
     "costas_clp": 2097500,
-    "cita": "Mínimo subasta 1.742,2482.Unidades de Fomento",
+    "cita": "Mínimo subasta 1.742,2482.- Unidades de Fomento",
     "cita_costas": "más la suma de $2.097.500"
    },
    "garantia": {
@@ -572,6 +592,14 @@
     "El aviso no dice que los $2.097.500 sean costas, solo 'más la suma de'. Anotado como costas.",
     "Aviso sin la palabra REMATE al inicio.",
     "Inmueble en La Serena."
+   ],
+   "correcciones_2026_10_16": [
+    {
+     "campo": "aviso 26.minimo.cita",
+     "antes": "Mínimo subasta 1.742,2482.Unidades de Fomento",
+     "despues": "Mínimo subasta 1.742,2482.- Unidades de Fomento",
+     "motivo": "Cita escrita sobre el texto del cortador anterior, que borraba el guion al final de un renglón aunque no fuera palabra cortada (el '.-' de los montos se pegaba a la palabra siguiente). Corregida el 2026-10-16 con el texto del cortador nuevo. Bitácora del 16."
+    }
    ]
   },
   {
@@ -673,8 +701,14 @@
     "moneda": null,
     "cita": "no podrá ser inferior al 10% del mínimo fijado para el remate"
    },
-   "dudas": [
-    "Rol impreso con el número y el año pegados (C-141352025)."
+   "dudas": [],
+   "correcciones_2026_10_16": [
+    {
+     "campo": "aviso 30.dudas",
+     "antes": "Rol impreso con el número y el año pegados (C-141352025).",
+     "despues": null,
+     "motivo": "Duda FALSA. El diario imprime el rol bien, partido entre dos renglones (ej. 'Rol C-' y '2461-2022'). El cortador anterior borraba ese guion. Verificado en el texto crudo el 2026-10-16."
+    }
    ]
   },
   {
@@ -709,9 +743,16 @@
     "cita": "no podrá ser inferior al 10% del mínimo fijado para el remate"
    },
    "dudas": [
-    "Rol impreso con el número y el año pegados (C-226722024).",
     "Tres inmuebles (departamento, estacionamiento y bodega) con un solo mínimo. Es un solo remate.",
     "Trae otro monto ($ 200.000, el alza mínima de las posturas) que no es el mínimo."
+   ],
+   "correcciones_2026_10_16": [
+    {
+     "campo": "aviso 31.dudas",
+     "antes": "Rol impreso con el número y el año pegados (C-226722024).",
+     "despues": null,
+     "motivo": "Duda FALSA. El diario imprime el rol bien, partido entre dos renglones (ej. 'Rol C-' y '2461-2022'). El cortador anterior borraba ese guion. Verificado en el texto crudo el 2026-10-16."
+    }
    ]
   },
   {
@@ -1627,7 +1668,7 @@
     "moneda": "UF",
     "costas_clp": 206800,
     "cita": "Mínimo para las posturas subasta asciende a 269,070577 Unidades de Fomento",
-    "cita_costas": "más la suma de $206.800.por concepto de costas"
+    "cita_costas": "más la suma de $206.800.- por concepto de costas"
    },
    "garantia": {
     "porcentaje": 10,
@@ -1639,6 +1680,14 @@
    },
    "dudas": [
     "No dice cuándo se entrega el vale vista."
+   ],
+   "correcciones_2026_10_16": [
+    {
+     "campo": "aviso 85.minimo.cita_costas",
+     "antes": "más la suma de $206.800.por concepto de costas",
+     "despues": "más la suma de $206.800.- por concepto de costas",
+     "motivo": "Cita escrita sobre el texto del cortador anterior, que borraba el guion al final de un renglón aunque no fuera palabra cortada (el '.-' de los montos se pegaba a la palabra siguiente). Corregida el 2026-10-16 con el texto del cortador nuevo. Bitácora del 16."
+    }
    ]
   },
   {
@@ -1769,7 +1818,7 @@
     "moneda": "UF",
     "costas_clp": 341520,
     "cita": "Mínimo posturas 2.059,5452 UF",
-    "cita_costas": "más $ 341.520.por concepto de costas"
+    "cita_costas": "más $ 341.520.- por concepto de costas"
    },
    "garantia": {
     "porcentaje": 10,
@@ -1783,6 +1832,14 @@
     "Tribunal en palabras (VIGÉSIMO CUARTO).",
     "Inmueble en Rancagua.",
     "No dice cuándo se entrega el vale vista."
+   ],
+   "correcciones_2026_10_16": [
+    {
+     "campo": "aviso 89.minimo.cita_costas",
+     "antes": "más $ 341.520.por concepto de costas",
+     "despues": "más $ 341.520.- por concepto de costas",
+     "motivo": "Cita escrita sobre el texto del cortador anterior, que borraba el guion al final de un renglón aunque no fuera palabra cortada (el '.-' de los montos se pegaba a la palabra siguiente). Corregida el 2026-10-16 con el texto del cortador nuevo. Bitácora del 16."
+    }
    ]
   },
   {
