@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 16 de Octubre de 2026, diseño de la 3.7a y validación del vale vista anotada. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 16 de Octubre de 2026 (noche), vale vista con Haiku validado y diseño de su unión a la carga aprobado. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -105,8 +105,9 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
       ✅ Commit del código congelado (e328e5a, 6188890 y 0e0a242)
       ✅ VALIDACIÓN contra el 6 de Octubre (145b481). Cifra honesta 44 aciertos, 14 en rojo, 1 equivocado de 59 (aviso 80, ámbar con un día tarde). Bitácora del 16, punto 37
       ✅ Arreglo del día de la semana aplicado (punto 38). Con él, 0 equivocados en los dos bancos (no cambia la cifra honesta)
-      ⬜ Commit del arreglo (Claude Code)
-      ⬜ Unir el vale vista a la carga (carga.py con el método por dato y procesar_edicion llamando a Haiku)
+      ✅ Commit del arreglo (997ad22) y push de 8 commits (origin/master = 997ad22)
+      ✅ Diseño de la unión del vale vista a la carga APROBADO (bitácora del 16, punto 42)
+      ⬜ Código de la unión (procesar_edicion con Haiku, carga.py con método por dato, alertas por color) y su prueba
       ⬜ 3.7a Medición de validación una sola vez contra el 6 de Octubre
       ⬜ 3.7b Dirección e inmueble ⬜ 3.7c Partes
 ⬜ Motor parte 4. Cuadre de cuentas
@@ -124,7 +125,7 @@ En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, 
 2. Correr las nueve pruebas y verificar TODO OK antes de tocar nada.
 3. HECHO el 16 de Octubre (guion al final de renglón). Pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
 4. HECHO el 16 de Octubre (motor\procesar_edicion.py), con la unión de los rollos B y G por huella del texto. Pendientes que dejó. Inmueble del lote 4 del aviso 30 del 14-10. Decidir cuándo se carga la base real.
-5. Parte 3.7a. Verificar el commit del arreglo del día de la semana. Luego diseñar con Diego la unión del vale vista a la carga (carga.py con método por dato, procesar_edicion llamando a Haiku por Claude Code o desde el PC de Diego, porque el shell de Claude no llega a la API). Validación ya hecha (bitácora del 16, punto 37).
+5. Parte 3.7a. Escribir el código de la unión del vale vista a la carga con el diseño YA APROBADO (bitácora del 16, punto 42). Primero commit de los documentos pendientes del 16 (bitácora y ESTADO, puntos 38 a 42). Validación ya hecha (punto 37). Después vienen la 3.7b (dirección e inmueble) y la 3.7c (partes).
 6. Decisiones abiertas de Diego. El "desde" del vale vista (pregunta 9 al abogado). Diseño de las visitas al tribunal (lista de días y horarios permitidos por vale vista).
 7. Parte 4. Cuadre de cuentas y republicaciones (más de la mitad de los avisos se repiten al día siguiente, punto 33 de la bitácora del 15).
 8. Pendiente menor. Algunos avisos terminan con "EXTRACTO DE", que es el comienzo del aviso siguiente.
@@ -139,5 +140,5 @@ Los prompts de apertura de un chat nuevo se entregan en el chat, en un recuadro 
 Ir paso a paso, con el mapa "Dónde estamos" al cerrar hitos.
 Separar lo verificado de lo supuesto y dar un porcentaje de confianza cuando sea menor a 90%. Ningún arreglo sin causa raíz con evidencia.
 Diego no ejecuta comandos. El código lo hace Claude o Cline (prompts en un solo bloque, y Cline siempre deja un reporte .md al final).
-Commit y push SIEMPRE en Claude Code, con prompt y reporte .md (decisión de Diego del 15 de Octubre). El shell de Claude en el PC no tiene la clave de GitHub. Pendiente. Push de 34ff86c y 45d6a50.
+Commit y push SIEMPRE en Claude Code, con prompt y reporte .md (decisión de Diego del 15 de Octubre). El shell de Claude en el PC no tiene la clave de GitHub. El push lo hace Claude Code con el "apruebo push" de Diego. Último push 997ad22 (16 de Octubre).
 Al cerrar un trabajo, listar lo que se puso sin que Diego lo confirmara.
