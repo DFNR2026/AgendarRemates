@@ -66,3 +66,25 @@ def numeros_en(frase: str) -> set:
         else:
             i += 1
     return out
+
+
+def palabras_a_cifras(texto: str | None) -> str | None:
+    """Reemplaza cada número en palabras por sus cifras. 'departamento A trescientos nueve' da 'departamento A 309'.
+    Lo demás queda igual (14-10 avisos 16 y 42, la unidad viene en palabras y la IA la copia unas veces en palabras y
+    otras en cifras)."""
+    if not texto:
+        return texto
+    partes = re.split(r"(\s+)", texto)
+    out, i = [], 0
+    while i < len(partes):
+        if partes[i] and _sin_tildes(partes[i]) in PALABRAS and _sin_tildes(partes[i]) != "y":
+            j = i
+            while j + 2 < len(partes) and _sin_tildes(partes[j + 2]) in PALABRAS:
+                j += 2
+            while j > i and _sin_tildes(partes[j]) == "y":
+                j -= 2
+            n = palabras_a_numero(" ".join(partes[i:j + 1:2]))
+            if n:
+                out.append(n); i = j + 1; continue
+        out.append(partes[i]); i += 1
+    return "".join(out)
