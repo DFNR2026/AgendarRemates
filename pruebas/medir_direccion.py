@@ -79,7 +79,9 @@ def main():
                 clases = ["EQUIVOCADO"] * len(e["remates"])
             else:
                 clases = []
-                for x, ee in zip(leidos, e["remates"]):
+                for x, guardado, ee in zip(leidos, res["inmuebles"], e["remates"]):
+                    # se compara la comuna que GUARDA el verificador, no la que copió la IA (17 de Octubre, tras la validación)
+                    x = dict(x, comuna=guardado["comuna"])
                     c = comparar(x, ee)
                     if c == "EQUIVOCADO" and e.get("alternativas"):
                         c = min((comparar(x, alt) for alt in e["alternativas"][0][:1]), key=["acierto", "unidad_de_mas", "EQUIVOCADO"].index)
