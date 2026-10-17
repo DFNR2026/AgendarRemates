@@ -76,3 +76,8 @@ Pendiente desde el 14 de Octubre. Pedir al abogado dos o tres casos concretos (f
 - Un mismo rol puede traer decenas de propiedades (01-09, C-5656-2013, 26 avisos). Unir por rol o por causa sola junta propiedades distintas. La inscripción en el Conservador (fojas, número y año) las distingue y se lee por código (motor\extraccion.py, inscripcion).
 - En los avisos con varios lotes, el inmueble de cada mínimo es el primero nombrado después del mínimo anterior, no el último antes del mínimo (aviso de 4 lotes del 12° Civil, el lote 4 quedaba como estacionamiento 6).
 - La dirección tiene número en palabras con frecuencia y la comuna a veces solo como ciudad. Haiku a veces saca la comuna de la frase del Conservador, lo que no corresponde.
+
+## Lecciones de la parte 4 (17 de Octubre)
+- Un aviso sin rol ni tribunal ni inscripción no puede tener clave vacía, porque junta propiedades distintas de días distintos. Se identifica por la huella de su texto.
+- Comparar publicaciones solo de un valor a otro valor. Un dato vacío casi siempre es un dato que no se leyó ese día, no un cambio del aviso.
+- Contar los roles del texto contra los de los avisos detecta avisos con dos roles distintos impresos (error humano del secretario).

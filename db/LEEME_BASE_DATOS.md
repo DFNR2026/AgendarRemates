@@ -46,3 +46,7 @@ La columna remates.direccion y la nueva carga de remates.comuna vienen de Haiku 
 ## Parte 3.7c (17 de Octubre)
 
 La carátula de la causa la lee el código y se guarda en citas (campo caratulado, método codigo). v_buscador y v_calendario la muestran en la columna caratula con una consulta a citas. Las vistas se recrean cada vez, así que no cambió la versión del esquema. Las columnas avisos.demandante y avisos.demandado quedan vacías (decisión de Diego, basta la carátula). Prueba pruebas\test_caratula.py.
+
+## Parte 4 (17 de Octubre)
+
+motor\republicaciones.py llena la tabla cambios al cargar y al retomar. Solo cambios de un valor a otro valor (decisión de Diego). Un aviso sin rol, sin tribunal y sin inscripción se identifica por la huella de su texto (antes quedaba con la clave vacía sin_rol|| y juntaba propiedades distintas). v_calendario muestra el vale vista y la dirección de la publicación anterior mientras el nuevo está pendiente de la IA (columnas vv_de_publicacion y direccion_de_publicacion). Los textos de pendiente están escritos en la vista y deben ser iguales a VV_NO_LEIDO y DIR_NO_LEIDA de db\carga.py (lo revisa test_republicaciones). Sin cambio de versión del esquema.
