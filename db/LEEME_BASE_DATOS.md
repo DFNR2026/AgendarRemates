@@ -12,7 +12,7 @@ Un aviso es lo que se imprime. Un remate es lo que se agenda. Un aviso puede tra
 2. paginas. Texto completo, huella SHA-256 y ruta de cada página con remates (ej. /2026/10/14/C/L64MFDBT). El link directo es la dirección base de config.py más la ruta. El código de página no tiene formato fijo.
 3. avisos. Una fila por publicación, con lo común a sus remates (texto, rol, tribunal, partes, filtros, página donde empieza y donde termina). Ningún aviso se bota. filtro_estado puede ser pasa, fuera_filtro (se ve marcado con su motivo) o descartado (JUEZ PARTIDOR, decisión de Diego, no aparece en ninguna vista y existe solo para el cuadre de cuentas).
 4. remates. Una fila por remate dentro del aviso. Fecha, hora, modalidad (zoom, presencial, mixta, en_linea, sin_dato) y plataforma, mínimo y costas, garantía (porcentaje, base mínimo o tasación, monto fijo) y vale vista (regla, desde, hasta y estado).
-5. bienes. La identidad estable. Si la causa trae un solo remate se une por causa. Si trae varios, por número de depto, lote u oficina. Si no calza, alerta en vez de adivinar.
+5. bienes. La identidad estable. Si la causa trae un solo remate se une por causa. Si trae varios, por número de depto, lote u oficina de la lista de mínimos, y si no hay lista, por la inscripción en el Conservador (fojas, número y año, leída por código, parte 3.7b). La dirección leída por la IA nunca entra en la clave. Si no calza, alerta en vez de adivinar.
 6. citas. Por cada dato, la frase exacta del diario, quién lo sacó (código o IA) y si el código comprobó la frase. Una cita puede ser de un remate o del aviso completo, y un dato puede tener varias frases.
 7. alertas. Lo que la ficha del remate debe destacar junto al link. Errores del aviso (error_escritura, rol_mal_impreso, contradiccion), condiciones del tribunal (condicion_especial, aviso_previo), dudas de lectura (revisar_lectura) y posible_republicacion.
 8. causas. El juicio, con la llave rol-año más tribunal.
@@ -38,3 +38,7 @@ db\carga.py guarda una edición completa en una sola transacción (si falta un a
 ## Pruebas
 
 pruebas\test_esquema.py (crear dos veces, valores aceptados y rechazados), pruebas\test_carga_banco.py (61 avisos, 65 remates, 431 citas) y pruebas\test_vistas.py (buscador, calendario, entregas, republicación, partidor forzado, botón X) pruebas\test_procesar_edicion.py (el 14 de Octubre cargado por el motor contra el banco) y pruebas\test_union_vale_vista.py (el vale vista unido a la carga, 53, 4, 0 en el 14 de Octubre). Las cinco con prueba de mutación.
+
+## Parte 3.7b (17 de Octubre)
+
+La columna remates.direccion y la nueva carga de remates.comuna vienen de Haiku (motor\direccion.py), una por remate, verificadas por código. Sus citas van con campo direccion y método ia. La inscripción va en citas con campo inscripcion y método codigo. Si Haiku no responde, cada remate lleva la alerta "El programa todavía no lee la dirección de este aviso" y la edición su alarma "Dirección. N de M avisos...", y se termina con --retomar. Sin cambio de esquema (sigue la versión 2). Pruebas pruebas\test_direccion.py y pruebas\test_union_direccion.py.

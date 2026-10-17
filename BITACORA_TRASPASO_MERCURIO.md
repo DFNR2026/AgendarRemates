@@ -71,3 +71,8 @@ Pendiente desde el 14 de Octubre. Pedir al abogado dos o tres casos concretos (f
 - Preguntar a Diego y al abogado si el filtro de JUEZ PARTIDOR (decisión de Diego para su agenda) también se quiere en el Mercurio.
 - Antes de tocar el Mercurio, leer sus reglas inamovibles y su código actual, y repetir el banco de pruebas con el motor ya traspasado.
 - (15 de Octubre) Agendar_Remates decidió no filtrar (decisión de Diego). La extracción de comuna, fojas y año de dominio, que el Mercurio necesita para sus filtros, no se construye aquí. Habrá que hacerla en el traspaso, con las mismas reglas de este proyecto (cita exacta comprobada por código, vacío con alerta antes que adivinar).
+
+## Lecciones de la parte 3.7b (17 de Octubre)
+- Un mismo rol puede traer decenas de propiedades (01-09, C-5656-2013, 26 avisos). Unir por rol o por causa sola junta propiedades distintas. La inscripción en el Conservador (fojas, número y año) las distingue y se lee por código (motor\extraccion.py, inscripcion).
+- En los avisos con varios lotes, el inmueble de cada mínimo es el primero nombrado después del mínimo anterior, no el último antes del mínimo (aviso de 4 lotes del 12° Civil, el lote 4 quedaba como estacionamiento 6).
+- La dirección tiene número en palabras con frecuencia y la comuna a veces solo como ciudad. Haiku a veces saca la comuna de la frase del Conservador, lo que no corresponde.
