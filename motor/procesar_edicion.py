@@ -417,17 +417,25 @@ def desde_captura(fecha: str, carpeta: Path | None = None):
     solo_otro = len(avisos) > len(cortados[0])
     cuerpos = " ".join(f"{c}{v.split('n=')[-1]}" for c, v in sorted(nav["cuerpos"].items()))
     edicion = {"fecha": fecha, "leida_en": nav["leida_en"], "estado": "con_alarmas" if nav.get("alarmas") or solo_otro else "ok",
-               "cuerpos_revisados": cuerpos, "roles_en_texto": len(roles), "alarmas": "\n".join(alarmas) or None}
+               "cuerpos_revisados": cuerpos, "roles_en_texto": len(roles), "alarmas": "\n".join(alarmas) or None,
+               "_roles": roles}                # para el cuadre (parte 4). La carga no guarda esta clave
     return edicion, paginas, avisos, alertas
 
 
 def cargar_edicion(con, fecha: str, ahora: str, carpeta: Path | None = None, cliente=None, usar_ia: bool = True) -> dict:
     """usar_ia=False deja el vale vista sin leer (como antes de la parte 3.7a). Con usar_ia=True y cliente=None solo se usan
     las respuestas guardadas (así corren las pruebas sin internet)."""
+    from motor import republicaciones as RP
     edicion, paginas, avisos, alertas = desde_captura(fecha, carpeta)
     extraido = extraer_avisos(avisos, fecha)
     for orden, extra in alertas.items():
         extraido[orden]["alertas"] += extra
+    # Parte 4. Cuadre de cuentas. Aviso con dos roles distintos y roles del texto que no quedaron en ningún aviso.
+    for orden, extra in RP.alertas_cuadre(avisos, extraido).items():
+        extraido[orden]["alertas"] += extra
+    linea_cuadre = RP.alarma_cuadre(edicion.get("_roles") or set(), avisos)
+    if linea_cuadre:
+        edicion = dict(edicion, estado="con_alarmas", alarmas="\n".join(x for x in (edicion.get("alarmas"), linea_cuadre) if x))
     vv = agregar_vale_vista(avisos, extraido, fecha, cliente) if usar_ia else None
     dr = agregar_direccion(avisos, extraido, fecha, cliente) if usar_ia else None      # parte 3.7b
     for linea in (alarma_vale_vista(vv), alarma_direccion(dr)):
@@ -438,6 +446,7 @@ def cargar_edicion(con, fecha: str, ahora: str, carpeta: Path | None = None, cli
         res["vale_vista"] = vv
     if dr is not None:
         res["direccion"] = dr
+    res["cambios"] = RP.registrar_cambios(con, fecha, ahora)        # parte 4, cambios entre publicaciones
     return res
 
 
@@ -475,6 +484,8 @@ if __name__ == "__main__":
         con = crear(ruta)
         print("Vale vista.", retomar_vale_vista(con, fecha, cliente))
         print("Dirección.", retomar_direccion(con, fecha, cliente))      # parte 3.7b
+        from motor.republicaciones import registrar_cambios
+        print("Cambios.", registrar_cambios(con, fecha, dt.datetime.now().isoformat(timespec="seconds")))   # parte 4
         raise SystemExit(0)
     usar_ia = "--sin-ia" not in sys.argv
     cliente, motivo = cliente_o_nada() if usar_ia and not solo_guardadas else (None, None)

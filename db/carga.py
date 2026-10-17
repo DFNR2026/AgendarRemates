@@ -245,7 +245,7 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
                     con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, cita, origen) VALUES (?,?,?,?,?,?)",
                                 (aviso_id, k if sub_lista else 0, tipo_d, texto_d, cita_d, "codigo"))
                 if not descartado:
-                    pendientes_bien.append((cur.lastrowid, causa_id, aviso_id, k, el.get("inmueble"), tribunal, ex))
+                    pendientes_bien.append((cur.lastrowid, causa_id, aviso_id, k, el.get("inmueble"), tribunal, ex, a.texto))
                     if causa_id:
                         remates_por_causa[causa_id] = remates_por_causa.get(causa_id, 0) + 1
 
@@ -272,13 +272,18 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
 
         # Bienes. Se arman al final porque la regla depende de cuántos remates trae cada causa en la edición.
         usadas = set()
-        for remate_id, causa_id, aviso_id, k, inmueble, tribunal, ex in pendientes_bien:
+        for remate_id, causa_id, aviso_id, k, inmueble, tribunal, ex, texto_aviso in pendientes_bien:
             if causa_id:
                 base = con.execute("SELECT clave FROM causas WHERE id = ?", (causa_id,)).fetchone()[0]
                 varios = remates_por_causa[causa_id] > 1
                 clave = f"{base}|{identidad_inmueble(inmueble, ex)}" if varios else base
             else:
-                clave = f"sin_rol|{normalizar(tribunal)}|{identidad_inmueble(None, ex, sin_rol=True)}"
+                # Parte 4 (17 de Octubre). Sin rol ni tribunal ni inscripción la clave quedaba "sin_rol||" y juntaba propiedades
+                # distintas de días distintos (01-09 aviso 9, 06-10 aviso 84, 09-10 aviso 120, 10-10 aviso 119 y 11-10 aviso 127,
+                # todos marcados como pegados). Sin nada con qué identificarlo, el aviso se identifica por la huella de su texto
+                # (solo letras y números), así una republicación idéntica sigue unida y avisos distintos quedan separados.
+                ident = identidad_inmueble(None, ex, sin_rol=True) or "texto " + hashlib.sha1(re.sub(r"[\W_]+", "", texto_aviso.lower()).encode("utf-8")).hexdigest()[:12]
+                clave = f"sin_rol|{normalizar(tribunal)}|{ident}"
             if clave in usadas:   # dos remates de la misma edición que la regla no logra distinguir. No se adivina.
                 con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, origen) VALUES (?,?,?,?,?)",
                             (aviso_id, k, "revisar_lectura", f"No se pudo distinguir este remate de otro de la misma causa ({clave})", "codigo"))
