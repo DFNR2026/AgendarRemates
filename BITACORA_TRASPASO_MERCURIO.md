@@ -66,7 +66,9 @@ Pendiente desde el 14 de Octubre. Pedir al abogado dos o tres casos concretos (f
 
 ## 5. Pendiente antes del traspaso
 
-- Partes 3.6 y 3.7 (extracción con citas) y parte 4 (cuadre de cuentas, que incluye contar fechas de remate por aviso como red contra avisos pegados).
+- HECHO el 17 de Octubre. Partes 3.6 y 3.7 (extracción con citas) y parte 4 (cuadre de cuentas y republicaciones), más la marcha blanca del 15, 16 y 17 de Octubre.
+- (17 de Octubre, noche) Desde la 3.7b ya se leen la comuna (Haiku, verificada por código) y la inscripción en el Conservador con su año (código). Falta confirmar al leer el Mercurio si su filtro de "dominio anterior a 2020" usa ese mismo año. El Mercurio usa DeepSeek y este proyecto Haiku. Qué IA usar en el traspaso lo decide Diego.
+- (17 de Octubre, noche) Plan de Diego. El traspaso se hace en un chat nuevo del proyecto Mercurio, basado en esta bitácora. Cuando el Mercurio arreglado funcione en el PC de Diego, se saca el Excel para el abogado con las ediciones del 14 al 17 de Octubre (el abogado está de vacaciones y no ha corrido el programa). Las capturas de esas cuatro ediciones ya están guardadas aquí y sirven para comparar los dos programas.
 - Pendiente menor del cortador. Algunos avisos terminan con "EXTRACTO DE", que es el comienzo del título del siguiente.
 - Preguntar a Diego y al abogado si el filtro de JUEZ PARTIDOR (decisión de Diego para su agenda) también se quiere en el Mercurio.
 - Antes de tocar el Mercurio, leer sus reglas inamovibles y su código actual, y repetir el banco de pruebas con el motor ya traspasado.
