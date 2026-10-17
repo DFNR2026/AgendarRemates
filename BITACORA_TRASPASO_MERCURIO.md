@@ -83,3 +83,33 @@ Pendiente desde el 14 de Octubre. Pedir al abogado dos o tres casos concretos (f
 - Un aviso sin rol ni tribunal ni inscripción no puede tener clave vacía, porque junta propiedades distintas de días distintos. Se identifica por la huella de su texto.
 - Comparar publicaciones solo de un valor a otro valor. Un dato vacío casi siempre es un dato que no se leyó ese día, no un cambio del aviso.
 - Contar los roles del texto contra los de los avisos detecta avisos con dos roles distintos impresos (error humano del secretario).
+
+## Decisiones de Diego para el traspaso (17 de Octubre, noche)
+- La IA del Mercurio pasa a ser Haiku. DeepSeek se descarta del todo. Diego lo da por comprobado con Agendar_Remates (vale vista y dirección leídos por Haiku con cita verificada por código, validación y marcha blanca de tres ediciones).
+- El traspaso se hace de una sola vez y en un chat nuevo del proyecto Mercurio, con D:\Agendar_Remates y D:\Mercurio vinculadas. D:\Agendar_Remates queda solo de consulta desde ese chat.
+- Al terminar y pasar el banco de pruebas, se saca el Excel para el abogado con las ediciones del 14 al 17 de Octubre de 2026.
+
+## Cómo empezar el traspaso (mapa para el chat nuevo)
+Qué leer, en este orden.
+1. Este archivo completo.
+2. D:\Agendar_Remates\ESTADO_PROYECTO.md (decisiones, reglas de navegación y avance del motor).
+3. D:\Agendar_Remates\AUDITORIA_LECTURA_MERCURIO_2026-10-14.md (por qué falla hoy el Mercurio, con casos reales).
+4. D:\Mercurio\MD_Vivos\ (la bitácora más nueva es BITACORA_MERCURIO_2026-08-06.md) y D:\Mercurio\PROMPT_MAESTRO_MERCURIO_v3_1.md.
+5. El código actual del Mercurio (main.py, modulo1_mercurio.py, modulo5_reporte.py) antes de diseñar nada.
+
+Estado del Mercurio visto desde aquí el 17 de Octubre (verificado con git en D:\Mercurio, sin modificar nada). Último commit 8bdbff6, igual a origin/main. Hay 4 archivos con cambios sin commitear (main.py, modulo1_mercurio.py, modulo5_reporte.py y ejecutar_mercurio.bat), que son la alerta de fallo de la API con código de salida 3. Con "git diff --ignore-cr-at-eol" son 75 líneas agregadas y 6 quitadas (sin esa opción parecen miles, por los finales de línea de Windows). La temperatura de la IA no está fijada en modulo1_mercurio.py. E:\Mercurio, en el PC del abogado, tiene una mezcla de esos archivos (bitácora del Mercurio del 6 de Agosto).
+
+Qué pieza de Agendar_Remates resuelve qué (todas en D:\Agendar_Remates\motor).
+- lector_mercurio.py y navegacion_logica.py. Entrar al diario en modo HD, recorrer todos los cuerpos y tomar toda página con la cornisa 1616, con las flechas en sus dos formas. Resuelve F1 y F9.
+- orden_columnas.py. Ordena el texto de cada página por la posición de sus columnas.
+- cortador.py. Une las páginas en un solo rollo y corta por comienzo de aviso, sin IA. Resuelve F2, F3 y F4.
+- extraccion.py y numeros_texto.py. Rol, tribunal, fecha y hora, modalidad, mínimo, garantía, inscripción en el Conservador (fojas, número y año) y carátula, todo por código y con su cita.
+- vale_vista.py y direccion.py. Lo que lee Haiku, siempre con la frase exacta, doble lectura y verificación por código. Las respuestas se guardan por la huella del texto (ia_respuestas) para no pagar dos veces. El Mercurio necesita la dirección y la comuna, el vale vista no.
+- procesar_edicion.py. Orquesta todo, une los rollos B y G de los viernes por la huella del texto y permite retomar sin volver a leer el diario.
+- republicaciones.py. Cuadre de roles del texto contra los avisos y cambios entre publicaciones. Es la idea para reemplazar el historial CAUSAS que congela errores (F7).
+- db\carga.py y db\esquema.sql. Ningún aviso se bota (F5 y F8). Identidad de cada propiedad por causa más inscripción.
+- pruebas\ (16 pruebas sin internet ni Haiku) y banco_pruebas\ (ediciones con su inventario verificado a mano). Sirven para probar el Mercurio ya traspasado.
+
+Lo que el Mercurio tiene y Agendar_Remates no (no perderlo en el traspaso).
+- Sus filtros de negocio (solo RM por comuna, no BancoEstado, no Estación Central, rol desde 2018, dominio anterior a 2020 con la salvaguarda de REVISAR), el fuzzy de cortes con la hoja REFERENCIA de causas_ojv.xlsx, la llave rol-año más tribunal y el Excel de M5 tal como lo usa el abogado.
+- Supuesto por confirmar en el código. El año de dominio del filtro CBR sería el mismo año de inscripción que ya lee extraccion.py.
