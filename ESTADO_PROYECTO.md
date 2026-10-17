@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 16 de Octubre de 2026 (noche), código de la unión del vale vista a la carga escrito y probado en bases de prueba, sin commit. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 17 de Octubre de 2026, textos del rojo en palabras simples y comando para retomar el vale vista (bitácora del 17, sin commit). Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45), BITACORA_2026-10-16.md y BITACORA_2026-10-17.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -108,8 +108,10 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
       ✅ Commit del arreglo (997ad22) y push de 8 commits (origin/master = 997ad22)
       ✅ Diseño de la unión del vale vista a la carga APROBADO (bitácora del 16, punto 42)
       ✅ Commit de los documentos de los puntos 38 a 42 (6677c88, sin push)
-      🔄 Código de la unión escrito y probado (bitácora del 16, puntos 43 a 47). 14 de Octubre desde la base 53, 4, 0. Falta commit
+      ✅ Código de la unión escrito y probado (bitácora del 16, puntos 43 a 48). 14 de Octubre desde la base 53, 4, 0. Commits 2a70c30 y 05fc6bf, push hecho
       ✅ (La medición de validación contra el 6 de Octubre ya está hecha, punto 37)
+      ✅ Textos del rojo en palabras simples con su grupo, y retomar el vale vista de una edición ya cargada (bitácora del 17, puntos 1 a 14). Falta commit
+      ⬜ Banco de rojos para el análisis semanal (idea de Diego del 17, diseño por aprobar)
       ⬜ 3.7b Dirección e inmueble ⬜ 3.7c Partes
 ⬜ Motor parte 4. Cuadre de cuentas
 ⬜ Interfaz con buscador, calendario, alertas y link a la página (incluye agregar una causa a mano al calendario, idea de Diego del 15 de Octubre)
@@ -118,7 +120,7 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
 
 ## Cómo se corre
 
-En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, playwright 1.60). Credenciales en config.py (fuera de git). Leer una edición. .venv\Scripts\python -m motor.lector_mercurio --fecha AAAA-MM-DD. Pruebas sin internet. .venv\Scripts\python -m pruebas.test_navegacion_logica, .venv\Scripts\python -m pruebas.test_cortador y .venv\Scripts\python -m pruebas.test_banco_nivel2 , .venv\Scripts\python -m pruebas.test_esquema, .venv\Scripts\python -m pruebas.test_carga_banco, .venv\Scripts\python -m pruebas.test_vistas, .venv\Scripts\python -m pruebas.test_banco_validacion, .venv\Scripts\python -m pruebas.test_extraccion , .venv\Scripts\python -m pruebas.test_procesar_edicion, .venv\Scripts\python -m pruebas.test_vale_vista y .venv\Scripts\python -m pruebas.test_union_vale_vista (las once deben terminar en TODO OK). Cargar una edición capturada en una base de prueba. .venv\Scripts\python -m motor.procesar_edicion AAAA-MM-DD RUTA_BASE (la base real espera la aprobación de Diego). Desde la parte 3.7a llama a Haiku por los avisos sin respuesta guardada (necesita internet y la clave), y si no puede sigue con lo guardado. Con --sin-ia carga como antes. Medición aparte con .venv\Scripts\python -m pruebas.medir_extraccion 14 (o 06). Para medir un cambio del cortador en las 7 fechas capturadas. .venv\Scripts\python -m pruebas.foto_cortador sacar NOMBRE y luego comparar ANTES DESPUES (fotos en banco_pruebas\fotos_cortador).
+En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, playwright 1.60). Credenciales en config.py (fuera de git). Leer una edición. .venv\Scripts\python -m motor.lector_mercurio --fecha AAAA-MM-DD. Pruebas sin internet. .venv\Scripts\python -m pruebas.test_navegacion_logica, .venv\Scripts\python -m pruebas.test_cortador y .venv\Scripts\python -m pruebas.test_banco_nivel2 , .venv\Scripts\python -m pruebas.test_esquema, .venv\Scripts\python -m pruebas.test_carga_banco, .venv\Scripts\python -m pruebas.test_vistas, .venv\Scripts\python -m pruebas.test_banco_validacion, .venv\Scripts\python -m pruebas.test_extraccion , .venv\Scripts\python -m pruebas.test_procesar_edicion, .venv\Scripts\python -m pruebas.test_vale_vista y .venv\Scripts\python -m pruebas.test_union_vale_vista (las once deben terminar en TODO OK). Cargar una edición capturada en una base de prueba. .venv\Scripts\python -m motor.procesar_edicion AAAA-MM-DD RUTA_BASE (la base real espera la aprobación de Diego). Desde la parte 3.7a llama a Haiku por los avisos sin respuesta guardada (necesita internet y la clave), y si no puede sigue con lo guardado. Con --sin-ia carga como antes. Si Haiku no respondió en todos los avisos, la edición queda con alarma y se termina con .venv\Scripts\python -m motor.procesar_edicion --retomar AAAA-MM-DD RUTA_BASE, sin volver a leer el Mercurio. Medición aparte con .venv\Scripts\python -m pruebas.medir_extraccion 14 (o 06). Para medir un cambio del cortador en las 7 fechas capturadas. .venv\Scripts\python -m pruebas.foto_cortador sacar NOMBRE y luego comparar ANTES DESPUES (fotos en banco_pruebas\fotos_cortador).
 
 ## Próximo paso (al abrir un chat nuevo)
 
@@ -126,7 +128,7 @@ En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, 
 2. Correr las nueve pruebas y verificar TODO OK antes de tocar nada.
 3. HECHO el 16 de Octubre (guion al final de renglón). Pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
 4. HECHO el 16 de Octubre (motor\procesar_edicion.py), con la unión de los rollos B y G por huella del texto. Pendientes que dejó. Inmueble del lote 4 del aviso 30 del 14-10. Decidir cuándo se carga la base real.
-5. Parte 3.7a. Código de la unión del vale vista a la carga HECHO y probado (bitácora del 16, puntos 43 a 47). Falta que Diego revise lo decidido sin confirmar (punto 47 y lista del chat), el commit por Claude Code y el push con su aprobación. Después vienen la 3.7b (dirección e inmueble) y la 3.7c (partes).
+5. Parte 3.7a. Código de la unión del vale vista a la carga HECHO y probado (bitácora del 16, puntos 43 a 47). Commit y push hechos (origin/master = 05fc6bf). Decisiones 5 y 8 de esa lista aprobadas y hechas el 17 (bitácora del 17). Queda el banco de rojos (diseño por aprobar) y el resto de la lista. Después vienen la 3.7b (dirección e inmueble) y la 3.7c (partes).
 6. Decisiones abiertas de Diego. El "desde" del vale vista (pregunta 9 al abogado). Diseño de las visitas al tribunal (lista de días y horarios permitidos por vale vista).
 7. Parte 4. Cuadre de cuentas y republicaciones (más de la mitad de los avisos se repiten al día siguiente, punto 33 de la bitácora del 15).
 8. Pendiente menor. Algunos avisos terminan con "EXTRACTO DE", que es el comienzo del aviso siguiente.
@@ -141,5 +143,5 @@ Los prompts de apertura de un chat nuevo se entregan en el chat, en un recuadro 
 Ir paso a paso, con el mapa "Dónde estamos" al cerrar hitos.
 Separar lo verificado de lo supuesto y dar un porcentaje de confianza cuando sea menor a 90%. Ningún arreglo sin causa raíz con evidencia.
 Diego no ejecuta comandos. El código lo hace Claude o Cline (prompts en un solo bloque, y Cline siempre deja un reporte .md al final).
-Commit y push SIEMPRE en Claude Code, con prompt y reporte .md (decisión de Diego del 15 de Octubre). El shell de Claude en el PC no tiene la clave de GitHub. El push lo hace Claude Code con el "apruebo push" de Diego. Último push 997ad22 (16 de Octubre).
+CAMBIO de Diego (17 de Octubre). Claude Code se usa SOLO cuando es necesario. Los commits los hace Claude en el PC de Diego (Diego le da permiso para borrar archivos al comienzo de cada sesión, porque git borra sus archivos de bloqueo). Claude Code queda para una vez al final de cada sesión. Corre las pruebas con el .venv real, hace el push con el "apruebo push" de Diego y deja su reporte .md. El shell de Claude no tiene la clave de GitHub ni llega a la API de Anthropic. (Antes, desde el 15 de Octubre, commit y push iban siempre por Claude Code.) Último push 05fc6bf (16 de Octubre, noche).
 Al cerrar un trabajo, listar lo que se puso sin que Diego lo confirmara.
