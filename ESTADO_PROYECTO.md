@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 16 de Octubre de 2026 (noche), vale vista con Haiku validado y diseño de su unión a la carga aprobado. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 16 de Octubre de 2026 (noche), código de la unión del vale vista a la carga escrito y probado en bases de prueba, sin commit. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45) y BITACORA_2026-10-16.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -107,8 +107,9 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
       ✅ Arreglo del día de la semana aplicado (punto 38). Con él, 0 equivocados en los dos bancos (no cambia la cifra honesta)
       ✅ Commit del arreglo (997ad22) y push de 8 commits (origin/master = 997ad22)
       ✅ Diseño de la unión del vale vista a la carga APROBADO (bitácora del 16, punto 42)
-      ⬜ Código de la unión (procesar_edicion con Haiku, carga.py con método por dato, alertas por color) y su prueba
-      ⬜ 3.7a Medición de validación una sola vez contra el 6 de Octubre
+      ✅ Commit de los documentos de los puntos 38 a 42 (6677c88, sin push)
+      🔄 Código de la unión escrito y probado (bitácora del 16, puntos 43 a 47). 14 de Octubre desde la base 53, 4, 0. Falta commit
+      ✅ (La medición de validación contra el 6 de Octubre ya está hecha, punto 37)
       ⬜ 3.7b Dirección e inmueble ⬜ 3.7c Partes
 ⬜ Motor parte 4. Cuadre de cuentas
 ⬜ Interfaz con buscador, calendario, alertas y link a la página (incluye agregar una causa a mano al calendario, idea de Diego del 15 de Octubre)
@@ -117,7 +118,7 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
 
 ## Cómo se corre
 
-En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, playwright 1.60). Credenciales en config.py (fuera de git). Leer una edición. .venv\Scripts\python -m motor.lector_mercurio --fecha AAAA-MM-DD. Pruebas sin internet. .venv\Scripts\python -m pruebas.test_navegacion_logica, .venv\Scripts\python -m pruebas.test_cortador y .venv\Scripts\python -m pruebas.test_banco_nivel2 , .venv\Scripts\python -m pruebas.test_esquema, .venv\Scripts\python -m pruebas.test_carga_banco, .venv\Scripts\python -m pruebas.test_vistas, .venv\Scripts\python -m pruebas.test_banco_validacion, .venv\Scripts\python -m pruebas.test_extraccion y .venv\Scripts\python -m pruebas.test_procesar_edicion (las nueve deben terminar en TODO OK). Cargar una edición capturada en una base de prueba. .venv\Scripts\python -m motor.procesar_edicion AAAA-MM-DD RUTA_BASE (la base real espera la aprobación de Diego). Medición aparte con .venv\Scripts\python -m pruebas.medir_extraccion 14 (o 06). Para medir un cambio del cortador en las 7 fechas capturadas. .venv\Scripts\python -m pruebas.foto_cortador sacar NOMBRE y luego comparar ANTES DESPUES (fotos en banco_pruebas\fotos_cortador).
+En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, playwright 1.60). Credenciales en config.py (fuera de git). Leer una edición. .venv\Scripts\python -m motor.lector_mercurio --fecha AAAA-MM-DD. Pruebas sin internet. .venv\Scripts\python -m pruebas.test_navegacion_logica, .venv\Scripts\python -m pruebas.test_cortador y .venv\Scripts\python -m pruebas.test_banco_nivel2 , .venv\Scripts\python -m pruebas.test_esquema, .venv\Scripts\python -m pruebas.test_carga_banco, .venv\Scripts\python -m pruebas.test_vistas, .venv\Scripts\python -m pruebas.test_banco_validacion, .venv\Scripts\python -m pruebas.test_extraccion , .venv\Scripts\python -m pruebas.test_procesar_edicion, .venv\Scripts\python -m pruebas.test_vale_vista y .venv\Scripts\python -m pruebas.test_union_vale_vista (las once deben terminar en TODO OK). Cargar una edición capturada en una base de prueba. .venv\Scripts\python -m motor.procesar_edicion AAAA-MM-DD RUTA_BASE (la base real espera la aprobación de Diego). Desde la parte 3.7a llama a Haiku por los avisos sin respuesta guardada (necesita internet y la clave), y si no puede sigue con lo guardado. Con --sin-ia carga como antes. Medición aparte con .venv\Scripts\python -m pruebas.medir_extraccion 14 (o 06). Para medir un cambio del cortador en las 7 fechas capturadas. .venv\Scripts\python -m pruebas.foto_cortador sacar NOMBRE y luego comparar ANTES DESPUES (fotos en banco_pruebas\fotos_cortador).
 
 ## Próximo paso (al abrir un chat nuevo)
 
@@ -125,7 +126,7 @@ En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, 
 2. Correr las nueve pruebas y verificar TODO OK antes de tocar nada.
 3. HECHO el 16 de Octubre (guion al final de renglón). Pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
 4. HECHO el 16 de Octubre (motor\procesar_edicion.py), con la unión de los rollos B y G por huella del texto. Pendientes que dejó. Inmueble del lote 4 del aviso 30 del 14-10. Decidir cuándo se carga la base real.
-5. Parte 3.7a. Escribir el código de la unión del vale vista a la carga con el diseño YA APROBADO (bitácora del 16, punto 42). Primero commit de los documentos pendientes del 16 (bitácora y ESTADO, puntos 38 a 42). Validación ya hecha (punto 37). Después vienen la 3.7b (dirección e inmueble) y la 3.7c (partes).
+5. Parte 3.7a. Código de la unión del vale vista a la carga HECHO y probado (bitácora del 16, puntos 43 a 47). Falta que Diego revise lo decidido sin confirmar (punto 47 y lista del chat), el commit por Claude Code y el push con su aprobación. Después vienen la 3.7b (dirección e inmueble) y la 3.7c (partes).
 6. Decisiones abiertas de Diego. El "desde" del vale vista (pregunta 9 al abogado). Diseño de las visitas al tribunal (lista de días y horarios permitidos por vale vista).
 7. Parte 4. Cuadre de cuentas y republicaciones (más de la mitad de los avisos se repiten al día siguiente, punto 33 de la bitácora del 15).
 8. Pendiente menor. Algunos avisos terminan con "EXTRACTO DE", que es el comienzo del aviso siguiente.
