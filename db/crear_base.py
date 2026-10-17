@@ -36,7 +36,12 @@ def aviso_feriados(con, hoy=None):
     faltan = [str(hoy.year)] if str(hoy.year) not in anios else []
     if hoy.month == 12 and str(hoy.year + 1) not in anios:
         faltan.append(str(hoy.year + 1))
-    return f"Faltan los feriados de {', '.join(faltan)}" if faltan else ""
+    avisos = [f"Faltan los feriados de {', '.join(faltan)}"] if faltan else []
+    # 17 de Octubre. Un año calculado por ley (fuente PROVISORIO) debe reemplazarse por la lista oficial cuando se publique.
+    prov = [r[0] for r in con.execute("SELECT DISTINCT substr(fecha,1,4) FROM feriados WHERE fuente LIKE 'PROVISORIO%' ORDER BY 1")]
+    if prov:
+        avisos.append(f"Los feriados de {', '.join(prov)} son provisorios (calculados por ley). Reemplázalos por la lista oficial cuando se publique")
+    return ". ".join(avisos)
 
 if __name__ == "__main__":
     ruta = Path(sys.argv[1]) if len(sys.argv) > 1 else BASE

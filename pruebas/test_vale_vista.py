@@ -72,7 +72,7 @@ rojo("regla otra", {**base, "regla": "otra"})
 rojo("regla sin sus palabras", {**base, "regla": "martes_o_jueves_anterior"})
 rojo("días que no están en la frase", {**base, "dias": 3})
 rojo("sin_dato con plazo en el aviso", {**base, "regla": "sin_dato", "frase_regla": None, "hora_hasta": None, "dias": None})
-rojo("año sin feriados", base, fecha="2027-01-05")
+rojo("año sin feriados", base, fecha="2028-01-05")   # 17-10. Era 2027, pero ya están cargados los feriados 2027 (provisorios)
 rojo("remate anterior a la edición", base, fecha="2026-10-01")
 t27 = av[27].texto
 r27 = {**base, "regla": "en_el_remate", "dias": None, "hora_hasta": None, "hora_desde": None,
