@@ -52,3 +52,8 @@ Lo que el banco enseñó. La mayoría de lo marcado "revisar" son fallas de reda
 2026-10-06\banco_direccion_2026-10-06.json. VALIDACIÓN de la dirección. Los 62 avisos de la muestra ya sorteada (59 medibles, 62 remates), anotados por Claude ANTES de escribir las instrucciones. md5 bcea570d3ae0afc84900dd9463625a13. Script en anotacion_direccion. Se corrió una sola vez (MEDICION_DIR_2026-10-06_dir-2.txt).
 2026-10-14\banco_direccion_2026-10-14.json. AJUSTE de la dirección (57 medibles, 61 remates), reanotado desde el campo direccion del banco nivel 2, que queda igual. Las reglas de anotación están dentro de cada banco.
 Trampas nuevas del diario. Número de calle y de unidad en palabras ("número cero ciento sesenta y uno", "departamento número A trescientos nueve"), comuna nombrada solo como ciudad ("calle Camino Nuevo 2065, Chillán"), comuna "San Miguel, hoy San Joaquín", inscripción con año imposible ("año 2033"), varias inscripciones con el año al final.
+
+## Parte 3.7c (agregado el 2026-10-17)
+
+2026-10-06\banco_caratula_2026-10-06.json. VALIDACIÓN de la carátula (59 medibles, md5 804f5943a33ca52d20701652052655bc), anotada antes del código, script en anotacion_caratula. Se corrió una sola vez (MEDICION_CARATULA_2026-10-06.txt). 2026-10-14\banco_caratula_2026-10-14.json, AJUSTE (57 medibles).
+Trampas nuevas del diario. Comillas de cierre usadas como apertura (’Barrera con López’), "Caratulado" con mayúscula y sin comillas, carátula dentro de "causa X/ Y, juicio", "S.A. Con" y "Cía. Ltda" con punto y mayúscula dentro de la carátula, y el texto entre dos términos entrecomillados que no es carátula.

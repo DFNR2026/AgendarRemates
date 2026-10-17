@@ -42,3 +42,7 @@ pruebas\test_esquema.py (crear dos veces, valores aceptados y rechazados), prueb
 ## Parte 3.7b (17 de Octubre)
 
 La columna remates.direccion y la nueva carga de remates.comuna vienen de Haiku (motor\direccion.py), una por remate, verificadas por código. Sus citas van con campo direccion y método ia. La inscripción va en citas con campo inscripcion y método codigo. Si Haiku no responde, cada remate lleva la alerta "El programa todavía no lee la dirección de este aviso" y la edición su alarma "Dirección. N de M avisos...", y se termina con --retomar. Sin cambio de esquema (sigue la versión 2). Pruebas pruebas\test_direccion.py y pruebas\test_union_direccion.py.
+
+## Parte 3.7c (17 de Octubre)
+
+La carátula de la causa la lee el código y se guarda en citas (campo caratulado, método codigo). v_buscador y v_calendario la muestran en la columna caratula con una consulta a citas. Las vistas se recrean cada vez, así que no cambió la versión del esquema. Las columnas avisos.demandante y avisos.demandado quedan vacías (decisión de Diego, basta la carátula). Prueba pruebas\test_caratula.py.
