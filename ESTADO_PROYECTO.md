@@ -125,7 +125,7 @@ En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, 
 
 ## Próximo paso (al abrir un chat nuevo)
 
-1. Pedir a Diego el permiso para borrar archivos en D:\Agendar_Remates (para hacer commits). Confirmar con git log el último commit local. Al 17 de Octubre es 93e34e5, con 7 commits sin push (origin/master = 05fc6bf). El push va en el cierre semanal con Claude Code.
+1. Pedir a Diego el permiso para borrar archivos en D:\Agendar_Remates (para hacer commits). Confirmar con git log el último commit local. Al cerrar el chat del 17 de Octubre quedaron 9 commits locales sin push sobre origin/master = 05fc6bf (ver git log). El push va en el cierre semanal con Claude Code.
 2. Correr las doce pruebas y verificar TODO OK antes de tocar nada. Ninguna prueba llama a Haiku (candado sobre ia_respuestas).
 3. HECHO el 16 de Octubre (guion al final de renglón). Pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
 4. HECHO el 16 de Octubre (motor\procesar_edicion.py), con la unión de los rollos B y G por huella del texto. Pendientes que dejó. Inmueble del lote 4 del aviso 30 del 14-10. Decidir cuándo se carga la base real.
