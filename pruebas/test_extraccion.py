@@ -68,6 +68,65 @@ for texto, esperado in CASOS_TRIBUNAL.items():
     if obtenido != esperado:
         fallas.append(f"tribunal fijo. '{texto[:40]}' dio {obtenido} y debía dar {esperado}")
 print(f"casos fijos de tribunal {len(CASOS_TRIBUNAL)}")
+
+# Parte 3.7b (17 de Octubre). Inscripción en el Conservador, casos reales de las ediciones capturadas. Solo identifica la
+# propiedad (decisión de Diego), no filtra. Se esperan fojas, número y año sin puntos.
+from motor.extraccion import inscripcion, minimo_y_costas
+CASOS_INSCRIPCION = {
+    # 01-09 aviso 44
+    "Inscripción a Fojas 7.694, Número 6.390 del Registro de Propiedad del año 2009 del Conservador de Bienes Raíces de La Serena. Mínimo":
+        "fojas 7694 n 6390 2009",
+    # 01-09 aviso 50, el año va después del conservador
+    "Inscripción a fojas 39.341, número 59.430 del Registro de Propiedad del Conservador de Bienes Raíces de Santiago correspondiente al año 2010. Mínimo":
+        "fojas 39341 n 59430 2010",
+    # 06-10 aviso 73, "N" pegado al número y "vuelta"
+    "inscrito a fojas 57.106 N81.820 del Registro de Propiedad del año 2017": "fojas 57106 n 81820 2017",
+    "inscrito a fojas 5.431 vuelta N° 6.193 del Registro de Propiedad del año 2017": "fojas 5431 n 6193 2017",
+    # 09-10 aviso 83, dos inscripciones (depto y bodega) que comparten el año
+    "inscrito a fojas 44321, número 64342 y fojas 44321, número 64343 respectivamente, Registro Propiedad año 2023, Conservador":
+        "fojas 44321 n 64342 2023 + fojas 44321 n 64343 2023",
+    # 14-10 aviso 30, "bajo el N°"
+    "inscritos a nombre de CE Inmobiliaria III S.A. a fojas 44773 bajo el N° 66273 del Registro de Propiedad del Conservador de Bienes Raíces de Santiago correspondiente al año 2015":
+        "fojas 44773 n 66273 2015",
+    # formas vistas el 17 de Octubre
+    "a Fojas 5914v N° 6254, en el Registro de Propiedad del Conservador de Bienes Raíces de Antofagasta del año 2016.": "fojas 5914 n 6254 2016",
+    "la inscripción de fojas 24.045 No. 38.549 del Registro de Propiedad del Conservador de Bienes Raíces de Santiago del año 2.007.": "fojas 24045 n 38549 2007",
+    "inscrito a fojas 14. 515 N° 13.762 del registro de propiedad correspondiente al año 2008": "fojas 14515 n 13762 2008",
+    "Propiedad inscrita fojas Fs. 76060 N° 106266 Registro Propiedad Conservador Bienes Raíces Santiago del año 2025.": "fojas 76060 n 106266 2025",
+    "Fojas 77233, Número 112258, del Registro de Propiedad del 2021, del Conservador": "fojas 77233 n 112258 2021",
+    # 06-10 aviso 53, tres inscripciones con el año al final
+    "fojas 79793, n° 112451, fojas 79794 n° 112452, y fojas 79795, n° 112453, todas del registro de propiedad del año 2020 del Conservador":
+        "fojas 79793 n 112451 2020 + fojas 79794 n 112452 2020 + fojas 79795 n 112453 2020",
+    # inventado a propósito. La hipoteca no identifica la propiedad
+    "inscrito a fojas 100 número 200 del Registro de Propiedad del año 2010, y la hipoteca a fojas 300 número 400 del Registro de Hipotecas del año 2011.":
+        "fojas 100 n 200 2010",
+    "El inmueble no trae inscripción en este aviso.": None,
+}
+for texto, esperado in CASOS_INSCRIPCION.items():
+    obtenido = inscripcion(texto)["clave"]
+    if obtenido != esperado:
+        fallas.append(f"inscripción. '{texto[:50]}' dio {obtenido} y debía dar {esperado}")
+for el in inscripcion(" ".join(CASOS_INSCRIPCION))["inscripcion"]:
+    if el["cita"] not in " ".join(CASOS_INSCRIPCION):
+        fallas.append(f"inscripción. cita que no está en el texto ({el['cita'][:50]})")
+alerta = inscripcion("fojas 68126 N° 102.893, Registro Propiedad año 2033, Conservador Bienes Raíces Santiago", "2026-10-09")["alertas"]
+if not (alerta and alerta[0][0] == "error_escritura"):
+    fallas.append("inscripción. año 2033 sin alerta de error de escritura (09-10 aviso 119)")
+print(f"casos fijos de inscripción {len(CASOS_INSCRIPCION)}")
+
+# Etiqueta de cada mínimo en las listas (17 de Octubre). Primero la nombrada junto al mínimo, si no, la primera después
+# del mínimo anterior. 14-10 aviso 30 (lote 4) y 06-10 aviso 73 (departamento 41) quedaban con la pieza equivocada.
+lista30 = [x["inmueble"] for x in extraer(av[30].texto)["minimo"]["lista"]]
+if lista30 != ["lote 1", "lote 2", "lote 3", "lote 4"]:
+    fallas.append(f"etiqueta. aviso 30 del 14-10 dio {lista30}")
+T73 = ("se rematarán, en forma presencial, el día 5 de noviembre de 2026, a las 12:30 horas, los siguientes inmuebles: 1) Departamento N° 41 "
+       "del 4 piso, bodega N° 41 del subterráneo y estacionamiento N° 22, del edificio ubicado en Avenida Holanda N° 280. Mínimo para "
+       "comenzar las posturas: $130.690.779.- y 2) Departamento N° 31 del 3er piso del edificio ubicado en Avenida Perú N° 674-680. "
+       "Mínimo para comenzar las posturas: $ 92.362.264.-.")
+lista73 = [x["inmueble"] for x in minimo_y_costas(T73)["minimo"].get("lista", [])]
+if lista73 != ["departamento 41", "departamento 31"]:
+    fallas.append(f"etiqueta. aviso 73 del 06-10 dio {lista73}")
+print("etiquetas de listas. aviso 30 del 14-10", lista30, "y aviso 73 del 06-10", lista73)
 for c, n in aciertos.items():
     print(f"{c:12} aciertos {n} de {len(banco)} (mínimo {MINIMOS[c]})")
     if n < MINIMOS[c]: fallas.append(f"{c} bajó a {n} aciertos")

@@ -170,11 +170,13 @@ def minimo_y_costas(texto: str) -> dict:
         if signo_raro:
             alertas.append(("error_escritura", f"El aviso pone el signo $ a un monto en Unidades de Fomento ({m.group(0).strip()})."))
         # El inmueble de este mínimo. Primero el nombrado entre "mínimo" y el monto ("Mínimo para el Lote 1 es $"),
-        # si no, el último nombrado en los 300 caracteres anteriores ("Lote 4. ... Estacionamiento N° 6 ..., cuyo mínimo").
+        # si no, el PRIMERO nombrado después del mínimo anterior (o desde el comienzo del aviso). Parte 3.7b, 17 de Octubre.
+        # Antes se tomaba el último nombrado en los 300 caracteres anteriores, y fallaba cuando un lote trae varias piezas.
+        # 14-10 aviso 30 ("Lote 4. Conformado por el Estacionamiento N° 6 ..., cuyo mínimo") daba "estacionamiento 6" y
+        # 06-10 aviso 73 ("1) Departamento N° 41 ..., bodega N° 41 ... y estacionamiento N° 22") daba "estacionamiento 22".
         etiqueta = _ETIQUETA.search(texto, a.start(), m.start())
         if not etiqueta:
-            previas = list(_ETIQUETA.finditer(texto, max(0, a.start() - 300), a.start()))
-            etiqueta = previas[-1] if previas else None
+            etiqueta = _ETIQUETA.search(texto, hallados[-1]["fin"] if hallados else 0, a.start())
         hallados.append({"monto": monto, "moneda": moneda, "cita": texto[a.start():m.end()], "fin": m.end(),
                          "inmueble": f"{etiqueta.group(1).lower()} {etiqueta.group(2)}" if etiqueta else None})
     vacio = {"monto": None, "moneda": None, "costas_clp": None, "cita": None}
@@ -374,19 +376,67 @@ def tribunal(texto: str) -> dict:
     return {"tribunal": {"valor": valor, "cita": m.group(0)}, "alertas": alertas}
 
 
+# --- Etapa 6. Inscripción en el Conservador (parte 3.7b, 17 de Octubre) ------------------------------------------
+# Decisión de Diego del 17 de Octubre. La inscripción se lee SOLO para saber qué propiedad es cuál (no para filtrar).
+# Es el "RUT" de la propiedad. Separa los 26 remates del rol C-5656-2013 del 01-09 (26 de 26 distintas).
+# "Inscripción a Fojas 7.694, Número 6.390 del Registro de Propiedad del año 2009 del Conservador de Bienes Raíces de La Serena"
+# "inscrito a fojas 57.106 N81.820", "a fojas 5.431 vuelta N° 6.193", "a fojas 44773 bajo el N° 66273", "fojas 44321, número 64342"
+# Formas vistas en las 7 ediciones capturadas (17 de Octubre). "5914v N° 6254", "3242V N° 5292", "No. 38.549", "No 4.989",
+# "fojas 14. 515 N° 13.762", "fojas. 2412 número 3376", "fojas Fs. 76060 N° 106266".
+_NUM_INS = r"(\d{1,3}(?:\.\s?\d{3})+|\d+)"
+_FOJAS = re.compile(rf"\bfojas?\.?\s+(?:fs\.?\s*)?{_NUM_INS}\s*(?:vuelta|vta\.?|v(?![a-záéíóúñ]))?\s*,?\s*(?:y\s+)?(?:bajo\s+(?:el\s+)?)?"
+                    rf"(?:n[uú]mero|nro\.?|n\s*[°º]|no\.?(?=\s*\d)|N(?=\d))\s*{_NUM_INS}", re.I)
+# "del año 2009", "de 2011", "del 2021", "Propiedad 2018", "Santiago, 2005", "año 2.007"
+_ANIO_INS = re.compile(r"(?:\ba[ñn]o|\bdel?|\bpropiedad|,)\s+((?:19|20)\d\d|[12]\.\d{3})(?!\d)", re.I)
+_CBR = re.compile(r"Conservador\s+(?:de\s+)?Bienes\s+Ra[íi]ces\s+(?:de\s+|del\s+)?([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+(?:de\s+|del\s+)?[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)?)")
+_HIPOTECA = re.compile(r"hipotecas?|grav[áa]menes|prohibiciones", re.I)
+
+
+def inscripcion(texto: str, fecha_edicion: str | None = None) -> dict:
+    """Devuelve {'inscripcion': [{fojas, numero, anio, conservador, cita}], 'clave': str|None, 'alertas': []}.
+    Solo cuenta las inscripciones de dominio. Se salta las del Registro de Hipotecas o de Prohibiciones. El año y el
+    conservador se buscan en los 220 caracteres que siguen (a veces van después del conservador, 01-09 aviso 50).
+    clave junta todas las inscripciones del aviso (un depto y su bodega pueden tener dos, 09-10 aviso 83)."""
+    lista = []
+    for m in _FOJAS.finditer(texto):
+        resto = texto[m.end():m.end() + 220]
+        # el dato termina donde empieza la frase siguiente (punto y mayúscula). Si vienen varias inscripciones seguidas,
+        # comparten el año y el conservador que van al final ("fojas 79793, n° 112451, fojas 79794 n° 112452 ... todas del
+        # registro de propiedad del año 2020", 06-10 aviso 53).
+        corte = re.search(r"M[íi]nimo|\.\s+[A-ZÁÉÍÓÚ]", resto)
+        resto = resto[:corte.start()] if corte else resto
+        if _HIPOTECA.search(texto[max(0, m.start() - 60):m.start()] + resto[:90]) and not re.search(r"propiedad|dominio", resto[:90], re.I):
+            continue
+        a, c = _ANIO_INS.search(resto), _CBR.search(resto)
+        fin = max([m.end()] + [m.end() + x.end() for x in (a, c) if x])
+        el = {"fojas": re.sub(r"[.\s]", "", m.group(1)), "numero": re.sub(r"[.\s]", "", m.group(2)), "anio": a.group(1).replace(".", "") if a else None,
+              "conservador": c.group(1) if c else None, "cita": texto[m.start():fin]}
+        if (el["fojas"], el["numero"]) not in [(x["fojas"], x["numero"]) for x in lista]:
+            lista.append(el)
+    clave = " + ".join(f"fojas {x['fojas']} n {x['numero']}" + (f" {x['anio']}" if x["anio"] else "") for x in sorted(lista, key=lambda x: (x["fojas"], x["numero"]))) or None
+    alertas = []
+    for x in lista:
+        # 09-10 aviso 119 (y su republicación del 10 y del 11) imprime "Registro Propiedad año 2033"
+        if fecha_edicion and x["anio"] and x["anio"] > fecha_edicion[:4]:
+            alertas.append(("error_escritura", f"La inscripción del inmueble dice año {x['anio']}, posterior a la edición del diario. Posible error de escritura del aviso."))
+    return {"inscripcion": lista, "clave": clave, "alertas": alertas}
+
+
 # --- Todo junto ----------------------------------------------------------------------------------------------
 def extraer(texto: str, fecha_edicion: str | None = None) -> dict:
     """Corre las cinco extracciones. Si el trozo trae dos avisos pegados (dos fechas de remate distintas),
     NO entrega ningún dato. Solo la alerta, para que Diego lea el aviso en su página."""
     fh, mc, ga, mo, tr = fecha_y_hora(texto, fecha_edicion), minimo_y_costas(texto), garantia(texto), modalidad(texto), tribunal(texto)
-    alertas = fh["alertas"] + mc["alertas"] + ga["alertas"] + mo["alertas"] + tr["alertas"]
+    ins = inscripcion(texto, fecha_edicion)
+    alertas = fh["alertas"] + mc["alertas"] + ga["alertas"] + mo["alertas"] + tr["alertas"] + ins["alertas"]
     pegado = any("dos avisos pegados" in t for _, t in fh["alertas"])
     if pegado:
         return {"pegado": True, "fecha_remate": {"valor": None, "cita": None}, "hora_remate": {"valor": None, "cita": None},
                 "minimo": {"monto": None, "moneda": None, "costas_clp": None, "cita": None},
                 "garantia": {"porcentaje": None, "base": "sin_dato", "base_origen": None, "monto": None, "moneda": None, "cita": None},
                 "modalidad": {"valor": "sin_dato", "cita": None}, "plataforma": None, "tribunal": {"valor": None, "cita": None},
+                "inscripcion": {"lista": [], "clave": None},
                 "alertas": [a for a in fh["alertas"] if "dos avisos pegados" in a[1]]}
     return {"pegado": False, "fecha_remate": fh["fecha_remate"], "hora_remate": fh["hora_remate"], "minimo": mc["minimo"],
             "garantia": ga["garantia"], "modalidad": mo["modalidad"], "plataforma": mo["plataforma"], "tribunal": tr["tribunal"],
-            "alertas": alertas}
+            "inscripcion": {"lista": ins["inscripcion"], "clave": ins["clave"]}, "alertas": alertas}

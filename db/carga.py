@@ -100,11 +100,33 @@ def _citas_de(ex: dict, sub_lista: dict):
         campo = "garantia_porcentaje" if g.get("porcentaje") is not None else "garantia_monto" if g.get("monto") is not None else "garantia_base"
         valor = g.get("porcentaje") if g.get("porcentaje") is not None else g.get("monto")
         yield comun, campo, 1, valor, g["cita"], g.get("metodo")
+    ins = ex.get("inscripcion") or {}
+    for i, el in enumerate(ins.get("lista") or [], start=1):       # parte 3.7b. Para saber qué propiedad es cuál
+        valor = f"fojas {el['fojas']} n {el['numero']}" + (f" {el['anio']}" if el.get("anio") else "")
+        yield comun, "inscripcion", i, valor, el["cita"], ins.get("metodo")
     v = ex.get("vale_vista") or {}
     if v.get("cita"):
         yield comun, "vv_regla_texto", 1, v.get("regla"), v["cita"], v.get("metodo")
         for i, extra in enumerate(v.get("citas_extra") or [], start=2):
             yield comun, "vv_regla_texto", i, v.get("regla"), extra, v.get("metodo")
+
+
+def identidad_inmueble(inmueble: str | None, ex: dict, sin_rol: bool = False) -> str:
+    """Qué propiedad es (parte 3.7b, decisión de Diego del 17 de Octubre). Se usa cuando una causa trae varios remates en la
+    misma edición (01-09, 26 remates del rol C-5656-2013) o cuando el aviso no trae rol.
+    1. El lote, depto u oficina de la lista de mínimos (aviso 30 del 14-10, 4 lotes con una sola inscripción).
+    2. La inscripción en el Conservador, leída por código (fojas, número y año).
+    3. La dirección, solo si NO la leyó la IA (el banco anotado a mano). La IA nunca entra en la clave del bien.
+    Si no hay nada, queda vacío y la carga pone la alerta de remate que no se pudo distinguir."""
+    if inmueble:
+        return clave_inmueble(inmueble)
+    ins = (ex.get("inscripcion") or {}).get("clave")
+    if ins:
+        return ins
+    d = ex.get("direccion") or {}
+    if d.get("metodo") == "ia":
+        return ""
+    return normalizar(d.get("valor")) if sin_rol else clave_inmueble(d.get("valor"))     # como antes de la 3.7b
 
 
 VV_NO_LEIDO = "El programa todavía no lee la regla del vale vista de este aviso. Revísala en el aviso."
@@ -227,9 +249,9 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
             if causa_id:
                 base = con.execute("SELECT clave FROM causas WHERE id = ?", (causa_id,)).fetchone()[0]
                 varios = remates_por_causa[causa_id] > 1
-                clave = f"{base}|{clave_inmueble(inmueble or (ex.get('direccion') or {}).get('valor'))}" if varios else base
+                clave = f"{base}|{identidad_inmueble(inmueble, ex)}" if varios else base
             else:
-                clave = f"sin_rol|{normalizar(tribunal)}|{normalizar((ex.get('direccion') or {}).get('valor'))}"
+                clave = f"sin_rol|{normalizar(tribunal)}|{identidad_inmueble(None, ex, sin_rol=True)}"
             if clave in usadas:   # dos remates de la misma edición que la regla no logra distinguir. No se adivina.
                 con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, origen) VALUES (?,?,?,?,?)",
                             (aviso_id, k, "revisar_lectura", f"No se pudo distinguir este remate de otro de la misma causa ({clave})", "codigo"))

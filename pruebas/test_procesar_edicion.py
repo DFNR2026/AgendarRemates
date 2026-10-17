@@ -59,8 +59,8 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("sin diferencias fuera de las explicadas", not raras, " | ".join(raras[:8]))
     revisar("los 4 partidores descartados por el texto", {r[0] for r in B.execute("SELECT orden FROM avisos WHERE filtro_estado = 'descartado'")} == PARTIDORES)
     revisar("61 bienes, igual que el banco", uno(B, "SELECT COUNT(*) FROM bienes") == uno(A, "SELECT COUNT(*) FROM bienes") == 61)
-    revisar("citas del motor con método codigo y todas encontradas en su aviso",
-            B.execute("SELECT metodo, COUNT(*), SUM(verificada) FROM citas GROUP BY metodo").fetchall() == [("codigo", 315, 315)])
+    revisar("citas del motor con método codigo y todas encontradas en su aviso (315 de la 3.6 más 67 inscripciones de la 3.7b)",
+            B.execute("SELECT metodo, COUNT(*), SUM(verificada) FROM citas GROUP BY metodo").fetchall() == [("codigo", 382, 382)])
     revisar("citas del banco siguen con método ia", A.execute("SELECT DISTINCT metodo FROM citas").fetchall() == [("ia",)])
     revisar("65 alertas de vale vista NO LEÍDO en el motor y ninguna que diga que el aviso no lo dice",
             (uno(B, f"SELECT COUNT(*) FROM alertas WHERE texto = '{VV_NO_LEIDO}'"), uno(B, f"SELECT COUNT(*) FROM alertas WHERE texto = '{VV_NO_DICE}'")) == (65, 0))
@@ -68,6 +68,13 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("alertas del código guardadas con su tipo y origen codigo",
             uno(B, "SELECT COUNT(*) FROM alertas WHERE tipo = 'condicion_especial' AND origen = 'codigo'") == 12
             and uno(B, "SELECT COUNT(*) FROM alertas WHERE origen = 'ia'") == 0)
+    # Parte 3.7b (17 de Octubre). Con la etiqueta arreglada, el bien de cada remate del motor es el mismo que el del banco
+    # (antes el lote 4 del aviso 30 quedaba como "estacionamiento 6").
+    QB = "SELECT a.orden, r.sub_orden, b.clave FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN bienes b ON b.id = r.bien_id ORDER BY 1, 2"
+    revisar("3.7b. claves de bien del motor iguales a las del banco (incluye el lote 4 del aviso 30)", A.execute(QB).fetchall() == B.execute(QB).fetchall(),
+            str([x for x in B.execute(QB) if x[0] == 30]))
+    revisar("3.7b. inscripciones del motor con método codigo y todas encontradas en su aviso",
+            B.execute("SELECT COUNT(*), SUM(verificada), MIN(metodo), MAX(metodo) FROM citas WHERE campo = 'inscripcion'").fetchone() == (67, 67, "codigo", "codigo"))
     revisar("garantía 20% del aviso 43 avisada", uno(B, "SELECT COUNT(*) FROM alertas al JOIN avisos a ON a.id = al.aviso_id WHERE a.orden = 43 AND al.texto LIKE 'Garantía del 20%%'") == 1)
 
     # Viernes 2026-10-09. Cuerpos B (3 páginas) y G (8 páginas) con los mismos 127 avisos. Se unen sin duplicar por huella.
@@ -75,7 +82,9 @@ with tempfile.TemporaryDirectory() as tmp:
     D09 = RAIZ / "banco_pruebas" / "2026-10-09"
     U = crear(Path(tmp) / "union.db")
     res = cargar_edicion(U, "2026-10-09", "2026-10-16T00:00:00", D09)
-    revisar("09-10. 127 avisos y 128 remates (no 254)", (res["avisos"], res["remates"]) == (127, 128), str(res))
+    # Eran 128 remates hasta el 17 de Octubre. Con la etiqueta arreglada (parte 3.7b) el aviso 87 se separa en sus 3
+    # departamentos (antes 1 remate con la alerta de mínimos sin asignar), así que son 130. Sigue sin duplicar B y G.
+    revisar("09-10. 127 avisos y 130 remates (no 254)", (res["avisos"], res["remates"]) == (127, 130), str(res)[:200])
     revisar("09-10. 11 páginas guardadas, las de B y las de G", uno(U, "SELECT COUNT(*) FROM paginas") == 11)
     alarma = uno(U, "SELECT alarmas FROM ediciones") or ""
     revisar("09-10. alarma de resumen de la unión", "127 de 127 avisos unidos" in alarma and "7 con diferencias de espacios" in alarma, alarma)
@@ -96,6 +105,28 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("09-10. aviso 120 con rol y sin tribunal se guarda sin causa y con alerta (antes rompía la carga)",
             U.execute("SELECT a.causa_id IS NULL, COUNT(al.id) FROM avisos a JOIN alertas al ON al.aviso_id = a.id "
                       "WHERE a.orden = 120 AND al.texto LIKE 'El aviso tiene rol (22836-2024) pero no se encontró el tribunal%'").fetchone() == (1, 1))
+
+    # Parte 3.7b (17 de Octubre). 01-09, 26 remates del rol C-5656-2013 (28° Civil). Antes quedaban unidos por fecha y hora
+    # con la alerta "No se pudo distinguir". La inscripción en el Conservador los separa (decisión de Diego, solo para saber
+    # qué propiedad es cuál). Copiado de capturas al banco el 17 de Octubre (HUELLAS_ESPERADAS.txt).
+    D01 = RAIZ / "banco_pruebas" / "2026-09-01"
+    S = crear(Path(tmp) / "s01.db")
+    cargar_edicion(S, "2026-09-01", "2026-10-17T00:00:00", D01, usar_ia=False)
+    c5656 = S.execute("SELECT COUNT(*), COUNT(DISTINCT r.bien_id), SUM(b.clave LIKE '%|fojas %') FROM remates r JOIN avisos a ON a.id = r.aviso_id "
+                      "JOIN bienes b ON b.id = r.bien_id WHERE a.rol = '5656' AND a.anio = '2013'").fetchone()
+    revisar("3.7b. 01-09. los 26 remates del C-5656-2013 quedan en 26 bienes distintos, cada uno por su inscripción", c5656 == (26, 26, 26), str(c5656))
+    revisar("3.7b. 01-09. ninguna alerta de remate que no se pudo distinguir (antes 26)",
+            uno(S, "SELECT COUNT(*) FROM alertas WHERE texto LIKE 'No se pudo distinguir%'") == 0)
+    revisar("3.7b. 01-09. lote 44 del aviso 44 con su inscripción de La Serena",
+            uno(S, "SELECT b.clave FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN bienes b ON b.id = r.bien_id WHERE a.orden = 44").endswith("|fojas 7694 n 6390 2009"))
+    # 09-10. C-15288-2025 del 20° Civil, dos avisos (11:00 y 13:00) que la inscripción separa
+    revisar("3.7b. 09-10. los dos remates del C-15288-2025 por su inscripción",
+            sorted(x[0].split("|")[-1] for x in U.execute("SELECT b.clave FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN bienes b ON b.id = r.bien_id WHERE a.rol = '15288'"))
+            == ["fojas 28638 n 41285 2017", "fojas 44321 n 64342 2023 + fojas 44321 n 64343 2023"])
+    revisar("3.7b. 09-10. aviso 87 separado en sus 3 departamentos (antes quedaba con alerta de mínimos sin asignar)",
+            [x[0] for x in U.execute("SELECT r.inmueble FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE a.orden = 87 ORDER BY r.sub_orden")]
+            == ["departamento 3044", "departamento 204", "departamento 202"])
+    S.close()
 
     # unir_rollos con casos hechos a mano. Repeticiones contadas y aviso que solo está en G.
     def av(orden, texto, pag, rol_imp="Rol C-1-2020"):
