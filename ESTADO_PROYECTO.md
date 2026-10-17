@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 17 de Octubre de 2026 (noche). Partes 3.7b, 3.7c y 4 terminadas y marcha blanca del 15, 16 y 17 de Octubre revisada (bitácora del 17, puntos 30 a 68). Sigue la interfaz, en un chat nuevo. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45), BITACORA_2026-10-16.md y BITACORA_2026-10-17.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 17 de Octubre de 2026 (noche). Partes 3.7b, 3.7c y 4 terminadas y marcha blanca del 15, 16 y 17 de Octubre revisada (bitácora del 17, puntos 30 a 70). Sigue la interfaz, en un chat nuevo. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45), BITACORA_2026-10-16.md y BITACORA_2026-10-17.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -126,7 +126,7 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
       ✅ Arreglo de "Cía. Ltda" aplicado con la aprobación de Diego (punto 56). 06-10 58, 1, 0. La cifra honesta sigue siendo 57, 2, 0
 ✅ Motor parte 4. Cuadre de cuentas y republicaciones (bitácora del 17, puntos 57 a 63). Alerta de dos roles, cambios solo de valor a valor, arreglo de la clave vacía sin_rol||, calendario con el dato anterior si el nuevo está pendiente
 ✅ Marcha blanca del 15, 16 y 17 de Octubre en base de prueba, con push 1659555 (bitácora del 17, puntos 64 a 68). Arreglados 2 cambios falsos de dirección y las fechas de las alertas en palabras
-⬜ (Pendiente menor) Una fecha de remate anterior a la edición trae dos alertas iguales de error de escritura (bitácora del 17, punto 68)
+✅ Una sola alerta de error de escritura cuando la fecha del remate ya pasó (bitácora del 17, punto 69)
 ⬜ (Pendiente menor) Reutilizar la lectura de Haiku cuando el aviso se republica igual con otros espacios (ahorro de 1,5%, Diego lo dejó para después)
 ⬜ Interfaz con buscador, calendario, alertas y link a la página (incluye agregar una causa a mano al calendario, idea de Diego del 15 de Octubre)
 ⬜ Traspaso del motor al Mercurio (guía en BITACORA_TRASPASO_MERCURIO.md)

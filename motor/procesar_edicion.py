@@ -29,7 +29,6 @@ CAPTURAS = RAIZ / "capturas"
 # esquema. calculado = verde, revisar con vv_hasta = ámbar, revisar sin vv_hasta = rojo, sin_dato = sin dato.
 VV_CONTRADICCION = "El aviso da dos plazos u horarios distintos para la entrega del vale vista."
 VV_ERROR_ESCRITURA = "El aviso pide el vale vista en una fecha anterior a la edición. Posible error de escritura del aviso."
-VV_ERROR_REMATE = "La fecha del remate que trae el aviso ya pasó cuando salió publicado. Posible error de escritura del aviso."
 
 
 # Textos del rojo en palabras simples (decisión de Diego del 17 de Octubre). Cada alerta roja empieza con el grupo,
@@ -122,9 +121,8 @@ def bloque_vale_vista(res: dict) -> dict:
         b["alertas"].append(("contradiccion", VV_CONTRADICCION, res["contradiccion"]))
     if any("Posible error de escritura" in m for m in res.get("motivos") or []):
         b["alertas"].append(("error_escritura", VV_ERROR_ESCRITURA, cita))
-    if any("La fecha del remate es anterior a la edición" in m for m in res.get("motivos") or []):
-        # 06-10 aviso 45, remate impreso en 2025. El banco lo anota como error de escritura (decisión del 17 de Octubre).
-        b["alertas"].append(("error_escritura", VV_ERROR_REMATE, None))
+    # La fecha del remate anterior a la edición NO se avisa aquí. Ya la avisa extraccion.fecha_y_hora con las dos fechas en
+    # palabras (06-10 aviso 45, 15-10 C-5633-2024). Salían dos alertas iguales (aprobado por Diego el 17 de Octubre, noche).
     return b
 
 

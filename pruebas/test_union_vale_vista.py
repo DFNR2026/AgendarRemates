@@ -253,7 +253,6 @@ textos = list(GRUPOS.values()) + [traducir_motivo(m)[1] for m, _, _ in CASOS]
 revisar("decisión 5. ningún texto para Diego usa dos puntos ni punto y coma", not [x for x in textos if re.search(r"[:;]", x)])
 
 # --- Decisión 5, paso 2b. Remate con fecha anterior a la edición = error_escritura (06-10 aviso 45, remate en 2025) -----
-from motor.procesar_edicion import VV_ERROR_REMATE
 from motor.cortador import construir_rollo, cortar
 from motor.orden_columnas import leer_pagina
 D06 = RAIZ / "banco_pruebas" / "2026-10-06"
@@ -262,11 +261,14 @@ av06 = cortar(r06, m06)
 ex06 = extraer_avisos(av06, "2026-10-06")
 agregar_vale_vista(av06, ex06, "2026-10-06")
 v45 = ex06[45].get("vale_vista") or {}
-revisar("decisión 5, paso 2b. 06-10 aviso 45. rojo con grupo Error del aviso y alerta error_escritura del remate",
-        v45.get("color") == "rojo" and ("error_escritura", VV_ERROR_REMATE, None) in v45.get("alertas", [])
-        and v45["alertas"][0][1].startswith("Error del aviso. La fecha del remate ya pasó al publicarse."), str(v45.get("alertas"))[:200])
-otros = [o for o, x in ex06.items() if o != 45 and any(al[1] == VV_ERROR_REMATE for al in (x.get("vale_vista") or {}).get("alertas", []))]
-revisar("decisión 5, paso 2b. ningún otro aviso del 06-10 lleva esa alerta", not otros, str(otros))
+revisar("decisión 5, paso 2b. 06-10 aviso 45. rojo con grupo Error del aviso",
+        v45.get("color") == "rojo" and v45["alertas"][0][1].startswith("Error del aviso. La fecha del remate ya pasó al publicarse."), str(v45.get("alertas"))[:200])
+# Una sola alerta de error de escritura por la fecha pasada, la de la extracción (aprobado por Diego el 17 de Octubre, noche).
+err45 = [t for k, t, *_ in ex06[45]["alertas"] + v45.get("alertas", []) if k == "error_escritura"]
+revisar("06-10 aviso 45. una sola alerta de error de escritura por la fecha pasada, con las fechas en palabras",
+        len(err45) == 1 and err45[0].startswith("La fecha del remate (") and "es anterior a la edición del diario (6 de Octubre de 2026)" in err45[0], str(err45))
+revisar("ningún aviso del 06-10 lleva error de escritura de la fecha del remate desde el vale vista",
+        not [o for o, x in ex06.items() if any(k == "error_escritura" and "fecha del remate" in t for k, t, *_ in (x.get("vale_vista") or {}).get("alertas", []))])
 
 # --- Decisión 8, paso 3. Alarma de la edición cuando quedan avisos sin leer por la IA ------------------------------------
 # 09-10 (B y G, en el banco con su navegacion.json). Solo parte de sus avisos tiene respuesta guardada, el resto queda sin IA.
