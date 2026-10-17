@@ -75,6 +75,28 @@ revisar("posible republicación cuando el mismo texto de otro día quedó en otr
         and uno("SELECT COUNT(*) FROM alertas WHERE tipo = 'posible_republicacion' AND texto LIKE 'El mismo aviso salió el 13 de Octubre de 2026%'") == 1, str(rp))
 con.close()
 
+# Marcha blanca del 17 de Octubre. La dirección de un terreno sin calle copiada con una palabra de más o con otros espacios
+# no es un cambio (11981-2022 del 4° Civil y 2220-2020 del 6° Civil, 16 al 17 de Octubre).
+M = crear(Path(tmp.name) / "dir.db")
+M.execute("INSERT INTO ediciones(fecha, leida_en, estado) VALUES ('2026-10-16','x','ok'), ('2026-10-17','x','ok')")
+M.execute("INSERT INTO paginas(edicion_id, cuerpo, numero, id_pagina, ruta, texto, sha256) VALUES (1,'B',1,'p1','/r1','t','h'), (2,'D',1,'p2','/r2','t','h')")
+M.execute("INSERT INTO bienes(clave, creado_en) VALUES ('b1','x'), ('b2','x'), ('b3','x')")
+for ed, txt in ((1, "aviso uno"), (2, "aviso uno bis")):
+    M.execute("INSERT INTO avisos(edicion_id, orden, pagina_inicio_id, pagina_fin_id, texto) VALUES (?,1,?,?,?)", (ed, ed, ed, txt + " a"))
+    M.execute("INSERT INTO avisos(edicion_id, orden, pagina_inicio_id, pagina_fin_id, texto) VALUES (?,2,?,?,?)", (ed, ed, ed, txt + " b"))
+    M.execute("INSERT INTO avisos(edicion_id, orden, pagina_inicio_id, pagina_fin_id, texto) VALUES (?,3,?,?,?)", (ed, ed, ed, txt + " c"))
+DIRS = {1: ("El Lote ASeis-Dos ‘a’, de la subdivisión del Lote A-6", "la parcela N° 9-8 del plano de las parcelasN°9y10A", "calle Uno 100"),
+        2: ("Lote ASeis-Dos ‘a’, de la subdivisión del Lote A-6", "la parcela N° 9-8 del plano de las parcelas N °9y10A", "calle Dos 200")}
+for ed in (1, 2):
+    for k in range(3):
+        aid = M.execute("SELECT id FROM avisos WHERE edicion_id = ? AND orden = ?", (ed, k + 1)).fetchone()[0]
+        M.execute("INSERT INTO remates(aviso_id, sub_orden, bien_id, direccion) VALUES (?,1,?,?)", (aid, k + 1, DIRS[ed][k]))
+M.commit()
+RP.registrar_cambios(M, "2026-10-17", "x")
+dc = M.execute("SELECT bien_id, campo FROM cambios").fetchall()
+revisar("dirección con una palabra de más o con otros espacios no es cambio, una calle distinta sí", dc == [(3, "direccion")], str(dc))
+M.close()
+
 # Una edición vieja cargada después. Los cambios de la edición siguiente se calculan igual.
 D = crear(Path(tmp.name) / "desorden.db")
 cargar_edicion(D, "2026-10-11", "x", B / "2026-10-11"); cargar_edicion(D, "2026-10-06", "x", B / "2026-10-06")

@@ -82,7 +82,7 @@ CAMPOS = [
     ("garantia_monto", "el monto de la garantía", lambda v: v),
     ("vv_desde", "el desde del vale vista", lambda v: v),
     ("vv_hasta", "el plazo del vale vista", lambda v: v),
-    ("direccion", "la dirección", lambda v: norm(palabras_a_cifras(v))),
+    ("direccion", "la dirección", lambda v: huella(palabras_a_cifras(v))),
     ("comuna", "la comuna", lambda v: norm(v)),
     ("caratula", "la carátula", lambda v: clave_caratula(v)),
 ]
@@ -124,6 +124,11 @@ def registrar_cambios(con, fecha: str, ahora: str) -> dict:
                 for i, (campo, _, clave) in enumerate(CAMPOS, start=3):
                     va, vn = _N(ant[i]), _N(n[i])
                     if va is None or vn is None or clave(va) == clave(vn):
+                        continue
+                    # La dirección de un terreno sin calle es la frase del aviso, y la IA la copia a veces con una palabra de
+                    # más al comienzo o con otros espacios ("El Lote ASeis-Dos..." y "Lote ASeis-Dos...", marcha blanca del 17).
+                    # Si quitando espacios y puntuación una contiene a la otra, es la misma dirección.
+                    if campo == "direccion" and (clave(va) in clave(vn) or clave(vn) in clave(va)):
                         continue
                     con.execute("INSERT INTO cambios(bien_id, remate_anterior, remate_nuevo, campo, valor_anterior, valor_nuevo, detectado_en) "
                                 "VALUES (?,?,?,?,?,?,?)", (n[1], ant[0], n[0], campo, str(va), str(vn), ahora))

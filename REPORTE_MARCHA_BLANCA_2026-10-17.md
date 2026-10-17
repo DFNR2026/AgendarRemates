@@ -1,4 +1,4 @@
-# Reporte de la marcha blanca de las ediciones del 15, 16 y 17 de Octubre de 2026
+﻿# Reporte de la marcha blanca de las ediciones del 15, 16 y 17 de Octubre de 2026
 
 Se corrió el 17 de Octubre de 2026 en el PC de Diego, con el entorno .venv (Python 3.14.3). No se tocó agendar_remates.db ni se modificó código. Todo se cargó en la base de prueba marcha_blanca.db, que no va a git porque *.db está en .gitignore.
 
@@ -398,4 +398,4 @@ Comando .venv\Scripts\python -m motor.banco_rojos 2026-10-17 marcha_blanca.db
 
 Commit de las respuestas nuevas de Haiku y del banco de rojos 17e5e0d (264 archivos, 132 de dirección, 130 de vale vista y 2 del banco de rojos). Se revisó antes que no hubiera claves reales y no se agregaron capturas, bases .db, la planilla ni el .png. El reporte va en un segundo commit, cuyo hash se ve en git log.
 
-El push NO se ha hecho. Queda esperando que Diego escriba "apruebo push".
+Push hecho tras la respuesta exacta "apruebo push". Resultado 05fc6bf..1659555 master -> master, con 28 commits. Después del push, git rev-parse HEAD y origin/master dan ambos 1659555e372fb83000cfed4ce580d06221042f91, o sea que origin/master quedó igual al último commit local. Antes del push se revisó que el diff no tuviera claves (cero textos sk-ant y cero valores de config.py).

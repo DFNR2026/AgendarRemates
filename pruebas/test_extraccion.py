@@ -113,6 +113,10 @@ alerta = inscripcion("fojas 68126 N° 102.893, Registro Propiedad año 2033, Con
 if not (alerta and alerta[0][0] == "error_escritura"):
     fallas.append("inscripción. año 2033 sin alerta de error de escritura (09-10 aviso 119)")
 print(f"casos fijos de inscripción {len(CASOS_INSCRIPCION)}")
+# Marcha blanca del 17 de Octubre. Las alertas muestran las fechas con el mes en palabras, nunca en número (pedido de Diego).
+_al = extraer("REMATE 28° JUZGADO CIVIL DE Santiago, se rematará el día 26 de mayo de 2026, a las 13:50 horas. Mínimo $ 1.000.000.", "2026-10-15")["alertas"]
+if not any(t == "La fecha del remate (26 de Mayo de 2026) es anterior a la edición del diario (15 de Octubre de 2026)." for _, t in _al):
+    fallas.append(f"alerta de fecha pasada sin el mes en palabras {_al}")
 
 # Etiqueta de cada mínimo en las listas (17 de Octubre). Primero la nombrada junto al mínimo, si no, la primera después
 # del mínimo anterior. 14-10 aviso 30 (lote 4) y 06-10 aviso 73 (departamento 41) quedaban con la pieza equivocada.

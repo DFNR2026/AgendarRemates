@@ -7,6 +7,15 @@ Etapa 1. Fecha y hora del remate.
 import datetime as dt
 import re
 
+_NOMBRE_MES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+
+
+def fecha_palabras(f: str) -> str:
+    """'2026-05-26' da '26 de Mayo de 2026'. Los meses nunca en número en lo que ve Diego (pedido del 15 de Octubre)."""
+    a, m, d = f[:10].split("-")
+    return f"{int(d)} de {_NOMBRE_MES[int(m) - 1]} de {a}"
+
+
 MESES = {"enero": 1, "febrero": 2, "marzo": 3, "abril": 4, "mayo": 5, "junio": 6, "julio": 7, "agosto": 8,
          "septiembre": 9, "setiembre": 9, "octubre": 10, "noviembre": 11, "diciembre": 12}
 _MES = "|".join(MESES)
@@ -76,7 +85,8 @@ def fecha_y_hora(texto: str, fecha_edicion: str | None = None) -> dict:
                 break
     resultado = {"fecha_remate": {"valor": None, "cita": None}, "hora_remate": {"valor": None, "cita": None}, "alertas": alertas}
     if len(cercanas) > 1:
-        alertas.append(("revisar_lectura", f"El trozo trae más de una fecha de remate ({', '.join(sorted(cercanas))}). Puede tener dos avisos pegados."))
+        # fechas con el mes en palabras (marcha blanca del 17 de Octubre, salían como 2026-10-27)
+        alertas.append(("revisar_lectura", f"El trozo trae más de una fecha de remate ({', '.join(fecha_palabras(x) for x in sorted(cercanas))}). Puede tener dos avisos pegados."))
         return resultado
     if not elegida:
         alertas.append(("revisar_lectura", "No se encontró la fecha del remate."))
@@ -84,7 +94,7 @@ def fecha_y_hora(texto: str, fecha_edicion: str | None = None) -> dict:
     ini, fin, valor, cita = elegida
     resultado["fecha_remate"] = {"valor": valor, "cita": cita}
     if fecha_edicion and valor < fecha_edicion:
-        alertas.append(("error_escritura", f"La fecha del remate ({valor}) es anterior a la edición del diario ({fecha_edicion})."))
+        alertas.append(("error_escritura", f"La fecha del remate ({fecha_palabras(valor)}) es anterior a la edición del diario ({fecha_palabras(fecha_edicion)})."))
     h, hc = _hora_tras(texto, fin, fin + 80)
     if h is None:
         h, hc = _hora_tras(texto, max(0, ini - 80), ini)
