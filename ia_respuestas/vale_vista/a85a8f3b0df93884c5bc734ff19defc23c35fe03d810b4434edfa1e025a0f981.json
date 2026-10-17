@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "el que deberá ser entregado al Secretario del Tribunal, en calle Huérfanos 1409, piso 2, hasta las 13:00 horas del día hábil inmediatamente anterior al del remate",
+   "frases_extra": [
+    "Además deberán enviar al correo electrónico jcsantiago4_remates @pjud.cl copia digitalizada del vale vista y de la cédula de identidad de quien participará en la subasta, indicando nombre completo, número telefónico y correo electrónico en el que recibirán el link de acceso virtual, hasta las 14:00 horas del día hábil anterior al remate."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "hasta las 13:00 horas del día hábil inmediatamente anterior al del remate",
+   "frases_extra": [
+    "hasta las 14:00 horas del día hábil anterior al remate"
+   ],
+   "contradiccion": "hasta las 14:00 horas del día hábil anterior al remate"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 770,
+   "salida": 277,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 770,
+   "salida": 157,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": null,
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Debiendo cada postor entregar dicho documento materialmente en el mesón del tribunal con a lo menos 3 días hábiles de anticipación a la fecha del remate",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 596,
+   "salida": 77,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 596,
+   "salida": 134,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

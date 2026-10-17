@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "viernes_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "10:00",
+   "hora_hasta": "12:00",
+   "frase_regla": "para lo cual deberán asistir a las dependencias del tribunal los días martes y jueves, anterior a la realización de la subasta, según correspondiere entre las 10:00 y las 12:00 horas",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "martes_o_jueves_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "10:00",
+   "hora_hasta": "12:00",
+   "frase_regla": "para lo cual deberán asistir a las dependencias del tribunal los días martes y jueves, anterior a la realización de la subasta, según correspondiere entre las 10:00 y las 12:00 horas",
+   "frases_extra": [
+    "acompañando además copia de la cédula de identidad del postor y del representante legal si fuere una persona jurídica"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 925,
+   "salida": 149,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 925,
+   "salida": 191,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

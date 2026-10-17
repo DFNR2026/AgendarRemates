@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior_sabado_a_habil",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "Vale vista deberá ser presentado en secretaría tribunal, Huérfanos 1409 piso 2, día anterior al fijado para subasta, entre 12:00 y 14:00 horas",
+   "frases_extra": [
+    "si recayere día sábado deberá ser presentado día hábil anterior"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior_sabado_a_habil",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "Vale vista deberá ser presentado en secretaría tribunal, Huérfanos 1409 piso 2, día anterior al fijado para subasta, entre 12:00 y 14:00 horas",
+   "frases_extra": [
+    "si recayere día sábado deberá ser presentado día hábil anterior"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 757,
+   "salida": 180,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 757,
+   "salida": 180,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

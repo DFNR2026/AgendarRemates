@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "11:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "los postores deberán comparecer al Tribunal el día hábil anterior al día de la subasta, esto es, el día lunes anterior al día del remate y en su caso, el día miércoles anterior al día del remate, ello desde las 11:00 horas y hasta las 14:00 horas, a fin de hacer entrega del respectivo vale vista",
+   "frases_extra": [
+    "el día lunes anterior al día del remate y en su caso, el día miércoles anterior al día del remate"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "11:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "los postores deberán comparecer al Tribunal el día hábil anterior al día de la subasta, esto es, el día lunes anterior al día del remate y en su caso, el día miércoles anterior al día del remate, ello desde las 11:00 horas y hasta las 14:00 horas, a fin de hacer entrega del respectivo vale vista",
+   "frases_extra": [
+    "el día lunes anterior al día del remate y en su caso, el día miércoles anterior al día del remate"
+   ],
+   "contradiccion": "a más tardar a las 15:00 horas del día hábil anterior a la realización de la subasta, deberán manifestar su intención de participar en ésta, ingresando un escrito a través de la O.J.V."
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1268,
+   "salida": 232,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1268,
+   "salida": 300,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

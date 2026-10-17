@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "12:00",
+   "frase_regla": "deberá acompañarse materialmente en las dependencias del Tribunal el día anterior a la fecha fijada para el remate de 9:00 a 12:00 horas",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "12:00",
+   "frase_regla": "deberá acompañarse materialmente en las dependencias del Tribunal el día anterior a la fecha fijada para el remate de 9:00 a 12:00 horas",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 718,
+   "salida": 136,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 718,
+   "salida": 136,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

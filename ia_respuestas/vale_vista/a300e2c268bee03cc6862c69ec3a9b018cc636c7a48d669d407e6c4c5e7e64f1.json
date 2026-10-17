@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 24,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Deberán además entregar copia digitalizada de carnet identidad y señalar nombre completo postor, email y teléfono, con al menos veinticuatro horas anticipación a fecha fijada para remate.",
+   "frases_extra": [
+    "Para participar en subasta interesados, salvo ejecutante, deberán entregar vale vista a orden del Tribunal, nominativo o endosable, por el monto que corresponda al 10% del mínimo."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 24,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Deberán además entregar copia digitalizada de carnet identidad y señalar nombre completo postor, email y teléfono, con al menos veinticuatro horas anticipación a fecha fijada para remate.",
+   "frases_extra": [
+    "Para participar en subasta interesados, salvo ejecutante, deberán entregar vale vista a orden del Tribunal, nominativo o endosable, por el monto que corresponda al 10% del mínimo."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 856,
+   "salida": 213,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 856,
+   "salida": 213,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "en horario de 08:00 a 12.00 horas y de 13.00 a 14:00 hora, del día hábil anterior a la fecha fijada para el remate",
+   "frases_extra": [
+    "los postores deberán comparecer al Tribunal el día hábil anterior al día de la subasta, esto es, el día lunes anterior al día del remate y en su caso, el día miércoles anterior al día del remate, en horario de 08:00 a 12.00 horas y de 13.00 a 14:00 horas"
+   ],
+   "contradiccion": "los postores, a más tardar a las 12:00 horas del día hábil anterior a la realización de la subasta, deberán manifestar su intención de participar en ésta, ingresando un escrito a través de la O.J.V."
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "en horario de 08:00 a 12.00 horas y de 13.00 a 14:00 hora, del día hábil anterior a la fecha fijada para el remate",
+   "frases_extra": [
+    "los postores deberán comparecer al Tribunal el día hábil anterior al día de la subasta, esto es, el día lunes anterior al día del remate y en su caso, el día miércoles anterior al día del remate, en horario de 08:00 a 12.00 horas y de 13.00 a 14:00 horas"
+   ],
+   "contradiccion": "los postores, a más tardar a las 12:00 horas del día hábil anterior a la realización de la subasta, deberán manifestar su intención de participar en ésta, ingresando un escrito a través de la O.J.V."
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1205,
+   "salida": 312,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1205,
+   "salida": 312,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

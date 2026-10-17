@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "en_el_remate",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "presentarse en Secretaría del tribunal al efectuarse llamado a remate",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "en_el_remate",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "presentarse en Secretaría del tribunal al efectuarse llamado a remate",
+   "frases_extra": [
+    "Vale vistas de postores no adjudicatarios serán devueltos inmediatamente después de subasta."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 644,
+   "salida": 104,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 644,
+   "salida": 139,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

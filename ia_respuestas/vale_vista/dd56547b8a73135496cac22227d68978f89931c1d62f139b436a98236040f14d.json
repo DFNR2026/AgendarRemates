@@ -1,0 +1,50 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "entregado en la Secretaria del tribunal hasta las 13:00 horas del día anterior al remate",
+   "frases_extra": [
+    "acompañado a la causa a más tardar el día hábil anterior a la subasta, hasta las 13:00 hrs., por medio de presentación a través de la OJV",
+    "los interesados deberán acompañar copia legible de la garantía al correo jcsantiago6@pjud.cl hasta las 13.00 horas del día anterior a la fecha de remate"
+   ],
+   "contradiccion": "acompañado a la causa a más tardar el día hábil anterior a la subasta, hasta las 13:00 hrs., por medio de presentación a través de la OJV"
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "entregado en la Secretaria del tribunal hasta las 13:00 horas del día anterior al remate",
+   "frases_extra": [
+    "Mediante vale vista a la orden del Tribunal, en el que conste el nombre del tomador del mismo y entregado en la Secretaria del tribunal hasta las 13:00 horas del día anterior al remate, junto a fotocopia de la cédula de identidad del tomador."
+   ],
+   "contradiccion": "Mediante Cupón de Pago en el Banco del Estado de Chile, acompañado a la causa a más tardar el día hábil anterior a la subasta, hasta las 13:00 hrs., por medio de presentación a través de la OJV."
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 782,
+   "salida": 285,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 782,
+   "salida": 288,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

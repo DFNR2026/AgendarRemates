@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "postores deberán constituir garantía mediante entrega vale vista a la orden tribunal por 10% del mínimo posturas al señor secretario subrogante en forma presencial únicamente día hábil anterior a subasta desde 09:00 a 14:00 horas, día viernes en caso de fijar subasta para lunes",
+   "frases_extra": [
+    "día viernes en caso de fijar subasta para lunes"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "postores deberán constituir garantía mediante entrega vale vista a la orden tribunal por 10% del mínimo posturas al señor secretario subrogante en forma presencial únicamente día hábil anterior a subasta desde 09:00 a 14:00 horas",
+   "frases_extra": [
+    "día viernes en caso de fijar subasta para lunes"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 668,
+   "salida": 209,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 668,
+   "salida": 190,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "entregar materialmente en dependencias del tribunal a más tardar a las 13 horas del día anterior a la realización de la subasta",
+   "frases_extra": [
+    "hacer postulación a través del módulo ‘Remates’ en la oficina judicial virtual o acompañar mediante presentación con la cédula de identidad"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "entregar materialmente en dependencias del tribunal a más tardar a las 13 horas del día anterior a la realización de la subasta",
+   "frases_extra": [
+    "todo postor que participe deberá rendir caución acompañando vale vista Endosable y tomado A La Orden del Décimo Noveno Juzgado Civil de Santiago por el 10% del mínimo para iniciar las posturas"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 906,
+   "salida": 174,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 906,
+   "salida": 200,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

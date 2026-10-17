@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior_sabado_a_viernes",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "los postores deberán comparecer al Tribunal el día viernes anterior al día de la subasta, de 12:00 a 13:00 horas, a fin de entregar el vale vista",
+   "frases_extra": [],
+   "contradiccion": "Los postores, a más tardar a las 14:00 horas del día hábil anterior a la realización de la subasta, deberán enviar un correo electrónico al mail del tribunal jcsantiago15 @pjud.cl"
+  },
+  {
+   "regla": "dia_anterior_sabado_a_viernes",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "los postores deberán comparecer al Tribunal el día viernes anterior al día de la subasta, de 12:00 a 13:00 horas, a fin de entregar el vale vista",
+   "frases_extra": [],
+   "contradiccion": "Los postores, a más tardar a las 14:00 horas del día hábil anterior a la realización de la subasta, deberán enviar un correo electrónico al mail del tribunal jcsantiago15 @pjud.cl"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1329,
+   "salida": 224,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1329,
+   "salida": 224,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

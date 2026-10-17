@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "10:00",
+   "hora_hasta": "12:30",
+   "frase_regla": "el que deberá ser entregado materialmente al Tribunal, el jueves inmediatamente anterior a la fecha de la subasta, entre las 10:00 y las 12:30 horas",
+   "frases_extra": [
+    "recibiéndose solo aquellos que el Sr. Secretario admita como garantía suficiente, lo que será certificado en la causa"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "10:00",
+   "hora_hasta": "12:30",
+   "frase_regla": "el jueves inmediatamente anterior a la fecha de la subasta, entre las 10:00 y las 12:30 horas",
+   "frases_extra": [
+    "recibiéndose solo aquellos que el Sr. Secretario admita como garantía suficiente, lo que será certificado en la causa"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 791,
+   "salida": 188,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 791,
+   "salida": 167,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

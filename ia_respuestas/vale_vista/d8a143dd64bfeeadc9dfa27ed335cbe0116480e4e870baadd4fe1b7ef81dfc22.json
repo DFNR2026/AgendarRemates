@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "Dicho vale vista deberá entregarse presencialmente a la señora Secretaria del Tribunal, a más tardar a las 12:00 horas del día anterior al fijado para el remate.",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "Dicho vale vista deberá entregarse presencialmente a la señora Secretaria del Tribunal, a más tardar a las 12:00 horas del día anterior al fijado para el remate.",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1023,
+   "salida": 143,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1023,
+   "salida": 143,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

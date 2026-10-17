@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 24,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Los interesados en participar de la subasta junto al vale vista, deberán entregar copia digitalizada de su carnet de identidad, además de señalar el nombre completo del postor, su email y teléfono, con al menos veinticuatro horas de anticipación a la fecha fijada para el remate",
+   "frases_extra": [
+    "Para participar en la subasta los interesados deberán entregar vale vista a la orden del Tribunal, nominativo o endosable, por el monto que corresponda al 10% del mínimo."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 24,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "con al menos veinticuatro horas de anticipación a la fecha fijada para el remate",
+   "frases_extra": [
+    "Los interesados en participar de la subasta junto al vale vista, deberán entregar copia digitalizada de su carnet de identidad, además de señalar el nombre completo del postor, su email y teléfono, con al menos veinticuatro horas de anticipación a la fecha fijada para el remate, a fin de verificar la garantía"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 976,
+   "salida": 234,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 976,
+   "salida": 214,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "en_el_remate",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Ésta caución se constituirá mediante un vale vista tomado a propia orden, susceptible de ser endosado al momento de la subasta.",
+   "frases_extra": [
+    "Para tener derecho a hacer posturas en la subasta, todo postor debe rendir una caución suficiente equivalente al 10% del mínimo total establecido para la misma, con exención de demandante."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "en_el_remate",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Ésta caución se constituirá mediante un vale vista tomado a propia orden, susceptible de ser endosado al momento de la subasta.",
+   "frases_extra": [
+    "Para tener derecho a hacer posturas en la subasta, todo postor debe rendir una caución suficiente equivalente al 10% del mínimo total establecido para la misma, con exención de demandante."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1036,
+   "salida": 190,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1036,
+   "salida": 190,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

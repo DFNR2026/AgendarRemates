@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "documento que se deberá presentar materialmente en la secretaría del tribunal hasta las 12:00 hrs. Del día hábil anterior a la subasta, y si dicho día fuera sábado, hasta las 12:00 hrs. Del viernes anterior a la subasta",
+   "frases_extra": [
+    "y si dicho día fuera sábado, hasta las 12:00 hrs. Del viernes anterior a la subasta"
+   ],
+   "contradiccion": "Los postores interesados deberán ingresar comprobante legible de rendición de la caución, a través del módulo especialmente establecido al efecto en la oficina judicial virtual, y enviar un correo a la casilla electrónica jcsantiago29_ remates@pjud.cl, hasta las 12:00 hrs. Del día hábil anterior a la subasta, y si dicho día fuera sábado, hasta las 12:00 hrs. Del viernes anterior a la subasta"
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "documento que se deberá presentar materialmente en la secretaría del tribunal hasta las 12:00 hrs. Del día hábil anterior a la subasta, y si dicho día fuera sábado, hasta las 12:00 hrs. Del viernes anterior a la subasta",
+   "frases_extra": [
+    "si dicho día fuera sábado, hasta las 12:00 hrs. Del viernes anterior a la subasta"
+   ],
+   "contradiccion": "Los postores interesados deberán ingresar comprobante legible de rendición de la caución, a través del módulo especialmente establecido al efecto en la oficina judicial virtual, y enviar un correo a la casilla electrónica jcsantiago29_ remates@pjud.cl, hasta las 12:00 hrs. Del día hábil anterior a la subasta, y si dicho día fuera sábado, hasta las 12:00 hrs. Del viernes anterior a la subasta"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1448,
+   "salida": 375,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1448,
+   "salida": 374,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

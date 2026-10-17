@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "a más tardar a las13:00 horas de día anterior a subasta",
+   "frases_extra": [
+    "Para aquellos remates en que no pueda hacerse postulación como postor en dicho módulo, vale vista debe ser acompañado mediante presentación en Oficina Judicial Virtual y entregado materialmente en el Tribunal dentro de mismo plazo señalado."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "13:00",
+   "frase_regla": "a más tardar a las13:00 horas de día anterior a subasta",
+   "frases_extra": [
+    "Para aquellos remates que se puede hacer postulación a través módulo “Remates“, deben ingresar postulación comopostor conforme a instrucciones del módulo respectivo, debiendo además acompañar a la causa un escrito “Acompaña documentos“ (copia del Vale Vista y de Cédula de Identidad del Postor) ingresado por OJV y entregado materialmente en Tribunal"
+   ],
+   "contradiccion": "Para aquellos remates en que no pueda hacerse postulación como postor en dicho módulo, vale vista debe ser acompañado mediante presentación en Oficina Judicial Virtual y entregado materialmente en el Tribunal dentro de mismo plazo señalado."
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 874,
+   "salida": 193,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 874,
+   "salida": 330,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

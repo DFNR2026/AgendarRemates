@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 3,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Debiendo cada postor entregar dicho documento materialmente en el mesón del Tribunal con a lo menos 3 días hábiles de anticipación a la fecha del remate",
+   "frases_extra": [
+    "en el mismo acto señalar correo electrónico y número telefónico para el caso que requiera ser contactado por el tribunal"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 3,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Debiendo cada postor entregar dicho documento materialmente en el mesón del Tribunal con a lo menos 3 días hábiles de anticipación a la fecha del remate",
+   "frases_extra": [
+    "en el mismo acto señalar correo electrónico y número telefónico para el caso que requiera ser contactado por el tribunal"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1329,
+   "salida": 181,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1329,
+   "salida": 181,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

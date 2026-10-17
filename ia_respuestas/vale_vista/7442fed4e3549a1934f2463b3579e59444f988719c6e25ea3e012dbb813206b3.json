@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "La recepción de vales vista de garantía se hará únicamente el día hábil anterior a la fecha de la subasta, desde las 09:00 hasta las 14:00 horas",
+   "frases_extra": [
+    "día viernes en caso de que el día fijado para la subasta sea un lunes"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "La recepción de vales vista de garantía se hará únicamente el día hábil anterior a la fecha de la subasta, desde las 09:00 hasta las 14:00 horas",
+   "frases_extra": [
+    "día viernes en caso de que el día fijado para la subasta sea un lunes"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 947,
+   "salida": 168,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 947,
+   "salida": 168,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

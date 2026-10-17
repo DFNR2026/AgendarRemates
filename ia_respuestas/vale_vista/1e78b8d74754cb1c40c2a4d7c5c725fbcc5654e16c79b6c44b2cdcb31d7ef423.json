@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "el que deberá ser entregado en la Secretaría del Tribunal el día lunes o miércoles anterior al día del remate, en horario de 08:00 a 12:00 horas y de 13:00 a 14:00 horas",
+   "frases_extra": [
+    "Asimismo, los postores, a más tardar a las 14:00 horas del día hábil anterior a la realización de la subasta, deberán manifestar su intención de participar, ingresando un escrito a través de la O.J.V. que así lo señale"
+   ],
+   "contradiccion": "los postores, a más tardar a las 14:00 horas del día hábil anterior a la realización de la subasta, deberán enviar un correo a dicha dirección"
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "el que deberá ser entregado en la Secretaría del Tribunal el día lunes o miércoles anterior al día del remate, en horario de 08:00 a 12:00 horas y de 13:00 a 14:00 horas",
+   "frases_extra": [],
+   "contradiccion": "a más tardar a las 14:00 horas del día hábil anterior a la realización de la subasta, deberán manifestar su intención de participar, ingresando un escrito a través de la O.J.V. que así lo señale, con una copia legible del vale vista entregado al Tribunal"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1150,
+   "salida": 292,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1150,
+   "salida": 250,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

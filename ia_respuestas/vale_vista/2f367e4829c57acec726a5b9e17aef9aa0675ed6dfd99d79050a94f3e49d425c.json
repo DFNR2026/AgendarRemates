@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "fecha_fija",
+   "dias": null,
+   "horas": null,
+   "fecha": "2026-11-02",
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "El vale vista deber ser presentado en la secretaría del tribunal hasta el día lunes 02 de noviembre a las 12:00 horas.",
+   "frases_extra": [
+    "No se admitirán vales vista fuera del horario señalado."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "fecha_fija",
+   "dias": null,
+   "horas": null,
+   "fecha": "2026-11-02",
+   "hora_desde": null,
+   "hora_hasta": "12:00",
+   "frase_regla": "El vale vista deber ser presentado en la secretaría del tribunal hasta el día lunes 02 de noviembre a las 12:00 horas.",
+   "frases_extra": [
+    "No se admitirán vales vista fuera del horario señalado."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 888,
+   "salida": 153,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 888,
+   "salida": 153,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

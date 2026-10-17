@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "martes_o_jueves_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "10:00",
+   "hora_hasta": "12:30",
+   "frase_regla": "documento que se deberá presentar en la secretaría el jueves anterior a la subasta, entre las 10:00 y 12:30 horas",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "martes_o_jueves_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "10:00",
+   "hora_hasta": "12:30",
+   "frase_regla": "documento que se deberá presentar en la secretaría el jueves anterior a la subasta, entre las 10:00 y 12:30 horas",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 547,
+   "salida": 132,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 547,
+   "salida": 132,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}
