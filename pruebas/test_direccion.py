@@ -70,6 +70,10 @@ SD = {"inmuebles": [{"tipo": "sin_dato", "calle": None, "numero": None, "unidad"
 revisar("sin_dato que no se acepta si el aviso parece dar la dirección", D.resolver([SD, SD], T, 1)["color"] == "rojo")
 revisar("sin_dato aceptado si no hay señales de dirección", D.resolver([SD, SD], "REMATE. Se rematará el inmueble de autos. Mínimo $ 1.000.", 1)["color"] == "sin_dato")
 revisar("la unidad cuenta solo su primer número (piso y edificio no)", D.unidad_clave("Departamento Número 403, Torre I, Piso 4°, Edificio 5") == D.unidad_clave("departamento 403"))
+TC = T + " Inscrito a fojas 1 número 2 del Registro de Propiedad del Conservador de Bienes Raíces de Casablanca."
+rc = D.resolver([L(comuna="Casablanca", frase_comuna="Conservador de Bienes Raíces de Casablanca")] * 2, TC, 1)
+revisar("la comuna sacada de la frase del Conservador queda vacía y la dirección sigue en verde (06-10 avisos 66 y 90)",
+        rc["color"] == "verde" and rc["inmuebles"][0]["comuna"] is None, str(rc["inmuebles"])[:150])
 revisar("rojo si la unidad no trae número", D.resolver([L(unidad="departamento D")] * 2, T, 1)["color"] == "rojo")
 revisar("depto y departamento son lo mismo", D.unidad_clave("depto 1504") == D.unidad_clave("departamento 1504"))
 revisar("rojo si el tipo de la unidad no es el de su frase (oficina contra departamento)",

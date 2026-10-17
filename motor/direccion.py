@@ -137,6 +137,12 @@ def verificar_inmueble(x: dict, texto: str) -> dict:
     """Revisa un inmueble de la respuesta. Devuelve {ok, motivos, direccion, comuna, cita, citas_extra} con lo que se
     guardaría (el número tal como está en el aviso y las frases tal como están en el aviso)."""
     motivos, citas_extra = [], []
+    # Comuna sacada de la frase del Conservador o del Registro (06-10 avisos 66 y 90, "Conservador Bienes Raíces Casablanca").
+    # Las instrucciones lo prohíben y no dice dónde está el inmueble. La comuna queda vacía y el resto sigue igual.
+    # Aplicado con la aprobación de Diego del 17 de Octubre, después de la validación (la cifra honesta sigue siendo la cruda).
+    fc0 = x.get("frase_comuna") or ""
+    if x.get("comuna") and re.search(r"conservador|\bCBR\b|registro", fc0, re.I) and not re.search(r"comuna", fc0, re.I):
+        x = dict(x, comuna=None, frase_comuna=None)
     tipo = x.get("tipo")
     if tipo not in TIPOS:
         return {"ok": False, "motivos": [f"Tipo desconocido ({tipo})."]}
