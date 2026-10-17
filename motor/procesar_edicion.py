@@ -5,6 +5,8 @@ traducir() pasa lo que entrega motor.extraccion.extraer() al formato que espera 
 Todavía no hay vale vista ni dirección (parte 3.7), así que cada remate queda con la alerta de vale vista no leído.
 
 Uso. python -m motor.procesar_edicion AAAA-MM-DD RUTA_BASE [--sin-ia]   (desde D:\\Agendar_Remates)
+Si Haiku no respondió en todos los avisos, la edición queda con alarma y se termina con
+python -m motor.procesar_edicion --retomar AAAA-MM-DD RUTA_BASE (no vuelve a leer el Mercurio ni a cargar la edición).
 Desde la parte 3.7a cada aviso pasa por Haiku para la regla del vale vista (agregar_vale_vista). Necesita internet y la
 clave en config.py. Si no hay cómo llamar a Haiku, la carga sigue con las respuestas guardadas y el resto queda como
 vale vista no leído. --sin-ia carga como antes, sin vale vista.
@@ -25,9 +27,70 @@ CAPTURAS = RAIZ / "capturas"
 
 # Vale vista leído por la IA (parte 3.7a, diseño aprobado por Diego, bitácora del 16, punto 42). Colores sin cambiar el
 # esquema. calculado = verde, revisar con vv_hasta = ámbar, revisar sin vv_hasta = rojo, sin_dato = sin dato.
-VV_ROJO = "La IA no pudo confirmar la regla del vale vista. Revísala en el aviso."
 VV_CONTRADICCION = "El aviso da dos plazos u horarios distintos para la entrega del vale vista."
 VV_ERROR_ESCRITURA = "El aviso pide el vale vista en una fecha anterior a la edición. Posible error de escritura del aviso."
+VV_ERROR_REMATE = "La fecha del remate que trae el aviso ya pasó cuando salió publicado. Posible error de escritura del aviso."
+
+
+# Textos del rojo en palabras simples (decisión de Diego del 17 de Octubre). Cada alerta roja empieza con el grupo,
+# sigue el motivo simple y termina con la explicación del grupo. Si hay varios motivos va el grupo más grave.
+GRUPOS = {   # en orden de gravedad
+    "Error del aviso": "El problema está en cómo se redactó el aviso, no en la IA. No se puede saber cuál de las dos versiones vale. "
+                       "Revisa el aviso, y si el remate te interesa, confirma en el tribunal o en las bases. Un error de redacción "
+                       "podría servir para objetar el remate (pregunta para el abogado).",
+    "Dudoso": "Puede ser un error de redacción del aviso o una mala lectura de la IA, y el programa no logra distinguirlo. "
+              "Revisa el aviso para ver cuál de los dos es.",
+    "Límite del programa": "El aviso puede estar bien y la IA no tiene la culpa. Falló otra parte del programa. Revisa la fecha o "
+                           "la hora en el aviso. Si faltan los feriados, hay que cargar el archivo de feriados de ese año.",
+    "Regla nueva": "El aviso está bien y la IA no se equivocó. El programa todavía no sabe calcular esa regla. Lee la regla en "
+                   "el aviso y anota la fecha a mano. Más adelante se agrega la regla, validándola con otra edición anotada.",
+    "Falla de la IA": "El aviso está bien escrito y fue Haiku el que se equivocó. El programa lo atrapó y por eso no te da una "
+                      "fecha. Lee la regla en el aviso y anota la fecha a mano. Si este error se repite mucho con el mismo tipo "
+                      "de frase, se mejoran las instrucciones de la IA.",
+}
+_IA_FRASE = "La IA citó una frase que no está escrita así en el aviso."
+_IA_REGLA = "La IA leyó una regla que no calza con las palabras del aviso."
+# (patrón del motivo técnico de motor\\vale_vista.py, grupo, motivo simple). El primero que calza manda.
+_MOTIVOS = [
+    (r"^La frase no dice que el vale vista se entregue en el remate", "Falla de la IA", "La IA dijo que el vale vista se entrega en el remate, pero el aviso no lo dice."),
+    (r"^La frase no trae las palabras propias de la regla en_el_remate", "Falla de la IA", "La IA dijo que el vale vista se entrega en el remate, pero el aviso no lo dice."),
+    (r"^Las dos lecturas de la IA no coinciden", "Falla de la IA", "Las dos lecturas de la IA dieron reglas distintas."),
+    (r"^Falta la segunda lectura de la IA", "Falla de la IA", "La IA entregó una sola lectura de las dos que se piden."),
+    (r"^Regla desconocida", "Falla de la IA", "La IA respondió una regla que no está en la lista."),
+    (r"^La frase de la regla no está en el aviso|^La IA no entregó la frase de la regla|^Frase extra no encontrada|^La frase de contradicción no está", "Falla de la IA", _IA_FRASE),
+    (r"^La frase habla de devolución", "Falla de la IA", "La IA tomó la frase de la devolución del vale vista, no la de su entrega."),
+    (r"^La IA no encontró regla, pero el aviso parece dar un plazo", "Falla de la IA", "La IA no encontró la regla, pero el aviso parece dar un plazo."),
+    (r"^La frase nombra un día de la semana distinto", "Falla de la IA", "El día que nombra el aviso no calza con el día que calculó el programa con la regla de la IA."),
+    (r"^La frase no trae las palabras propias|^La frase dice día hábil|^Faltan los días hábiles|^El número de días|^Faltan las horas|"
+     r"^El número de horas|^La fecha fija no está escrita|^hora_desde con formato|^hora_hasta con formato|^La hora \d|^La hora desde no es anterior", "Falla de la IA", _IA_REGLA),
+    (r"^La IA dice que la regla no calza con ninguna conocida", "Regla nueva", "La regla del aviso es de un tipo que el programa todavía no conoce."),
+    (r"^El aviso da dos plazos u horarios distintos", "Error del aviso", "El aviso da dos plazos u horarios distintos para la entrega."),
+    (r"^La fecha de entrega es anterior a la edición", "Error del aviso", "El aviso pide el vale vista en una fecha que ya pasó al publicarse."),
+    (r"^La fecha del remate es anterior a la edición", "Error del aviso", "La fecha del remate ya pasó al publicarse."),
+    (r"^La entrega quedaría después del remate", "Dudoso", "El plazo de entrega quedaría después del remate."),
+    (r"^Falta la fecha del remate", "Límite del programa", "El programa no encontró la fecha del remate."),
+    (r"^Falta la hora del remate", "Límite del programa", "El programa no encontró la hora del remate."),
+    (r"^No están cargados los feriados de (\d{4})", "Límite del programa", "Faltan los feriados de {0}."),
+    (r"^Regla .* sin cálculo", "Límite del programa", "El programa no tiene cálculo para esta regla."),
+]
+
+
+def traducir_motivo(m: str) -> tuple:
+    """Motivo técnico de resolver() -> (grupo, motivo simple). Un motivo que no se conoce queda como Dudoso con su texto."""
+    m = re.sub(r"^(?:Segunda lectura\. )+", "", m.strip())
+    for patron, grupo, simple in _MOTIVOS:
+        k = re.search(patron, m)
+        if k:
+            return grupo, simple.format(*k.groups())
+    return "Dudoso", m
+
+
+def texto_rojo(motivos: list) -> str:
+    """Alerta roja completa. Grupo más grave, motivos simples sin repetir y la explicación del grupo."""
+    pares = [traducir_motivo(m) for m in motivos] or [("Dudoso", "El programa no dejó motivo.")]
+    grupo = min((g for g, _ in pares), key=list(GRUPOS).index)
+    simples = list(dict.fromkeys(s for _, s in pares))
+    return f"{grupo}. {' '.join(simples)} {GRUPOS[grupo]}"
 
 
 def _preguntas_texto(p: list) -> str:
@@ -54,11 +117,14 @@ def bloque_vale_vista(res: dict) -> dict:
         b["alertas"].append(("dato_faltante", NO_ENCONTRADA, None))
     else:                                            # rojo
         b.update(vv_estado="revisar", vv_desde=None, vv_desde_origen=None, vv_hasta=None)
-        b["alertas"].append(("revisar_lectura", " ".join([VV_ROJO] + list(res.get("motivos") or [])), cita))
+        b["alertas"].append(("revisar_lectura", texto_rojo(list(res.get("motivos") or [])), cita))
     if res.get("contradiccion"):                     # contradicción real (ya se descartaron correo, escrito, OJV y cupón)
         b["alertas"].append(("contradiccion", VV_CONTRADICCION, res["contradiccion"]))
     if any("Posible error de escritura" in m for m in res.get("motivos") or []):
         b["alertas"].append(("error_escritura", VV_ERROR_ESCRITURA, cita))
+    if any("La fecha del remate es anterior a la edición" in m for m in res.get("motivos") or []):
+        # 06-10 aviso 45, remate impreso en 2025. El banco lo anota como error de escritura (decisión del 17 de Octubre).
+        b["alertas"].append(("error_escritura", VV_ERROR_REMATE, None))
     return b
 
 
@@ -98,6 +164,75 @@ def agregar_vale_vista(avisos: list, extraido: dict, fecha: str, cliente=None) -
         ex["vale_vista"] = bloque_vale_vista(res)
         resumen["leidos"] += 1
         resumen["colores"][res["color"]] = resumen["colores"].get(res["color"], 0) + 1
+    return resumen
+
+
+VV_ALARMA = "Vale vista. "      # comienzo de la línea de alarma de la edición (la busca retomar_vale_vista)
+
+
+def alarma_vale_vista(vv: dict) -> str | None:
+    """Línea de alarma de la edición si quedaron avisos sin leer por la IA (decisión de Diego del 17 de Octubre)."""
+    if not vv or not vv.get("sin_ia"):
+        return None
+    return (f"{VV_ALARMA}{vv['sin_ia']} de {vv['sin_ia'] + vv['leidos']} avisos quedaron sin leer por la IA. "
+            "Se puede retomar sin volver a leer el Mercurio.")
+
+
+def retomar_vale_vista(con, fecha: str, cliente=None) -> dict:
+    """Decisión 8 (17 de Octubre). Termina de leer el vale vista de una edición YA cargada cuando Haiku no respondió en
+    todos los avisos. No vuelve a leer el Mercurio ni a cargar la edición (la carga rechaza una edición repetida).
+    Busca los avisos visibles que siguen con la alerta de vale vista no leído, pregunta a Haiku solo por esos (primero las
+    respuestas guardadas, así lo ya pagado no se paga de nuevo) y deja cada uno igual que si se hubiera leído en la carga.
+    Actualiza la línea de alarma de la edición. Todo en una transacción. Si Haiku vuelve a fallar, esos avisos siguen
+    pendientes y no se cae nada."""
+    from motor import vale_vista as V
+    from db.carga import VV_NO_LEIDO
+    fila = con.execute("SELECT id, estado, alarmas FROM ediciones WHERE fecha = ?", (fecha,)).fetchone()
+    if not fila:
+        raise ValueError(f"La edición {fecha} no está en la base. No hay nada que retomar.")
+    ed_id, estado, alarmas = fila
+    pend = con.execute("SELECT DISTINCT a.id, a.orden, a.texto FROM avisos a JOIN alertas al ON al.aviso_id = a.id "
+                       "WHERE a.edicion_id = ? AND a.filtro_estado <> 'descartado' AND al.texto = ? ORDER BY a.orden",
+                       (ed_id, VV_NO_LEIDO)).fetchall()
+    resumen = {"pendientes_antes": 0, "leidos": 0, "sin_ia": 0, "saltados": 0, "colores": {}, "errores": []}
+    with con:
+        for aviso_id, orden, texto in pend:
+            if extraer(texto, fecha).get("pegado"):          # en la carga tampoco se le pregunta a la IA
+                resumen["saltados"] += 1; continue
+            resumen["pendientes_antes"] += 1
+            try:
+                g = V.leer_con_ia(texto, cliente)
+            except Exception as e:
+                resumen["sin_ia"] += 1; resumen["errores"].append(f"aviso {orden}. {type(e).__name__}. {str(e)[:120]}"); continue
+            if len(g.get("lecturas") or []) < 2:
+                resumen["sin_ia"] += 1; resumen["errores"].append(f"aviso {orden}. {' '.join(g.get('errores') or ['Faltan lecturas de la IA.'])[:200]}"); continue
+            f, h, n_rem = con.execute("SELECT fecha_remate, hora_remate, COUNT(*) FROM remates WHERE aviso_id = ?", (aviso_id,)).fetchone()
+            res = V.resolver(g["lecturas"], texto, f, h, fecha)
+            b = bloque_vale_vista(res)
+            con.execute("UPDATE remates SET vv_regla = ?, vv_regla_texto = ?, vv_desde = ?, vv_desde_origen = ?, vv_hasta = ?, vv_estado = ? "
+                        "WHERE aviso_id = ?", (b["regla"], b["cita"], b["vv_desde"], b["vv_desde_origen"], b["vv_hasta"], b["vv_estado"], aviso_id))
+            subs = [r[0] for r in con.execute("SELECT sub_orden FROM alertas WHERE aviso_id = ? AND texto = ? ORDER BY id", (aviso_id, VV_NO_LEIDO))]
+            con.execute("DELETE FROM alertas WHERE aviso_id = ? AND texto = ?", (aviso_id, VV_NO_LEIDO))
+            for sub in subs:                                   # mismas posiciones que la alerta que reemplaza (igual que la carga)
+                for tipo, txt, cita in b["alertas"]:
+                    con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, cita, origen) VALUES (?,?,?,?,?,?)",
+                                (aviso_id, sub, tipo, txt, cita, "codigo"))
+            if b["cita"]:                                      # mismas citas que pone la carga (db.carga._citas_de)
+                comun = 1 if n_rem == 1 else 0
+                for i, c in enumerate([b["cita"]] + b["citas_extra"], start=1):
+                    con.execute("INSERT INTO citas(aviso_id, sub_orden, campo, n_cita, valor, cita, metodo, verificada) VALUES (?,?,?,?,?,?,?,?)",
+                                (aviso_id, comun, "vv_regla_texto", i, b["regla"], c, "ia", int(c in texto)))
+            resumen["leidos"] += 1
+            resumen["colores"][res["color"]] = resumen["colores"].get(res["color"], 0) + 1
+        # Línea de alarma de la edición. Se cuenta sobre todos los avisos que la IA debe leer, no solo los de esta vuelta.
+        total = con.execute("SELECT COUNT(*) FROM avisos WHERE edicion_id = ? AND filtro_estado <> 'descartado'", (ed_id,)).fetchone()[0] - resumen["saltados"]
+        lineas = [x for x in (alarmas or "").splitlines() if not x.startswith(VV_ALARMA)]
+        nueva = alarma_vale_vista({"sin_ia": resumen["sin_ia"], "leidos": total - resumen["sin_ia"]})
+        if nueva:
+            lineas.append(nueva); estado = "con_alarmas"
+        elif not lineas:
+            estado = "ok"                    # la única alarma era la del vale vista. Si quedan otras, el estado no se toca
+        con.execute("UPDATE ediciones SET alarmas = ?, estado = ? WHERE id = ?", ("\n".join(lineas) or None, estado, ed_id))
     return resumen
 
 
@@ -176,6 +311,9 @@ def cargar_edicion(con, fecha: str, ahora: str, carpeta: Path | None = None, cli
     for orden, extra in alertas.items():
         extraido[orden]["alertas"] += extra
     vv = agregar_vale_vista(avisos, extraido, fecha, cliente) if usar_ia else None
+    linea = alarma_vale_vista(vv)
+    if linea:
+        edicion = dict(edicion, estado="con_alarmas", alarmas="\n".join(x for x in (edicion.get("alarmas"), linea) if x))
     res = guardar_edicion(con, edicion, paginas, avisos, extraido, ahora, metodo="codigo")
     if vv is not None:
         res["vale_vista"] = vv
@@ -194,13 +332,29 @@ def cliente_o_nada():
 if __name__ == "__main__":
     import datetime as dt
     from db.crear_base import crear, BASE
-    if len(sys.argv) < 3:
-        raise SystemExit("Uso. python -m motor.procesar_edicion AAAA-MM-DD RUTA_BASE")
-    ruta = Path(sys.argv[2])
+    args = [x for x in sys.argv[1:] if not x.startswith("--")]
+    if len(args) < 2:
+        raise SystemExit("Uso. python -m motor.procesar_edicion AAAA-MM-DD RUTA_BASE [--sin-ia] [--solo-guardadas]\n"
+                         "     python -m motor.procesar_edicion --retomar AAAA-MM-DD RUTA_BASE [--solo-guardadas]")
+    fecha, ruta = args[0], Path(args[1])
     if ruta.resolve() == BASE.resolve():
         raise SystemExit("Por ahora solo en bases de prueba. La base real espera la aprobación de Diego.")
+    # --solo-guardadas no crea el cliente de Haiku (nunca llama a la API). Lo usan las pruebas (17 de Octubre, la prueba del
+    # paso 5 llamó a Haiku en el PC de Diego porque el comando creaba el cliente con la clave de config.py).
+    solo_guardadas = "--solo-guardadas" in sys.argv
+    if solo_guardadas:
+        print("Solo respuestas guardadas. No se llama a Haiku.")
+    if "--retomar" in sys.argv:
+        # Decisión 8. Termina el vale vista de una edición ya cargada, sin volver a leer el Mercurio.
+        if not ruta.exists():
+            raise SystemExit(f"No existe la base {ruta}. No hay nada que retomar.")
+        cliente, motivo = (None, None) if solo_guardadas else cliente_o_nada()
+        if motivo:
+            print("AVISO.", motivo)
+        print(retomar_vale_vista(crear(ruta), fecha, cliente))
+        raise SystemExit(0)
     usar_ia = "--sin-ia" not in sys.argv
-    cliente, motivo = cliente_o_nada() if usar_ia else (None, None)
+    cliente, motivo = cliente_o_nada() if usar_ia and not solo_guardadas else (None, None)
     if motivo:
         print("AVISO.", motivo)
-    print(cargar_edicion(crear(ruta), sys.argv[1], dt.datetime.now().isoformat(timespec="seconds"), cliente=cliente, usar_ia=usar_ia))
+    print(cargar_edicion(crear(ruta), fecha, dt.datetime.now().isoformat(timespec="seconds"), cliente=cliente, usar_ia=usar_ia))
