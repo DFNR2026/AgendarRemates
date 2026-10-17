@@ -80,29 +80,31 @@ def es_partidor(tribunal: str | None, texto: str) -> bool:
 
 
 def _citas_de(ex: dict, sub_lista: dict):
-    """Rinde (sub_orden, campo, n_cita, valor, cita). sub_lista dice a qué remate va el mínimo de cada elemento de la lista."""
+    """Rinde (sub_orden, campo, n_cita, valor, cita, metodo). sub_lista dice a qué remate va el mínimo de cada elemento de la lista.
+    metodo es el del propio dato si lo trae (clave 'metodo' del bloque, ej. el vale vista leído por la IA) o None, y entonces
+    vale el de la edición (método por dato, parte 3.7a, 16 de Octubre)."""
     unico = not sub_lista            # aviso con un solo remate. Todo va al remate 1
     comun = 1 if unico else 0         # aviso con varios remates. Lo común va al aviso completo (0)
     for campo, clave in (("fecha_remate", "fecha_remate"), ("hora_remate", "hora_remate"), ("modalidad", "modalidad"), ("direccion", "direccion")):
         d = ex.get(clave) or {}
         if d.get("cita"):
-            yield comun, campo, 1, d.get("valor"), d["cita"]
+            yield comun, campo, 1, d.get("valor"), d["cita"], d.get("metodo")
     m = ex.get("minimo") or {}
     for k, el in (sub_lista.items() if sub_lista else [(1, m)]):
         if el.get("cita"):
-            yield k, "minimo_monto", 1, el.get("monto"), el["cita"]
+            yield k, "minimo_monto", 1, el.get("monto"), el["cita"], m.get("metodo")
         if el.get("cita_costas"):
-            yield k, "minimo_costas_clp", 1, el.get("costas_clp"), el["cita_costas"]
+            yield k, "minimo_costas_clp", 1, el.get("costas_clp"), el["cita_costas"], m.get("metodo")
     g = ex.get("garantia") or {}
     if g.get("cita"):
         campo = "garantia_porcentaje" if g.get("porcentaje") is not None else "garantia_monto" if g.get("monto") is not None else "garantia_base"
         valor = g.get("porcentaje") if g.get("porcentaje") is not None else g.get("monto")
-        yield comun, campo, 1, valor, g["cita"]
+        yield comun, campo, 1, valor, g["cita"], g.get("metodo")
     v = ex.get("vale_vista") or {}
     if v.get("cita"):
-        yield comun, "vv_regla_texto", 1, v.get("regla"), v["cita"]
+        yield comun, "vv_regla_texto", 1, v.get("regla"), v["cita"], v.get("metodo")
         for i, extra in enumerate(v.get("citas_extra") or [], start=2):
-            yield comun, "vv_regla_texto", i, v.get("regla"), extra
+            yield comun, "vv_regla_texto", i, v.get("regla"), extra, v.get("metodo")
 
 
 VV_NO_LEIDO = "El programa todavía no lee la regla del vale vista de este aviso. Revísala en el aviso."
@@ -119,7 +121,8 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
     clasificar_duda = función opcional que convierte cada texto de 'dudas' en un tipo de alerta (o None si no es alerta).
     metodo = 'ia' (banco anotado) o 'codigo' (motor\\procesar_edicion.py). Va a cada cita.
     Lo que entrega el motor trae además 'plataforma' y 'alertas' [(tipo, texto)] ya clasificadas por el código, y no trae
-    'vale_vista' (lo leerá la parte 3.7). Sin esa clave la alerta dice que el programa no lo leyó, no que el aviso no lo dice."""
+    'vale_vista' (lo leerá la parte 3.7). Sin esa clave la alerta dice que el programa no lo leyó, no que el aviso no lo dice.
+    Si el bloque 'vale_vista' trae 'alertas' (lo leído por la IA, parte 3.7a), se guardan esas y no la alerta por defecto."""
     fecha = edicion["fecha"]
     if con.execute("SELECT 1 FROM ediciones WHERE fecha = ?", (fecha,)).fetchone():
         raise ValueError(f"La edición {fecha} ya está en la base. No se cargó nada.")
@@ -182,7 +185,13 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
                      g.get("porcentaje"), g.get("base") or "sin_dato", g.get("monto"), g.get("moneda"),
                      v.get("regla"), v.get("cita"), v.get("vv_desde"), v.get("vv_desde_origen"), v.get("vv_hasta"), v.get("vv_estado")))
                 n_remates += 1
-                if not v.get("vv_hasta"):
+                if "alertas" in v:
+                    # Vale vista leído por la IA (motor\\procesar_edicion.py, parte 3.7a). El bloque trae sus propias alertas
+                    # según el color [(tipo, texto, cita)] y reemplazan a la alerta por defecto. Verde trae la lista vacía.
+                    for tipo_vv, texto_vv, cita_vv in v["alertas"]:
+                        con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, cita, origen) VALUES (?,?,?,?,?,?)",
+                                    (aviso_id, k if sub_lista else 0, tipo_vv, texto_vv, cita_vv, "codigo"))
+                elif not v.get("vv_hasta"):
                     con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, origen) VALUES (?,?,?,?,?)",
                                 (aviso_id, k if sub_lista else 0, "dato_faltante",
                                  VV_NO_DICE if "vale_vista" in ex else VV_NO_LEIDO, "codigo"))
@@ -192,9 +201,9 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
                         remates_por_causa[causa_id] = remates_por_causa.get(causa_id, 0) + 1
 
             # Citas. El código comprueba que cada frase esté letra por letra en el texto del aviso.
-            for sub, campo, n_cita, valor, cita in _citas_de(ex, sub_lista):
+            for sub, campo, n_cita, valor, cita, metodo_dato in _citas_de(ex, sub_lista):
                 con.execute("INSERT INTO citas(aviso_id, sub_orden, campo, n_cita, valor, cita, metodo, verificada) VALUES (?,?,?,?,?,?,?,?)",
-                            (aviso_id, sub, campo, n_cita, None if valor is None else str(valor), cita, metodo, int(cita in a.texto)))
+                            (aviso_id, sub, campo, n_cita, None if valor is None else str(valor), cita, metodo_dato or metodo, int(cita in a.texto)))
 
             # Alertas. Rol mal impreso por código. Las dudas, si hay con qué clasificarlas.
             motivo_rol = rol_mal_impreso(a.rol_impreso)
