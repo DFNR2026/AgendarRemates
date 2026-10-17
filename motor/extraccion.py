@@ -422,21 +422,82 @@ def inscripcion(texto: str, fecha_edicion: str | None = None) -> dict:
     return {"inscripcion": lista, "clave": clave, "alertas": alertas}
 
 
+# --- Etapa 7. Carátula de la causa (parte 3.7c, 17 de Octubre) ------------------------------------------------
+# Decisión de Diego. Basta la carátula tal como la imprime el aviso, sin separar demandante y demandado. La lee el código.
+# Formas vistas en el banco del 14-10. "caratulado ‘Banco de Chile con Aguilera’", "expediente “Securitizadora Security S.A.
+# con Tilleria“", "Caratulado. Banco de Crédito e Inversiones/Pérez. El Secretario", "causa Banco Itaú Chile S.A./ Rubilar,
+# juicio ejecutivo", "Rit C-3908-2025, Ruc 25-4-0645112-K, ’Barrera con López’".
+_COMILLA_A, _COMILLA_C = "‘’'“”\"«", "’'”\"»‘“"
+_SEP = r"(?:\s[Cc][Oo][Nn]\s|/|\s[Cc]ontra\s)"
+_CAR_COMILLAS = re.compile(rf"[{_COMILLA_A}]\s*([^{_COMILLA_A}»\n]{{2,150}}?{_SEP}[^{_COMILLA_A}»\n]{{1,150}}?)\s*[{_COMILLA_C}]")
+_CAR_ANTES = re.compile(r"caratulad\w*|juicio|autos|expediente|causa|\brol\b|\brit\b|\bruc\b|antecedentes|virtual", re.I)
+_CAR_SIN = re.compile(rf"[Cc][Aa][Rr][Aa][Tt][Uu][Ll][Aa][Dd]\w*\s*:?\s*([A-Z0-9ÁÉÍÓÚÑ][^{_COMILLA_A};\n]{{2,150}}?{_SEP}[^{_COMILLA_A};\n]{{1,150}}?)"
+                      # Arreglo 2 del ajuste (14-10 avisos 6, 28, 39 y 46). El final se busca sin comerse antes el punto o la coma.
+                      r"(?=\s*(?:[’'”\"]|,\s*(?:Rol|rol|Juicio|juicio|v[ií]a|Ejecutivo|ejecutivo)\b|\.\s+[A-ZÁÉÍÓÚ]|\.?\s*$))")
+# Arreglo 2 (14-10 aviso 49). La primera parte acepta el punto de "S.A." ("causa Banco Itaú Chile S.A./ Rubilar, juicio").
+_CAR_CAUSA = re.compile(rf"\bcausa\s+(?!rol\b|n[°º]|sobre\b|hipotecari)([A-ZÁÉÍÓÚÑ][^,;\n]{{2,100}}?{_SEP}[^,;\n]{{1,80}}?),\s+juicio", re.I)
+_SUFIJOS = {"s", "a", "sa", "spa", "ltda", "limitada", "cia", "con", "y"}
+
+
+def clave_caratula(t: str | None) -> str:
+    """Para comparar carátulas. Sin tildes ni mayúsculas, sin puntuación, sin 'con' ni sufijos legales (S.A., SpA, Ltda,
+    Limitada). Dos impresiones sin diferencias relevantes dan la misma clave (decisión de Diego)."""
+    import unicodedata
+    t = "".join(c for c in unicodedata.normalize("NFKD", t or "") if not unicodedata.combining(c)).lower()
+    return " ".join(w for w in re.findall(r"[a-z0-9ñ]+", t) if w not in _SUFIJOS)
+
+
+def caratula(texto: str) -> dict:
+    """Devuelve {'caratula': {valor, cita}, 'alertas': [...]}. Si hay dos carátulas distintas de verdad, no elige y deja
+    duda de lectura. Si no encuentra ninguna, deja el dato faltante."""
+    hallados = []
+    for m in _CAR_COMILLAS.finditer(texto):
+        v = m.group(1).strip()
+        # Arreglo 1 del ajuste (14-10 avisos 30, 31, 32 y 39). Entre la comilla de cierre de "‘Audiencia de remates’" y la de
+        # apertura de "‘Mis Remates’" quedaba "dispuesto para tal efecto. Una vez que el postor...". Una carátula empieza con
+        # mayúscula o número, no trae un punto seguido de mayúscula y no es larga.
+        # (salvo "S.A. Con Quiroga", 14-10 aviso 52, donde lo que sigue al punto es el "Con" que separa las partes)
+        if not re.match(r"[A-Z0-9ÁÉÍÓÚÑ]", v) or re.search(r"\.\s+(?![Cc][Oo][Nn]\s)[A-ZÁÉÍÓÚ]", v) or len(v) > 130:
+            continue
+        if _CAR_ANTES.search(texto[max(0, m.start() - 80):m.start()]):
+            hallados.append((m.start(1), v))
+    for patron in (_CAR_SIN, _CAR_CAUSA):
+        for m in patron.finditer(texto):
+            hallados.append((m.start(1), m.group(1).strip().rstrip(",")))
+    distintos = []
+    for ini, v in sorted(hallados):
+        k = clave_caratula(v)
+        if not k:
+            continue
+        if not any(k == d[2] or k in d[2] or d[2] in k for d in distintos):
+            distintos.append((ini, v, k))
+    if not distintos:
+        return {"caratula": {"valor": None, "cita": None},
+                "alertas": [("dato_faltante", "El programa no encontró la carátula de la causa. Revísala en el aviso.")]}
+    if len(distintos) > 1:
+        return {"caratula": {"valor": None, "cita": None},
+                "alertas": [("revisar_lectura", "El aviso trae dos carátulas distintas (" + " y ".join(f"'{d[1]}'" for d in distintos[:3])
+                             + "). Puede tener otro aviso pegado. Revísalo en la página.")]}
+    v = distintos[0][1]
+    return {"caratula": {"valor": v, "cita": v}, "alertas": []}
+
+
 # --- Todo junto ----------------------------------------------------------------------------------------------
 def extraer(texto: str, fecha_edicion: str | None = None) -> dict:
     """Corre las cinco extracciones. Si el trozo trae dos avisos pegados (dos fechas de remate distintas),
     NO entrega ningún dato. Solo la alerta, para que Diego lea el aviso en su página."""
     fh, mc, ga, mo, tr = fecha_y_hora(texto, fecha_edicion), minimo_y_costas(texto), garantia(texto), modalidad(texto), tribunal(texto)
     ins = inscripcion(texto, fecha_edicion)
-    alertas = fh["alertas"] + mc["alertas"] + ga["alertas"] + mo["alertas"] + tr["alertas"] + ins["alertas"]
+    ca = caratula(texto)
+    alertas = fh["alertas"] + mc["alertas"] + ga["alertas"] + mo["alertas"] + tr["alertas"] + ins["alertas"] + ca["alertas"]
     pegado = any("dos avisos pegados" in t for _, t in fh["alertas"])
     if pegado:
         return {"pegado": True, "fecha_remate": {"valor": None, "cita": None}, "hora_remate": {"valor": None, "cita": None},
                 "minimo": {"monto": None, "moneda": None, "costas_clp": None, "cita": None},
                 "garantia": {"porcentaje": None, "base": "sin_dato", "base_origen": None, "monto": None, "moneda": None, "cita": None},
                 "modalidad": {"valor": "sin_dato", "cita": None}, "plataforma": None, "tribunal": {"valor": None, "cita": None},
-                "inscripcion": {"lista": [], "clave": None},
+                "inscripcion": {"lista": [], "clave": None}, "caratula": {"valor": None, "cita": None},
                 "alertas": [a for a in fh["alertas"] if "dos avisos pegados" in a[1]]}
     return {"pegado": False, "fecha_remate": fh["fecha_remate"], "hora_remate": fh["hora_remate"], "minimo": mc["minimo"],
             "garantia": ga["garantia"], "modalidad": mo["modalidad"], "plataforma": mo["plataforma"], "tribunal": tr["tribunal"],
-            "inscripcion": {"lista": ins["inscripcion"], "clave": ins["clave"]}, "alertas": alertas}
+            "inscripcion": {"lista": ins["inscripcion"], "clave": ins["clave"]}, "caratula": ca["caratula"], "alertas": alertas}
