@@ -375,6 +375,49 @@ sal = correr("--retomar", "2026-10-09", str(Path(tmp.name) / "no_existe.db"), "-
 revisar("decisión 8, paso 5. base que no existe da error claro y no crea el archivo",
         "No existe la base" in sal.stdout + sal.stderr and not (Path(tmp.name) / "no_existe.db").exists())
 
+# --- Paso 6. Banco de rojos (idea de Diego, aprobada el 17 de Octubre) -------------------------------------------------
+import json
+from motor.banco_rojos import registros_de_edicion, registrar
+B14 = crear(Path(tmp.name) / "banco14.db")
+ex = extraer_avisos(avisos, "2026-10-14"); agregar_vale_vista(avisos, ex, "2026-10-14")
+guardar_edicion(B14, edicion, paginas, avisos, ex, "2026-10-16T00:00:00", metodo="codigo")
+regs = registros_de_edicion(B14, "2026-10-14")
+revisar("paso 6. 14-10 da 11 registros, los 8 rojos y los 3 sin dato",
+        [(r["orden"], r["color"]) for r in regs] == [(2, "rojo"), (9, "rojo"), (13, "rojo"), (27, "rojo"), (28, "rojo"), (33, "sin_dato"),
+                                                    (34, "rojo"), (37, "rojo"), (50, "sin_dato"), (59, "sin_dato"), (61, "rojo")], str([r["orden"] for r in regs]))
+revisar("paso 6. el grupo del banco es el mismo de la alerta de la base",
+        all(r["grupo"] == rojos[r["orden"]].split(". ")[0] for r in regs if r["color"] == "rojo"))
+revisar("paso 6. cada registro trae texto, dos lecturas, motivos técnicos, huella, ruta y revisión vacía",
+        all(r["texto"] and len(r["lecturas"]) == 2 and r["huella"] and r["ruta_pagina"] and r["revision"] == {} for r in regs)
+        and all(r["motivos_tecnicos"] for r in regs if r["color"] == "rojo"))
+CB = Path(tmp.name) / "banco_rojos"
+x1 = registrar(regs, CB, "t1")
+x2 = registrar(regs, CB, "t2")
+lineas = (CB / "rojos_2026-10.jsonl").read_text(encoding="utf-8").splitlines()
+revisar("paso 6. registrar dos veces no duplica", (x1["nuevos"], x2["nuevos"], x2["repetidos"], len(lineas)) == (11, 0, 11, 11), f"{x1} {x2} {len(lineas)}")
+# El mismo texto en otra edición queda marcado como republicación de la primera
+otra = [dict(r, edicion="2026-10-15") for r in regs[:2]]
+x3 = registrar(otra, CB, "t3")
+ult = [json.loads(l) for l in (CB / "rojos_2026-10.jsonl").read_text(encoding="utf-8").splitlines()][-2:]
+revisar("paso 6. el mismo texto en otra edición queda como republicación de la primera",
+        x3["republicaciones"] == 2 and all(u["republicacion_de"] == "2026-10-14" for u in ult)
+        and all(json.loads(l)["republicacion_de"] is None for l in lineas), str(x3))
+revisar("paso 6. el banco se escribe sin dos puntos ni punto y coma en los textos para Diego",
+        not [s for r in regs for s in r["motivos_simples"] if ":" in s or ";" in s])
+B14.close()
+
+# Paso 6, comando. Desde la captura del 09-10 (en el banco) a un banco temporal, sin Haiku y sin tocar el banco real.
+banco_real = RAIZ / "banco_rojos"
+banco_real_antes = {p.name: p.stat().st_size for p in banco_real.glob("*.jsonl")}
+CB2 = Path(tmp.name) / "banco_cli"
+sal = subprocess.run([sys.executable, "-B", "-m", "motor.banco_rojos", "2026-10-09", "--desde-captura", str(D09), "--banco", str(CB2)],
+                     cwd=RAIZ, capture_output=True, encoding="utf-8", errors="replace", env=ENV_UTF8, timeout=170)
+reg09 = [json.loads(l) for p in CB2.glob("rojos_*.jsonl") for l in p.read_text(encoding="utf-8").splitlines()]
+esperado_cli = sum(esperado09["colores"].get(c, 0) for c in ("rojo", "sin_dato"))
+revisar("paso 6. el comando llena un banco desde la captura con los rojos y sin dato de la carga con lo guardado",
+        sal.returncode == 0 and len(reg09) == esperado_cli > 0, f"{len(reg09)} {esperado_cli} {(sal.stdout + sal.stderr)[-150:]}")
+revisar("paso 6. las pruebas no tocan el banco real", {p.name: p.stat().st_size for p in banco_real.glob("*.jsonl")} == banco_real_antes)
+
 nuevas = sorted(set(x.name for x in CARPETA_IA.glob("*.json")) - set(respuestas_al_inicio))
 revisar("candado. la prueba no escribió ninguna respuesta nueva en ia_respuestas (no llamó a Haiku)", not nuevas, str(nuevas[:3]))
 
