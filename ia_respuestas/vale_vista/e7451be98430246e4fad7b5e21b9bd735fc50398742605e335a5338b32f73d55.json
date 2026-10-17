@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:30",
+   "hora_hasta": "12:30",
+   "frase_regla": "La entrega vale vista a la orden del Tribunal, deberá efectuarse presencialmente ante Sra. Secretaria del Tribunal día hábil anterior a fecha fijada para remate, entre 08:30 y 12:30 horas, calificándose en el acto su suficiencia o no.",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:30",
+   "hora_hasta": "12:30",
+   "frase_regla": "La entrega vale vista a la orden del Tribunal, deberá efectuarse presencialmente ante Sra. Secretaria del Tribunal día hábil anterior a fecha fijada para remate, entre 08:30 y 12:30 horas, calificándose en el acto su suficiencia o no.",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 967,
+   "salida": 184,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 967,
+   "salida": 184,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

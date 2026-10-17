@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "deberá entregar el vale vista materialmente en el tribunal, entre las 9 y las 13 horas del día anterior a la realización de la subasta",
+   "frases_extra": [
+    "Para participar en ella, los interesados deben consignar garantía suficiente conforme a las bases de remate, mediante un vale vista endosable a nombre del tribunal"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "deberá entregar el vale vista materialmente en el tribunal, entre las 9 y las 13 horas del día anterior a la realización de la subasta",
+   "frases_extra": [
+    "Para participar en ella, los interesados deben consignar garantía suficiente conforme a las bases de remate, mediante un vale vista endosable a nombre del tribunal y por el monto que se señala en las bases del remate, el que deberá ser digitalizado y acompañado a la carpeta electrónica, a través de la oficina judicial virtual, módulo ‘audiencia de remates’ dispuesto para tal efecto."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 960,
+   "salida": 186,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 960,
+   "salida": 271,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

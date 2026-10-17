@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:30",
+   "hora_hasta": "12:30",
+   "frase_regla": "mediante vale vista a la orden del Tribunal, que deberá ser entregado presencialmente el día hábil anterior al fijado para la subasta, entre las 08:30 y las 12:30 horas",
+   "frases_extra": [],
+   "contradiccion": "mediante cupón de pago a Banco Estado que deberá acompañarse a la causa a más tardar el día hábil anterior hasta las 12:30 horas"
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:30",
+   "hora_hasta": "12:30",
+   "frase_regla": "mediante vale vista a la orden del Tribunal, que deberá ser entregado presencialmente el día hábil anterior al fijado para la subasta, entre las 08:30 y las 12:30 horas",
+   "frases_extra": [],
+   "contradiccion": "mediante cupón de pago a Banco Estado que deberá acompañarse a la causa a más tardar el día hábil anterior hasta las 12:30 horas"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 584,
+   "salida": 205,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 584,
+   "salida": 205,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

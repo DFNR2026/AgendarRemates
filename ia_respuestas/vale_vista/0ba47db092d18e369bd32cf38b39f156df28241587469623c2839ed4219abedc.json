@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:30",
+   "hora_hasta": "12:30",
+   "frase_regla": "la entrega material del documento deberá efectuarse en forma presencial, el día hábil anterior a la fecha fijada para el remate, con excepción del sábado, entre las 9:30 y las 12:30 horas",
+   "frases_extra": [
+    "con excepción del sábado"
+   ],
+   "contradiccion": "Los cupones de pago que se efectúen, deberán ser acompañados al correo electrónico jl1_iquique_remates@pjud.cl, a más tardar el día hábil anterior a la fecha fijada para el remate, con excepción del sábado"
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:30",
+   "hora_hasta": "12:30",
+   "frase_regla": "la entrega material del documento deberá efectuarse en forma presencial, el día hábil anterior a la fecha fijada para el remate, con excepción del sábado, entre las 9:30 y las 12:30 horas",
+   "frases_extra": [
+    "con excepción del sábado"
+   ],
+   "contradiccion": "Los cupones de pago que se efectúen, deberán ser acompañados al correo electrónico jl1_iquique_remates@pjud.cl, a más tardar el día hábil anterior a la fecha fijada para el remate, con excepción del sábado"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 708,
+   "salida": 247,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 708,
+   "salida": 247,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "14:00",
+   "frase_regla": "que deberá ser presentado materialmente en sus dependencias hasta el día hábil inmediatamente anterior al día del remate, antes de las 14:00 horas",
+   "frases_extra": [],
+   "contradiccion": "hasta las 14:00 horas del día hábil anterior a la fecha fijada para el remate, a fin de coordinar su participación"
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "14:00",
+   "frase_regla": "deberá ser presentado materialmente en sus dependencias hasta el día hábil inmediatamente anterior al día del remate, antes de las 14:00 horas",
+   "frases_extra": [],
+   "contradiccion": "debe ingresar copia legible de rendición de la caución en la causa a través de la Oficina Judicial Virtual, indicando el rol de la causa, un correo electrónico y un número telefónico para el caso en que se requiera contactarlo, hasta las 14:00 horas del día hábil anterior a la fecha fijada para el remate"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1146,
+   "salida": 180,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1146,
+   "salida": 247,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "viernes_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "deberá entregarse en el Tribunal el día viernes anterior al remate, de 12:00 a 13:00 horas, o día hábil anterior si ese viernes es feriado, mismo horario",
+   "frases_extra": [
+    "o día hábil anterior si ese viernes es feriado, mismo horario"
+   ],
+   "contradiccion": "Los postores, a más tardar a las 14:00 hrs. del día hábil anterior a realización de la subasta, deberán enviar correo electrónico a jcsantiago15@pjud.cl"
+  },
+  {
+   "regla": "viernes_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "el cual deberá entregarse en el Tribunal el día viernes anterior al remate, de 12:00 a 13:00 horas, o día hábil anterior si ese viernes es feriado, mismo horario",
+   "frases_extra": [
+    "o día hábil anterior si ese viernes es feriado, mismo horario"
+   ],
+   "contradiccion": "Los postores, a más tardar a las 14:00 hrs. del día hábil anterior a realización de la subasta, deberán enviar correo electrónico a jcsantiago15@pjud.cl"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 786,
+   "salida": 238,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 786,
+   "salida": 241,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

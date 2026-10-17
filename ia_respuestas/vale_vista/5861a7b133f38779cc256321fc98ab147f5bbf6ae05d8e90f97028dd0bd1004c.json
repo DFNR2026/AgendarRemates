@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "y/o vale vista que se podrá acompañar en la Secretaría del Tribunal, al menos con un día hábil de antelación a la subasta, en horario de atención al público, esto es, los días lunes a viernes desde las 9:00 a 13:00 horas",
+   "frases_extra": [
+    "debiendo enviar copia del comprobante al correo electrónico jl1_antofagasta@pjud.cl hasta las 12:00 horas del día anterior a la fecha fijada para el remate"
+   ],
+   "contradiccion": "hasta las 12:00 horas del día anterior a la fecha fijada para el remate"
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "el vale vista que se podrá acompañar en la Secretaría del Tribunal, al menos con un día hábil de antelación a la subasta, en horario de atención al público, esto es, los días lunes a viernes desde las 9:00 a 13:00 horas",
+   "frases_extra": [
+    "enviar copia del comprobante al correo electrónico jl1_antofagasta@pjud.cl hasta las 12:00 horas del día anterior a la fecha fijada para el remate"
+   ],
+   "contradiccion": "hasta las 12:00 horas del día anterior a la fecha fijada para el remate"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 658,
+   "salida": 266,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 658,
+   "salida": 260,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

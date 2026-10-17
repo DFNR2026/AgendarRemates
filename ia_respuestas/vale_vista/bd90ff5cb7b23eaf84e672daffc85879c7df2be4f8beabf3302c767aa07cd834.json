@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "11:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "hasta las 14:00 horas día hábil anterior a fecha fijada para remate",
+   "frases_extra": [
+    "postores deberán comparecer al Tribunal el día hábil anterior al día de la subasta, esto es, día lunes anterior al día del remate y en su caso, día miércoles anterior al día del remate, desde 11:00 horas hasta 14:00 horas, para hacer entrega respectivo vale vista a nombre del tribunal"
+   ],
+   "contradiccion": "hasta las 14:00 horas día hábil anterior a fecha remate"
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "11:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "hasta las 14:00 horas día hábil anterior a fecha fijada para remate",
+   "frases_extra": [
+    "postores deberán comparecer al Tribunal el día hábil anterior al día de la subasta, esto es, día lunes anterior al día del remate y en su caso, día miércoles anterior al día del remate, desde 11:00 horas hasta 14:00 horas, para hacer entrega respectivo vale vista a nombre del tribunal"
+   ],
+   "contradiccion": "hasta las 14:00 horas día hábil anterior a fecha remate"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1266,
+   "salida": 249,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1266,
+   "salida": 249,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

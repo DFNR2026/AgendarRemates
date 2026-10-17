@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "en_el_remate",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "1 hora antes",
+   "frase_regla": "deberá ser entregado materialmente en la secretaría del tribunal el día del remate y hasta una hora antes de su realización",
+   "frases_extra": [
+    "Excepcionalmente, podrán los interesados, si así lo prefieren, solicitar reemplazar la garantía referida precedentemente por el depósito en la cuenta corriente del Tribunal por la suma de dinero correspondiente al 10% del precio mínimo fijado para la subasta, debiendo el depósito ser efectuado al menos 72 horas antes de la subasta."
+   ],
+   "contradiccion": "debiendo el depósito ser efectuado al menos 72 horas antes de la subasta"
+  },
+  {
+   "regla": "en_el_remate",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "deberá ser entregado materialmente en la secretaría del tribunal el día del remate y hasta una hora antes de su realización",
+   "frases_extra": [
+    "Excepcionalmente, podrán los interesados, si así lo prefieren, solicitar reemplazar la garantía referida precedentemente por el depósito en la cuenta corriente del Tribunal por la suma de dinero correspondiente al 10% del precio mínimo fijado para la subasta, debiendo el depósito ser efectuado al menos 72 horas antes de la subasta."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 780,
+   "salida": 282,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 780,
+   "salida": 247,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "entre las 9:00 y las 13:00 horas día anterior a realización de subasta",
+   "frases_extra": [
+    "Una vez postor ha sido aceptado por tribunal en sistema computacional, deberá entregar vale vista materialmente en tribunal"
+   ],
+   "contradiccion": "Interesados deberán rendir caución acompañando vale vista endosable a nombre del tribunal por 10% del mínimo, este deberá ser digitalizado y acompañado a la carpeta electrónica, a través de la oficina judicial virtual, módulo ‘audiencia de remates’ dispuesto para tal efecto."
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "09:00",
+   "hora_hasta": "13:00",
+   "frase_regla": "entre las 9:00 y las 13:00 horas día anterior a realización de subasta",
+   "frases_extra": [
+    "Una vez postor ha sido aceptado por tribunal en sistema computacional, deberá entregar vale vista materialmente en tribunal"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 656,
+   "salida": 266,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 656,
+   "salida": 156,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}
