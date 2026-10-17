@@ -457,7 +457,9 @@ def caratula(texto: str) -> dict:
         # apertura de "‘Mis Remates’" quedaba "dispuesto para tal efecto. Una vez que el postor...". Una carátula empieza con
         # mayúscula o número, no trae un punto seguido de mayúscula y no es larga.
         # (salvo "S.A. Con Quiroga", 14-10 aviso 52, donde lo que sigue al punto es el "Con" que separa las partes)
-        if not re.match(r"[A-Z0-9ÁÉÍÓÚÑ]", v) or re.search(r"\.\s+(?![Cc][Oo][Nn]\s)[A-ZÁÉÍÓÚ]", v) or len(v) > 130:
+        # El punto cuenta como fin de frase solo si sigue a una palabra de 5 letras o más, así "Cía. Ltda" no corta (06-10
+        # aviso 68). Aplicado con la aprobación de Diego del 17 de Octubre, después de la validación.
+        if not re.match(r"[A-Z0-9ÁÉÍÓÚÑ]", v) or re.search(r"(?:^|\s)[^\s.]{5,}\.\s+(?![Cc][Oo][Nn]\s)[A-ZÁÉÍÓÚ]", v) or len(v) > 130:
             continue
         if _CAR_ANTES.search(texto[max(0, m.start() - 80):m.start()]):
             hallados.append((m.start(1), v))

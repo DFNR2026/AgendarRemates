@@ -37,6 +37,8 @@ revisar("la misma carátula con S.A. y sin S.A., o con Ltda y Limitada, cuenta c
         v("Causa Rol 1-2016, ‘Banco Uno S.A. con Inversiones Dos Ltda’, el 11 de noviembre. Antecedentes en autos ‘Banco Uno con Inversiones Dos Limitada’.")
         == "Banco Uno S.A. con Inversiones Dos Ltda")
 T2 = "juicio ejecutivo ‘Banco Santander-Chile con Gatica’ Rol C-1-2025. Secretaría. EXTRACTO. en causa V-101-2025, ’Charad/ Charad’ por resolución"
+revisar("'Cía. Ltda' dentro de la carátula no corta (06-10 aviso 68, arreglo aprobado por Diego)",
+        v("Causa Rol N° 25.063-2016, ‘Banco de Chile con Comercial Tapia y Cía. Ltda’, el 11 de noviembre") == "Banco de Chile con Comercial Tapia y Cía. Ltda")
 revisar("dos carátulas distintas, duda de lectura sin elegir (decisión de Diego)", v(T2) is None and tipo(T2) == "revisar_lectura", str(caratula(T2)["alertas"])[:150])
 revisar("sin carátula, dato faltante", v("REMATE. Demás bases y antecedentes en Tribunal. El secretario.") is None and tipo("Demás bases y antecedentes en Tribunal.") == "dato_faltante")
 revisar("clave sin tildes, puntuación ni sufijos", clave_caratula("Scotiabank Chile S.A./Gil") == clave_caratula("scotiabank chile con gil"))

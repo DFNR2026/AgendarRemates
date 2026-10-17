@@ -122,7 +122,7 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
       ✅ Paso 4. VALIDACIÓN contra el 06-10 (859e190). Cifra honesta 57 aciertos, 2 no leídos, 3 equivocados de 62 remates. Unión a la carga, retomar y banco de rojos (8082f92)
       ✅ Arreglo de la comuna sacada de la frase del Conservador aplicado con la aprobación de Diego (bitácora del 17, punto 47). Con él 06-10 59, 2, 1 y 14-10 60, 1, 0. La cifra honesta sigue siendo 57, 2, 3
    ✅ 3.7c Carátula (bitácora del 17, puntos 48 a 55). Solo código, sin IA. Ajuste 14-10 57 de 57. VALIDACIÓN 06-10, cifra honesta 57 aciertos, 2 no leídos, 0 equivocados de 59. Unida a la carga y a las vistas
-      ⬜ Arreglo candidato de "Cía. Ltda" (06-10 aviso 68). Medido en memoria, 58, 1, 0. Espera la aprobación de Diego
+      ✅ Arreglo de "Cía. Ltda" aplicado con la aprobación de Diego (punto 56). 06-10 58, 1, 0. La cifra honesta sigue siendo 57, 2, 0
 ⬜ Motor parte 4. Cuadre de cuentas
 ⬜ Interfaz con buscador, calendario, alertas y link a la página (incluye agregar una causa a mano al calendario, idea de Diego del 15 de Octubre)
 ⬜ Traspaso del motor al Mercurio (guía en BITACORA_TRASPASO_MERCURIO.md)
@@ -134,11 +134,11 @@ En el PC de Diego, desde D:\Agendar_Remates, con el entorno .venv (Python 3.14, 
 
 ## Próximo paso (al abrir un chat nuevo)
 
-1. Pedir a Diego el permiso para borrar archivos en D:\Agendar_Remates (para hacer commits). Confirmar con git log el último commit local. Al cerrar la 3.7c (17 de Octubre, tarde) quedaron 22 commits locales sin push sobre origin/master = 05fc6bf (ver git log). El push va en el cierre semanal con Claude Code. Los commits se firman como DFNR2026 con git -c user.name y user.email (el shell no tiene identidad configurada).
+1. Pedir a Diego el permiso para borrar archivos en D:\Agendar_Remates (para hacer commits). Confirmar con git log el último commit local. Al cerrar la 3.7c (17 de Octubre, tarde) quedaron 23 commits locales sin push sobre origin/master = 05fc6bf (ver git log). El push va en el cierre semanal con Claude Code. Los commits se firman como DFNR2026 con git -c user.name y user.email (el shell no tiene identidad configurada).
 2. Correr las quince pruebas y verificar TODO OK antes de tocar nada. Ninguna prueba llama a Haiku (candado sobre ia_respuestas).
 3. HECHO el 16 de Octubre (guion al final de renglón). Pendientes chicos vistos en la 3.6b, cada uno como paso aparte y solo si Diego lo pide. Falsa alarma de dos fechas en el 09-10 aviso 120 ("subasta ... resolución del 4 de septiembre", es de extraccion.py). "Juez Partidor" en minúsculas pegado en el 01-09. Detalle en la bitácora del 15, punto 45.
 4. HECHO el 16 de Octubre (motor\procesar_edicion.py), con la unión de los rollos B y G por huella del texto. Pendientes que dejó. Inmueble del lote 4 del aviso 30 del 14-10. Decidir cuándo se carga la base real.
-5. Parte 3.7a TERMINADA. Parte 3.7b TERMINADA (bitácora del 17, puntos 30 a 46). El arreglo de la comuna (punto 40) quedó aplicado con la aprobación de Diego (punto 47). Llamar a Haiku para la dirección desde la nube de Claude funcionó (la clave se copia solo durante la corrida y se borra al final). Parte 3.7c TERMINADA (carátula, bitácora del 17, puntos 48 a 55), con el arreglo de "Cía. Ltda" esperando la aprobación de Diego. SIGUE la parte 4 (cuadre de cuentas y republicaciones), empezando por el diseño.
+5. Parte 3.7a TERMINADA. Parte 3.7b TERMINADA (bitácora del 17, puntos 30 a 46). El arreglo de la comuna (punto 40) quedó aplicado con la aprobación de Diego (punto 47). Llamar a Haiku para la dirección desde la nube de Claude funcionó (la clave se copia solo durante la corrida y se borra al final). Parte 3.7c TERMINADA (carátula, bitácora del 17, puntos 48 a 55), con el arreglo de "Cía. Ltda" aplicado (punto 56). SIGUE la parte 4 (cuadre de cuentas y republicaciones), empezando por el diseño.
 6. Decisiones abiertas de Diego. El "desde" del vale vista (pregunta 9 al abogado). Diseño de las visitas al tribunal (lista de días y horarios permitidos por vale vista).
 7. Parte 4. Cuadre de cuentas y republicaciones (más de la mitad de los avisos se repiten al día siguiente, punto 33 de la bitácora del 15).
 8. Pendiente menor. Algunos avisos terminan con "EXTRACTO DE", que es el comienzo del aviso siguiente. Y el 01-09 aviso 76 son dos avisos de partición pegados (descartados), que desde la 3.7b cuentan 2 remates.
