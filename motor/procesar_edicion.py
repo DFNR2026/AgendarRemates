@@ -133,7 +133,7 @@ def traducir(x: dict) -> dict:
     return {"tribunal": (x.get("tribunal") or {}).get("valor"),
             "fecha_remate": x["fecha_remate"], "hora_remate": x["hora_remate"], "modalidad": x["modalidad"],
             "plataforma": x.get("plataforma"), "minimo": x["minimo"], "garantia": x["garantia"],
-            "inscripcion": x.get("inscripcion"), "alertas": list(x.get("alertas") or []), "dudas": [], "pegado": bool(x.get("pegado"))}
+            "inscripcion": x.get("inscripcion"), "caratula": x.get("caratula"), "alertas": list(x.get("alertas") or []), "dudas": [], "pegado": bool(x.get("pegado"))}
 
 
 def extraer_avisos(avisos: list, fecha: str) -> dict:

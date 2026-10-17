@@ -39,7 +39,7 @@ revisar("paso 1. las 2 citas del vale vista del aviso 1 van con método ia y ver
 # Desde la parte 3.7b (17 de Octubre) el código agrega también las citas de la inscripción (campo inscripcion, 67 en el
 # 14-10). Se cuentan aparte para que las 315 de la 3.6 sigan comparándose igual.
 revisar("paso 1. las 315 citas del código siguen con método codigo (más las 67 de la inscripción)",
-        uno(C1, "SELECT COUNT(*) FROM citas WHERE metodo = 'codigo' AND campo NOT IN ('vv_regla_texto', 'inscripcion')") == 315
+        uno(C1, "SELECT COUNT(*) FROM citas WHERE metodo = 'codigo' AND campo NOT IN ('vv_regla_texto', 'inscripcion', 'caratulado')") == 315
         and uno(C1, "SELECT COUNT(*) FROM citas WHERE metodo = 'codigo' AND campo = 'inscripcion'") == 67
         and uno(C1, "SELECT COUNT(*) FROM citas WHERE metodo = 'ia'") == 2)
 C1.close()
@@ -124,7 +124,7 @@ revisar("paso 4. desde la base. 53 aciertos, 4 no leídos (rojo), 0 equivocados,
 revisar("paso 4. colores en la base iguales a los de resolver() (por aviso)", colores == rv["colores"], f"{colores} {rv['colores']}")
 revisar("paso 4. 61 avisos visibles con bloque, ninguno se perdió", sum(colores.values()) == 57 and None not in colores)
 revisar("paso 4. citas del vale vista con método ia y todas verificadas, las del código siguen con codigo",
-        C4.execute("SELECT metodo, SUM(campo = 'vv_regla_texto') > 0, SUM(campo NOT IN ('vv_regla_texto', 'inscripcion')), COUNT(*) = SUM(verificada) "
+        C4.execute("SELECT metodo, SUM(campo = 'vv_regla_texto') > 0, SUM(campo NOT IN ('vv_regla_texto', 'inscripcion', 'caratulado')), COUNT(*) = SUM(verificada) "
                    "FROM citas GROUP BY metodo ORDER BY metodo").fetchall() == [("codigo", 0, 315, 1), ("ia", 1, 0, 1)])
 n_rem = lambda col: uno(C4, f"SELECT COUNT(*) FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE a.filtro_estado <> 'descartado' AND {COLOR_BD} = '{col}'")
 GRUPO_SQL = " OR ".join(f"texto LIKE '{g}. %'" for g in ("Error del aviso", "Dudoso", "Límite del programa", "Regla nueva", "Falla de la IA"))

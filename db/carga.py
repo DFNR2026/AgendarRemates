@@ -107,6 +107,9 @@ def _citas_de(ex: dict, sub_lista: dict):
         campo = "garantia_porcentaje" if g.get("porcentaje") is not None else "garantia_monto" if g.get("monto") is not None else "garantia_base"
         valor = g.get("porcentaje") if g.get("porcentaje") is not None else g.get("monto")
         yield comun, campo, 1, valor, g["cita"], g.get("metodo")
+    ca = ex.get("caratula") or {}
+    if ca.get("cita"):                             # parte 3.7c. Carátula de la causa, leída por código
+        yield comun, "caratulado", 1, ca.get("valor"), ca["cita"], ca.get("metodo")
     ins = ex.get("inscripcion") or {}
     for i, el in enumerate(ins.get("lista") or [], start=1):       # parte 3.7b. Para saber qué propiedad es cuál
         valor = f"fojas {el['fojas']} n {el['numero']}" + (f" {el['anio']}" if el.get("anio") else "")

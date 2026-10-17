@@ -201,6 +201,7 @@ DROP VIEW IF EXISTS v_buscador;
 CREATE VIEW v_buscador AS
   SELECT e.fecha AS edicion, a.id AS aviso_id, a.orden, r.id AS remate_id, r.sub_orden, r.bien_id,
          a.tipo_id, a.rol, a.anio, a.rol_impreso, a.tribunal, r.inmueble, r.direccion, r.comuna,
+         (SELECT c.valor FROM citas c WHERE c.aviso_id = a.id AND c.campo = 'caratulado' ORDER BY c.sub_orden, c.n_cita LIMIT 1) AS caratula,   -- parte 3.7c, la carátula vive en citas (sin cambiar el esquema)
          r.fecha_remate, r.hora_remate, r.modalidad, r.plataforma,
          r.minimo_monto, r.minimo_moneda, r.minimo_costas_clp,
          r.garantia_porcentaje, r.garantia_base, r.garantia_monto, r.garantia_moneda,
@@ -234,6 +235,7 @@ CREATE VIEW v_alertas AS
 DROP VIEW IF EXISTS v_calendario;
 CREATE VIEW v_calendario AS
   SELECT g.id AS agenda_id, g.bien_id, b.inmueble, a.rol, a.anio, a.tribunal,
+         (SELECT c.valor FROM citas c WHERE c.aviso_id = a.id AND c.campo = 'caratulado' ORDER BY c.sub_orden, c.n_cita LIMIT 1) AS caratula,   -- parte 3.7c
          e.fecha AS edicion_vigente, r.id AS remate_id, a.id AS aviso_id, a.orden,
          r.fecha_remate, r.hora_remate, r.modalidad, r.plataforma, r.direccion, r.comuna,
          r.minimo_monto, r.minimo_moneda, r.minimo_costas_clp,

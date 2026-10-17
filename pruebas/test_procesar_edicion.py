@@ -59,8 +59,10 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("sin diferencias fuera de las explicadas", not raras, " | ".join(raras[:8]))
     revisar("los 4 partidores descartados por el texto", {r[0] for r in B.execute("SELECT orden FROM avisos WHERE filtro_estado = 'descartado'")} == PARTIDORES)
     revisar("61 bienes, igual que el banco", uno(B, "SELECT COUNT(*) FROM bienes") == uno(A, "SELECT COUNT(*) FROM bienes") == 61)
-    revisar("citas del motor con método codigo y todas encontradas en su aviso (315 de la 3.6 más 67 inscripciones de la 3.7b)",
-            B.execute("SELECT metodo, COUNT(*), SUM(verificada) FROM citas GROUP BY metodo").fetchall() == [("codigo", 382, 382)])
+    # Desde la parte 3.7c (17 de Octubre) se suman las 57 carátulas (antes 382).
+    revisar("citas del motor con método codigo y todas encontradas en su aviso (315 de la 3.6, 67 inscripciones de la 3.7b y 57 carátulas de la 3.7c)",
+            B.execute("SELECT metodo, COUNT(*), SUM(verificada) FROM citas GROUP BY metodo").fetchall() == [("codigo", 439, 439)])
+    revisar("3.7c. carátula de los 57 avisos visibles en el buscador", B.execute("SELECT COUNT(DISTINCT aviso_id), SUM(caratula IS NULL) FROM v_buscador").fetchone() == (57, 0))
     revisar("citas del banco siguen con método ia", A.execute("SELECT DISTINCT metodo FROM citas").fetchall() == [("ia",)])
     revisar("65 alertas de vale vista NO LEÍDO en el motor y ninguna que diga que el aviso no lo dice",
             (uno(B, f"SELECT COUNT(*) FROM alertas WHERE texto = '{VV_NO_LEIDO}'"), uno(B, f"SELECT COUNT(*) FROM alertas WHERE texto = '{VV_NO_DICE}'")) == (65, 0))
