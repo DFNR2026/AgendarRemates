@@ -10,3 +10,12 @@ Registros 84. Textos únicos 51. Republicaciones 33.
 Por grupo, textos únicos (n = 51). Falla de la IA 27. Sin dato 14. Error del aviso 6. Regla nueva 4.
 Por motivo simple, textos únicos (un texto puede tener más de un motivo). Las dos lecturas dieron reglas distintas 11. Regla que no calza con las palabras del aviso 9. Dos plazos u horarios distintos 4. Regla de un tipo que el programa no conoce 4. Frase que no está escrita así 3. Entrega en el remate sin que el aviso lo diga 3. Fecha del remate ya pasada 1. Vale vista pedido en fecha ya pasada 1. Día nombrado distinto al calculado 1.
 Sin conclusiones todavía. Falta la primera revisión semanal, aviso por aviso, llenando el campo revision.
+
+# Análisis de los rojos de la dirección (parte 3.7b, mismas reglas de arriba)
+
+Fuente. banco_rojos\dir_rojos_AAAA-MM.jsonl, archivo aparte para no mezclarlo con el vale vista. Un registro por aviso con la dirección en rojo o sin dato, con el texto, las dos lecturas de Haiku, los motivos técnicos, el texto de la alerta y el campo revision.
+
+## 2026-10-17. Llenado inicial (7 ediciones capturadas, solo respuestas guardadas, instrucciones dir-2)
+Solo hay respuestas guardadas de la dirección para el 14-10 completo, la muestra de 59 avisos del 06-10 y sus republicaciones exactas en otros días. Este conteo NO es una tasa de error.
+Registros 3, textos únicos 3. Todos Falla de la IA. Dos lecturas distintas 2 (14-10 aviso 26, sitio contra casa, y 06-10 aviso 3). La IA dijo que no hay dirección y el aviso parece darla 1 (06-10 aviso 65, depto sin calle en Puerto Varas).
+Sin conclusiones todavía.

@@ -54,17 +54,44 @@ def registros_de_edicion(con, fecha: str) -> list:
     return out
 
 
-def _leer(carpeta: Path) -> list:
+def registros_direccion(con, fecha: str) -> list:
+    """Parte 3.7b. Un registro por aviso visible con la dirección en rojo o sin dato (leída por la IA, desde lo guardado).
+    Van en un archivo aparte (dir_rojos_AAAA-MM.jsonl) para no mezclarlos con los del vale vista."""
+    from motor import direccion as DR
+    filas = con.execute("SELECT a.id, a.orden, a.texto, a.rol_impreso, a.tribunal, p.ruta, COUNT(r.id) FROM avisos a "
+                        "JOIN ediciones e ON e.id = a.edicion_id JOIN remates r ON r.aviso_id = a.id LEFT JOIN paginas p ON p.id = a.pagina_inicio_id "
+                        "WHERE e.fecha = ? AND a.filtro_estado <> 'descartado' GROUP BY a.id ORDER BY a.orden", (fecha,)).fetchall()
+    codigo = hashlib.md5((RAIZ / "motor" / "direccion.py").read_bytes()).hexdigest()
     out = []
-    for p in sorted(carpeta.glob("rojos_*.jsonl")):
+    for _, orden, texto, rol, tribunal, ruta, n in filas:
+        g = DR.leer_guardada(texto, n)
+        if not g:
+            continue
+        res = DR.resolver(g["lecturas"], texto, n)
+        if res["color"] == "verde":
+            continue
+        out.append({
+            "edicion": fecha, "orden": orden, "rol": rol, "tribunal": tribunal, "ruta_pagina": ruta, "n_remates": n, "color": res["color"],
+            "grupo": "Falla de la IA" if res["color"] == "rojo" else "Sin dato", "texto_alerta": DR.texto_rojo(res) if res["color"] == "rojo" else DR.NO_ENCONTRADA,
+            "motivos_tecnicos": res["motivos"], "lecturas": g["lecturas"], "huella": DR.huella(texto, n), "modelo": DR.MODELO,
+            "version_instrucciones": DR.VERSION_INSTRUCCIONES, "md5_direccion": codigo, "texto": texto,
+            "republicacion_de": None, "registrado_en": None, "revision": {},
+        })
+    return out
+
+
+def _leer(carpeta: Path, prefijo: str = "rojos") -> list:
+    out = []
+    for p in sorted(carpeta.glob(f"{prefijo}_*.jsonl")):
         out += [json.loads(l) for l in p.read_text(encoding="utf-8").splitlines() if l.strip()]
     return out
 
 
-def registrar(registros: list, carpeta: Path = CARPETA, ahora: str | None = None) -> dict:
-    """Agrega los registros al banco. No repite (edición, aviso, versión). Marca la republicación por huella del texto."""
+def registrar(registros: list, carpeta: Path = CARPETA, ahora: str | None = None, prefijo: str = "rojos") -> dict:
+    """Agrega los registros al banco. No repite (edición, aviso, versión). Marca la republicación por huella del texto.
+    prefijo 'rojos' para el vale vista y 'dir_rojos' para la dirección (parte 3.7b)."""
     carpeta.mkdir(parents=True, exist_ok=True)
-    viejos = _leer(carpeta)
+    viejos = _leer(carpeta, prefijo)
     claves = {(x["edicion"], x["orden"], x["version_instrucciones"]) for x in viejos}
     primera = {}
     for x in sorted(viejos, key=lambda x: x["edicion"]):
@@ -79,15 +106,16 @@ def registrar(registros: list, carpeta: Path = CARPETA, ahora: str | None = None
         if primera.get(r["huella"], r["edicion"]) != r["edicion"]:
             r["republicacion_de"] = primera[r["huella"]]; republicados += 1
         primera.setdefault(r["huella"], r["edicion"])
-        with open(carpeta / f"rojos_{r['edicion'][:7]}.jsonl", "a", encoding="utf-8") as f:
+        with open(carpeta / f"{prefijo}_{r['edicion'][:7]}.jsonl", "a", encoding="utf-8") as f:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
         claves.add(k); nuevos += 1
     return {"nuevos": nuevos, "repetidos": repetidos, "republicaciones": republicados}
 
 
-def desde_captura(fecha: str, carpeta_captura: Path | None = None) -> list:
+def desde_captura(fecha: str, carpeta_captura: Path | None = None, direccion: bool = False):
     """Carga la edición capturada en una base temporal SOLO con respuestas guardadas (nunca llama a Haiku) y devuelve
-    sus registros. Sirve para llenar el banco con ediciones viejas sin tocar ninguna base."""
+    sus registros. Sirve para llenar el banco con ediciones viejas sin tocar ninguna base. Con direccion=True devuelve
+    (registros del vale vista, registros de la dirección)."""
     import tempfile
     from db.crear_base import crear
     from motor.procesar_edicion import cargar_edicion
@@ -95,6 +123,8 @@ def desde_captura(fecha: str, carpeta_captura: Path | None = None) -> list:
         con = crear(Path(t) / "temporal.db")
         try:
             cargar_edicion(con, fecha, dt.datetime.now().isoformat(timespec="seconds"), carpeta_captura, cliente=None)
+            if direccion:
+                return registros_de_edicion(con, fecha), registros_direccion(con, fecha)
             return registros_de_edicion(con, fecha)
         finally:
             con.close()
@@ -112,11 +142,11 @@ if __name__ == "__main__":
     if "--desde-captura" in a:
         k = a.index("--desde-captura")
         carpeta = Path(a[k + 1]) if len(a) > k + 1 and not a[k + 1].startswith("--") else None
-        regs = desde_captura(fecha, carpeta)
+        regs, regs_dir = desde_captura(fecha, carpeta, direccion=True)
     else:
         from db.crear_base import crear
         ruta = Path(a[1])
         if not ruta.exists():
             raise SystemExit(f"No existe la base {ruta}.")
-        con = crear(ruta); regs = registros_de_edicion(con, fecha); con.close()
-    print(fecha, registrar(regs, banco))
+        con = crear(ruta); regs = registros_de_edicion(con, fecha); regs_dir = registros_direccion(con, fecha); con.close()
+    print(fecha, "vale vista", registrar(regs, banco), "dirección", registrar(regs_dir, banco, prefijo="dir_rojos"))

@@ -89,6 +89,13 @@ def _citas_de(ex: dict, sub_lista: dict):
         d = ex.get(clave) or {}
         if d.get("cita"):
             yield comun, campo, 1, d.get("valor"), d["cita"], d.get("metodo")
+    dl = (ex.get("direccion") or {}).get("lista") or []
+    for k, el in enumerate(dl, start=1):           # dirección leída por la IA (parte 3.7b), una por remate
+        sub = k if sub_lista else 1
+        if el.get("cita"):
+            yield sub, "direccion", 1, el.get("direccion"), el["cita"], "ia"
+            for i, extra in enumerate(el.get("citas_extra") or [], start=2):
+                yield sub, "direccion", i, el.get("direccion"), extra, "ia"
     m = ex.get("minimo") or {}
     for k, el in (sub_lista.items() if sub_lista else [(1, m)]):
         if el.get("cita"):
@@ -127,6 +134,19 @@ def identidad_inmueble(inmueble: str | None, ex: dict, sin_rol: bool = False) ->
     if d.get("metodo") == "ia":
         return ""
     return normalizar(d.get("valor")) if sin_rol else clave_inmueble(d.get("valor"))     # como antes de la 3.7b
+
+
+DIR_NO_LEIDA = "El programa todavía no lee la dirección de este aviso. Revísala en el aviso."
+
+
+def direccion_de(ex: dict, k: int) -> tuple:
+    """(dirección, comuna) del remate k. La del banco anotado es una sola para el aviso. La de la IA (parte 3.7b) viene
+    una por remate en 'lista'."""
+    d = ex.get("direccion") or {}
+    if "lista" in d:
+        el = d["lista"][k - 1] if k - 1 < len(d["lista"]) else {}
+        return el.get("direccion"), el.get("comuna")
+    return d.get("valor"), None
 
 
 VV_NO_LEIDO = "El programa todavía no lee la regla del vale vista de este aviso. Revísala en el aviso."
@@ -197,10 +217,10 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
             g, v, mod = ex.get("garantia") or {}, ex.get("vale_vista") or {}, ex.get("modalidad") or {}
             for k, el in enumerate(lista, start=1):
                 cur = con.execute(
-                    "INSERT INTO remates(aviso_id, sub_orden, inmueble, direccion, fecha_remate, hora_remate, modalidad, plataforma, "
+                    "INSERT INTO remates(aviso_id, sub_orden, inmueble, direccion, comuna, fecha_remate, hora_remate, modalidad, plataforma, "
                     "minimo_monto, minimo_moneda, minimo_costas_clp, garantia_porcentaje, garantia_base, garantia_monto, garantia_moneda, "
-                    "vv_regla, vv_regla_texto, vv_desde, vv_desde_origen, vv_hasta, vv_estado) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (aviso_id, k, el.get("inmueble"), (ex.get("direccion") or {}).get("valor"),
+                    "vv_regla, vv_regla_texto, vv_desde, vv_desde_origen, vv_hasta, vv_estado) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (aviso_id, k, el.get("inmueble"), direccion_de(ex, k)[0], direccion_de(ex, k)[1],
                      (ex.get("fecha_remate") or {}).get("valor"), (ex.get("hora_remate") or {}).get("valor"),
                      mod.get("valor"), ex["plataforma"] if "plataforma" in ex else plataforma(mod.get("cita")),
                      el.get("monto"), el.get("moneda"), el.get("costas_clp"),
@@ -217,6 +237,10 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
                     con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, origen) VALUES (?,?,?,?,?)",
                                 (aviso_id, k if sub_lista else 0, "dato_faltante",
                                  VV_NO_DICE if "vale_vista" in ex else VV_NO_LEIDO, "codigo"))
+                for tipo_d, texto_d, cita_d in (ex.get("direccion") or {}).get("alertas") or []:
+                    # dirección leída por la IA (parte 3.7b). Rojo, sin dato o no leída, una alerta por remate como el vale vista
+                    con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, cita, origen) VALUES (?,?,?,?,?,?)",
+                                (aviso_id, k if sub_lista else 0, tipo_d, texto_d, cita_d, "codigo"))
                 if not descartado:
                     pendientes_bien.append((cur.lastrowid, causa_id, aviso_id, k, el.get("inmueble"), tribunal, ex))
                     if causa_id:

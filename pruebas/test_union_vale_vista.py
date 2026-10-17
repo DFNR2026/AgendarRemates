@@ -277,7 +277,9 @@ r7 = cargar_edicion(C7, "2026-10-09", "2026-10-16T00:00:00", D09)
 est, alarmas = C7.execute("SELECT estado, alarmas FROM ediciones").fetchone()
 linea = alarma_vale_vista(r7["vale_vista"])
 revisar("decisión 8, paso 3. 09-10 con avisos sin IA. edición con_alarmas y línea de vale vista al final, sin borrar la de la unión",
-        est == "con_alarmas" and alarmas.splitlines()[-1] == linea and "127 de 127 avisos unidos" in alarmas
+        # Desde la parte 3.7b (17 de Octubre) después de la línea del vale vista va la de la dirección. Antes se pedía que la
+        # del vale vista fuera la última.
+        est == "con_alarmas" and linea in alarmas.splitlines() and alarmas.splitlines()[-1].startswith("Dirección. ") and "127 de 127 avisos unidos" in alarmas
         and linea == f"{VV_ALARMA}{r7['vale_vista']['sin_ia']} de {r7['vale_vista']['sin_ia'] + r7['vale_vista']['leidos']} avisos quedaron sin leer por la IA. Se puede retomar sin volver a leer el Mercurio."
         and r7["vale_vista"]["sin_ia"] > 0, f"{est} | {linea}")
 C7.close()
@@ -369,7 +371,7 @@ revisar("decisión 8, paso 5. con --solo-guardadas el comando no crea el cliente
         "Solo respuestas guardadas. No se llama a Haiku." in sal.stdout and "cliente de Haiku" not in sal.stdout, sal.stdout[:200])
 revisar("decisión 8, paso 5. el comando retoma el 09-10 y deja lo mismo que la carga con lo guardado",
         sal.returncode == 0 and f"'leidos': {esperado09['leidos']}" in sal.stdout
-        and (C8.execute("SELECT alarmas FROM ediciones").fetchone()[0] or "").splitlines()[-1] == alarma_vale_vista(esperado09),
+        and alarma_vale_vista(esperado09) in (C8.execute("SELECT alarmas FROM ediciones").fetchone()[0] or "").splitlines(),   # ya no es la última (3.7b)
         (sal.stdout + sal.stderr)[-200:])
 C8.close()
 sal = correr("--retomar", "2026-10-09", str(RAIZ / "agendar_remates.db"), "--solo-guardadas")

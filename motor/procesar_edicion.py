@@ -170,6 +170,23 @@ def agregar_vale_vista(avisos: list, extraido: dict, fecha: str, cliente=None) -
 VV_ALARMA = "Vale vista. "      # comienzo de la línea de alarma de la edición (la busca retomar_vale_vista)
 
 
+def cambiar_alarma(alarmas: str | None, prefijo: str, nueva: str | None, estado: str) -> tuple:
+    """Reemplaza la línea de alarma que empieza con prefijo EN SU MISMO LUGAR (17 de Octubre. Antes se borraba y se agregaba
+    al final, y al retomar el vale vista quedaba después de la línea de la dirección, distinto a una carga nueva).
+    Sin línea nueva se borra. El estado vuelve a ok solo si no queda ninguna alarma."""
+    lineas = (alarmas or "").splitlines()
+    k = next((i for i, x in enumerate(lineas) if x.startswith(prefijo)), None)
+    if k is not None:
+        lineas[k:k + 1] = [nueva] if nueva else []
+    elif nueva:
+        lineas.append(nueva)
+    if nueva:
+        estado = "con_alarmas"
+    elif not lineas:
+        estado = "ok"
+    return lineas, estado
+
+
 def alarma_vale_vista(vv: dict) -> str | None:
     """Línea de alarma de la edición si quedaron avisos sin leer por la IA (decisión de Diego del 17 de Octubre)."""
     if not vv or not vv.get("sin_ia"):
@@ -226,12 +243,113 @@ def retomar_vale_vista(con, fecha: str, cliente=None) -> dict:
             resumen["colores"][res["color"]] = resumen["colores"].get(res["color"], 0) + 1
         # Línea de alarma de la edición. Se cuenta sobre todos los avisos que la IA debe leer, no solo los de esta vuelta.
         total = con.execute("SELECT COUNT(*) FROM avisos WHERE edicion_id = ? AND filtro_estado <> 'descartado'", (ed_id,)).fetchone()[0] - resumen["saltados"]
-        lineas = [x for x in (alarmas or "").splitlines() if not x.startswith(VV_ALARMA)]
         nueva = alarma_vale_vista({"sin_ia": resumen["sin_ia"], "leidos": total - resumen["sin_ia"]})
-        if nueva:
-            lineas.append(nueva); estado = "con_alarmas"
-        elif not lineas:
-            estado = "ok"                    # la única alarma era la del vale vista. Si quedan otras, el estado no se toca
+        lineas, estado = cambiar_alarma(alarmas, VV_ALARMA, nueva, estado)
+        con.execute("UPDATE ediciones SET alarmas = ?, estado = ? WHERE id = ?", ("\n".join(lineas) or None, estado, ed_id))
+    return resumen
+
+
+# --- Dirección leída por la IA (parte 3.7b, decisiones de Diego del 17 de Octubre) -----------------------------------
+DIR_ALARMA = "Dirección. "      # comienzo de la línea de alarma de la edición (la busca retomar_direccion)
+
+
+def bloque_direccion(res: dict) -> dict:
+    """Resultado de motor.direccion.resolver() -> bloque 'direccion' para db.carga ('lista' una por remate, método ia,
+    alertas por color). En rojo y sin dato la lista va vacía. El rojo lleva las dos lecturas y la frase del aviso."""
+    from motor import direccion as DR
+    b = {"metodo": "ia", "color": res["color"], "lista": list(res.get("inmuebles") or []), "alertas": []}
+    if res["color"] == "rojo":
+        b["alertas"].append(("revisar_lectura", DR.texto_rojo(res), res.get("frase")))
+    elif res["color"] == "sin_dato":
+        b["alertas"].append(("dato_faltante", DR.NO_ENCONTRADA, None))
+    return b
+
+
+def _n_remates(ex: dict) -> int:
+    mi = ex.get("minimo") or {}
+    return len(mi["lista"]) if mi.get("lista") else 1
+
+
+def agregar_direccion(avisos: list, extraido: dict, fecha: str, cliente=None) -> dict:
+    """Parte 3.7b. Agrega a cada aviso el bloque 'direccion' leído por Haiku (motor.direccion), con la cantidad de remates
+    que dio el código. Se saltan los avisos de partición y los pegados (igual que el vale vista). Primero las respuestas
+    guardadas. Si Haiku no está, el aviso queda con la alerta de dirección no leída y se puede retomar. Nunca se cae."""
+    from motor import direccion as DR
+    from db.carga import DIR_NO_LEIDA
+    resumen = {"leidos": 0, "sin_ia": 0, "saltados": 0, "colores": {}, "errores": []}
+    for a in avisos:
+        ex = extraido[a.orden]
+        if ex.get("pegado") or es_partidor(ex.get("tribunal"), a.texto):
+            resumen["saltados"] += 1; continue
+        n = _n_remates(ex)
+        try:
+            g = DR.leer_con_ia(a.texto, n, cliente)
+        except Exception as e:
+            g = {"lecturas": [], "errores": [f"{type(e).__name__}. {str(e)[:120]}"]}
+        if len(g.get("lecturas") or []) < 2:
+            resumen["sin_ia"] += 1; resumen["errores"].append(f"aviso {a.orden}. {' '.join(g.get('errores') or ['Faltan lecturas de la IA.'])[:200]}")
+            ex["direccion"] = {"metodo": "ia", "color": None, "lista": [], "alertas": [("dato_faltante", DIR_NO_LEIDA, None)]}
+            continue
+        res = DR.resolver(g["lecturas"], a.texto, n)
+        ex["direccion"] = bloque_direccion(res)
+        resumen["leidos"] += 1
+        resumen["colores"][res["color"]] = resumen["colores"].get(res["color"], 0) + 1
+    return resumen
+
+
+def alarma_direccion(dr: dict) -> str | None:
+    if not dr or not dr.get("sin_ia"):
+        return None
+    return (f"{DIR_ALARMA}{dr['sin_ia']} de {dr['sin_ia'] + dr['leidos']} avisos quedaron sin leer por la IA. "
+            "Se puede retomar sin volver a leer el Mercurio.")
+
+
+def retomar_direccion(con, fecha: str, cliente=None) -> dict:
+    """Termina de leer la dirección de una edición YA cargada (igual que retomar_vale_vista). Busca los avisos visibles con la
+    alerta de dirección no leída, pregunta a Haiku solo por esos (primero lo guardado) y los deja igual que si se hubieran
+    leído en la carga. Actualiza la alarma de la edición. Una transacción."""
+    from motor import direccion as DR
+    from db.carga import DIR_NO_LEIDA
+    fila = con.execute("SELECT id, estado, alarmas FROM ediciones WHERE fecha = ?", (fecha,)).fetchone()
+    if not fila:
+        raise ValueError(f"La edición {fecha} no está en la base. No hay nada que retomar.")
+    ed_id, estado, alarmas = fila
+    pend = con.execute("SELECT DISTINCT a.id, a.orden, a.texto FROM avisos a JOIN alertas al ON al.aviso_id = a.id "
+                       "WHERE a.edicion_id = ? AND a.filtro_estado <> 'descartado' AND al.texto = ? ORDER BY a.orden",
+                       (ed_id, DIR_NO_LEIDA)).fetchall()
+    resumen = {"pendientes_antes": len(pend), "leidos": 0, "sin_ia": 0, "colores": {}, "errores": []}
+    with con:
+        for aviso_id, orden, texto in pend:
+            subs = [r[0] for r in con.execute("SELECT sub_orden FROM remates WHERE aviso_id = ? ORDER BY sub_orden", (aviso_id,))]
+            n = len(subs)
+            try:
+                g = DR.leer_con_ia(texto, n, cliente)
+            except Exception as e:
+                g = {"lecturas": [], "errores": [f"{type(e).__name__}. {str(e)[:120]}"]}
+            if len(g.get("lecturas") or []) < 2:
+                resumen["sin_ia"] += 1; resumen["errores"].append(f"aviso {orden}. {' '.join(g.get('errores') or [])[:200]}"); continue
+            res = DR.resolver(g["lecturas"], texto, n)
+            b = bloque_direccion(res)
+            pos = [r[0] for r in con.execute("SELECT sub_orden FROM alertas WHERE aviso_id = ? AND texto = ? ORDER BY id", (aviso_id, DIR_NO_LEIDA))]
+            con.execute("DELETE FROM alertas WHERE aviso_id = ? AND texto = ?", (aviso_id, DIR_NO_LEIDA))
+            for sub in pos:
+                for tipo, txt, cita in b["alertas"]:
+                    con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, cita, origen) VALUES (?,?,?,?,?,?)",
+                                (aviso_id, sub, tipo, txt, cita, "codigo"))
+            for k, (sub, el) in enumerate(zip(subs, b["lista"]), start=1):
+                con.execute("UPDATE remates SET direccion = ?, comuna = ? WHERE aviso_id = ? AND sub_orden = ?",
+                            (el["direccion"], el["comuna"], aviso_id, sub))
+                for i, c in enumerate([el["cita"]] + list(el.get("citas_extra") or []), start=1):
+                    con.execute("INSERT INTO citas(aviso_id, sub_orden, campo, n_cita, valor, cita, metodo, verificada) VALUES (?,?,?,?,?,?,?,?)",
+                                (aviso_id, sub if n > 1 else 1, "direccion", i, el["direccion"], c, "ia", int(c in texto)))
+            resumen["leidos"] += 1
+            resumen["colores"][res["color"]] = resumen["colores"].get(res["color"], 0) + 1
+        total_pend = con.execute("SELECT COUNT(DISTINCT a.id) FROM avisos a JOIN alertas al ON al.aviso_id = a.id WHERE a.edicion_id = ? "
+                                 "AND a.filtro_estado <> 'descartado' AND al.texto = ?", (ed_id, DIR_NO_LEIDA)).fetchone()[0]
+        leidos_total = con.execute("SELECT COUNT(DISTINCT aviso_id) FROM citas c JOIN avisos a ON a.id = c.aviso_id WHERE a.edicion_id = ? "
+                                   "AND c.campo = 'direccion' AND c.metodo = 'ia'", (ed_id,)).fetchone()[0]
+        nueva = alarma_direccion({"sin_ia": total_pend, "leidos": leidos_total}) if total_pend else None
+        lineas, estado = cambiar_alarma(alarmas, DIR_ALARMA, nueva, estado)
         con.execute("UPDATE ediciones SET alarmas = ?, estado = ? WHERE id = ?", ("\n".join(lineas) or None, estado, ed_id))
     return resumen
 
@@ -311,12 +429,15 @@ def cargar_edicion(con, fecha: str, ahora: str, carpeta: Path | None = None, cli
     for orden, extra in alertas.items():
         extraido[orden]["alertas"] += extra
     vv = agregar_vale_vista(avisos, extraido, fecha, cliente) if usar_ia else None
-    linea = alarma_vale_vista(vv)
-    if linea:
-        edicion = dict(edicion, estado="con_alarmas", alarmas="\n".join(x for x in (edicion.get("alarmas"), linea) if x))
+    dr = agregar_direccion(avisos, extraido, fecha, cliente) if usar_ia else None      # parte 3.7b
+    for linea in (alarma_vale_vista(vv), alarma_direccion(dr)):
+        if linea:
+            edicion = dict(edicion, estado="con_alarmas", alarmas="\n".join(x for x in (edicion.get("alarmas"), linea) if x))
     res = guardar_edicion(con, edicion, paginas, avisos, extraido, ahora, metodo="codigo")
     if vv is not None:
         res["vale_vista"] = vv
+    if dr is not None:
+        res["direccion"] = dr
     return res
 
 
@@ -351,7 +472,9 @@ if __name__ == "__main__":
         cliente, motivo = (None, None) if solo_guardadas else cliente_o_nada()
         if motivo:
             print("AVISO.", motivo)
-        print(retomar_vale_vista(crear(ruta), fecha, cliente))
+        con = crear(ruta)
+        print("Vale vista.", retomar_vale_vista(con, fecha, cliente))
+        print("Dirección.", retomar_direccion(con, fecha, cliente))      # parte 3.7b
         raise SystemExit(0)
     usar_ia = "--sin-ia" not in sys.argv
     cliente, motivo = cliente_o_nada() if usar_ia and not solo_guardadas else (None, None)
