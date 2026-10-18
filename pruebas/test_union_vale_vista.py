@@ -324,10 +324,12 @@ revisar("decisión 8, paso 4. 14-10 retomado da 53 aciertos, 4 no leídos, 0 equ
 antes = foto(R14); rr2 = retomar_vale_vista(R14, "2026-10-14")
 revisar("decisión 8, paso 4. retomar dos veces no duplica nada", foto(R14) == antes and rr2["pendientes_antes"] == 0, str(rr2))
 
-# 09-10 (B y G, alarma de la unión, aviso 120 pegado). Sin IA queda 121 de 121 pendientes, retomar deja lo mismo que la carga fresca.
+# 09-10 (B y G, alarma de la unión). Sin IA quedan todos pendientes, retomar deja lo mismo que la carga fresca.
+# CAMBIO del 18 de Octubre (decisión de Diego, opción C). El aviso 120 ya no es falso pegado, así que también se le pregunta a la IA.
+# Pasa de 121 de 121 a 122 de 122.
 R09 = cargar_sin_ia("ret09.db", "2026-10-09", D09)
-revisar("decisión 8, paso 4. 09-10 cargado sin IA deja la alarma 121 de 121",
-        "Vale vista. 121 de 121 avisos quedaron sin leer por la IA." in (R09.execute("SELECT alarmas FROM ediciones").fetchone()[0] or ""))
+revisar("decisión 8, paso 4. 09-10 cargado sin IA deja la alarma 122 de 122",
+        "Vale vista. 122 de 122 avisos quedaron sin leer por la IA." in (R09.execute("SELECT alarmas FROM ediciones").fetchone()[0] or ""))
 rr = retomar_vale_vista(R09, "2026-10-09")
 F09 = crear(Path(tmp.name) / "fresca09.db"); cargar_edicion(F09, "2026-10-09", "2026-10-16T00:00:00", D09)
 revisar("decisión 8, paso 4. 09-10 retomado queda igual que cargado con la IA (incluida la alarma de pendientes)", foto(R09) == foto(F09),

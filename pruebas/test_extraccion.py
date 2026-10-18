@@ -62,6 +62,12 @@ CASOS_TRIBUNAL = {
     "REMATE ANTE DÉCIMO QUINTO (15°) JUZGADO CIVIL DE SANTIAGO, Huérfanos": "15° Juzgado Civil de Santiago",
     "VIGÉSIMO CUARTO JUZgado Civil de Santiago, Huérfanos 1409": "24° Juzgado Civil de Santiago",
     "REMATE 1° JUZGADO CIVIL DE SAN Miguel, Ureta Cox 855": "1° Juzgado Civil de San Miguel",
+    # 16-10, rol 6108-2025 (traído del Mercurio el 18 de Octubre)
+    "6° JUZGADO CIVIL DE Santiago Causa Rol: C-6108-2025 Caratulado: Banco Itaú Chile SA./ Bosque Petreles S.A decretó": "6° Juzgado Civil de Santiago",
+    # 16-10, rol 14842-2019 (traído del Mercurio el 18 de Octubre)
+    "REMATE; 15° TRIBUNAL CIVIL DE Santiago, Huérfanos N° 1409, día 03 de noviembre de 2026": "15° Juzgado Civil de Santiago",
+    # 16-10, rol 1177-2025 (traído del Mercurio el 18 de Octubre)
+    "EXTRACTO 3°JUZGADO CIVIL DE Viña del Mar Banco de Chile con Hinojosa, Rol C-1177-2025, fijó remate": "3° Juzgado Civil de Viña del Mar",
 }
 for texto, esperado in CASOS_TRIBUNAL.items():
     obtenido = extraer(texto)["tribunal"]["valor"]
@@ -131,6 +137,20 @@ lista73 = [x["inmueble"] for x in minimo_y_costas(T73)["minimo"].get("lista", []
 if lista73 != ["departamento 41", "departamento 31"]:
     fallas.append(f"etiqueta. aviso 73 del 06-10 dio {lista73}")
 print("etiquetas de listas. aviso 30 del 14-10", lista30, "y aviso 73 del 06-10", lista73)
+# Decisión de Diego del 18 de Octubre (opción C). Una fecha anterior a la edición no cuenta para la regla de los dos avisos pegados.
+# Caso real del 09-10 (rol C-22836-2024). "según resolución del 4 de septiembre de 2026" daba una falsa alarma y borraba todo el aviso.
+from motor.procesar_edicion import desde_captura
+_, _, _a09, _ = desde_captura("2026-10-09", RAIZ / "banco_pruebas" / "2026-10-09")
+_x = [extraer(a.texto, "2026-10-09") for a in _a09 if a.rol == "22836"]
+if not (_x and not _x[0]["pegado"] and _x[0]["fecha_remate"]["valor"] == "2026-11-04" and _x[0]["tribunal"]["valor"]):
+    fallas.append(f"pegado falso del 09-10 rol 22836-2024 {[(x['pegado'], x['fecha_remate']['valor'], x['tribunal']['valor']) for x in _x]}")
+# El pegado real del 16-10 (Buin con Viña del Mar, comienzo y final reales unidos) sigue marcado, porque sus dos fechas son futuras.
+_peg = ("REMATE: 2° JUZGADO DE LETRAS de Buin subastará el 4 de noviembre de 2026, a las 13:00 horas, a través de la plataforma digital zoom. "
+        "Demás bases y antecedentes constan en causa Rol C-1442-2024, caratulada ‘Banco del Estado de Chile con Instalación de Calefacción Acugas Ltda.’. "
+        "Banco de Chile con Hinojosa, Rol C-1177-2025, fijó remate para el 10 de noviembre de 2026, a las 9.30 horas para inmueble de calle")
+if not extraer(_peg, "2026-10-16")["pegado"]:
+    fallas.append("el pegado real de Buin con Viña del Mar dejó de marcarse")
+print("dos fechas. 09-10 rol 22836-2024 sin falsa alarma", bool(_x) and not _x[0]["pegado"], "| pegado real de Buin con Viña del Mar marcado", extraer(_peg, "2026-10-16")["pegado"])
 for c, n in aciertos.items():
     print(f"{c:12} aciertos {n} de {len(banco)} (mínimo {MINIMOS[c]})")
     if n < MINIMOS[c]: fallas.append(f"{c} bajó a {n} aciertos")

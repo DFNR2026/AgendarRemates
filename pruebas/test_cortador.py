@@ -152,5 +152,17 @@ print(f"\n=== Guion al final de renglón ===\n{gui}")
 if not all(gui.values()):
     fallas += 1
 
+# Arreglo traído del Mercurio (18 de Octubre). "Ltda.’. EXTRACTO 3°JUZGADO CIVIL DE Viña del Mar" iba pegado al aviso del
+# 2° Juzgado de Letras de Buin (rol C-1442-2024). Edición del 16 de Octubre completa (B y G unidos, como en la carga). Pasa de 99 a 100 avisos.
+from motor.procesar_edicion import desde_captura
+_, _, a16, _ = desde_captura("2026-10-16", B / "2026-10-16")
+c16 = {
+    "Buin solo": any(a.rol == "1442" and "Viña del Mar" not in a.texto and a.texto.endswith("Acugas Ltda.’.") for a in a16),
+    "Viña del Mar aparte": any(a.rol == "1177" and a.texto.startswith("EXTRACTO 3°JUZGADO CIVIL DE Viña del Mar") for a in a16),
+}
+print(f"\n=== 2026-10-16 completo (B y G unidos) ===\nAvisos {len(a16)} (esperados 100) | {c16}")
+if len(a16) != 100 or not all(c16.values()):
+    fallas += 1
+
 print("\nRESULTADO.", "TODO OK" if not fallas else f"{fallas} ediciones con diferencias")
 sys.exit(1 if fallas else 0)

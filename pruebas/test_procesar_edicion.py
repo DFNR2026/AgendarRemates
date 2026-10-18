@@ -104,9 +104,12 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("09-10. remates de la unión idénticos a los del rollo B solo", U.execute(Q2).fetchall() == SB.execute(Q2).fetchall())
     revisar("09-10. alerta de rol distinto entre cuerpos en el aviso 40 (C-38622025 en B, C-3862- 2025 en G)",
             [r[0] for r in U.execute("SELECT a.orden FROM alertas al JOIN avisos a ON a.id = al.aviso_id WHERE al.texto LIKE 'El cuerpo G imprime este rol distinto%'")] == [40])
-    revisar("09-10. aviso 120 con rol y sin tribunal se guarda sin causa y con alerta (antes rompía la carga)",
-            U.execute("SELECT a.causa_id IS NULL, COUNT(al.id) FROM avisos a JOIN alertas al ON al.aviso_id = a.id "
-                      "WHERE a.orden = 120 AND al.texto LIKE 'El aviso tiene rol (22836-2024) pero no se encontró el tribunal%'").fetchone() == (1, 1))
+    # CAMBIO del 18 de Octubre (decisión de Diego, opción C). El aviso 120 era una falsa alarma de dos avisos pegados ("según resolución
+    # del 4 de septiembre de 2026"). Ahora se lee entero y queda con su causa. Lo de "rol sin tribunal se guarda sin causa" se revisa
+    # más abajo con el 01-09 aviso 29 ("DÉCIMO SÉPTIMO CIVIL de Santiago", sin la palabra juzgado).
+    revisar("09-10. aviso 120 (rol C-22836-2024) ya no es falso pegado. Queda con su causa del 30° Civil y sin alerta de tribunal",
+            U.execute("SELECT a.causa_id IS NOT NULL, a.tribunal, (SELECT COUNT(*) FROM alertas al WHERE al.aviso_id = a.id AND al.texto LIKE 'El aviso tiene rol%') "
+                      "FROM avisos a WHERE a.orden = 120").fetchone() == (1, "30° Juzgado Civil de Santiago", 0))
 
     # Parte 3.7b (17 de Octubre). 01-09, 26 remates del rol C-5656-2013 (28° Civil). Antes quedaban unidos por fecha y hora
     # con la alerta "No se pudo distinguir". La inscripción en el Conservador los separa (decisión de Diego, solo para saber
@@ -119,6 +122,9 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("3.7b. 01-09. los 26 remates del C-5656-2013 quedan en 26 bienes distintos, cada uno por su inscripción", c5656 == (26, 26, 26), str(c5656))
     revisar("3.7b. 01-09. ninguna alerta de remate que no se pudo distinguir (antes 26)",
             uno(S, "SELECT COUNT(*) FROM alertas WHERE texto LIKE 'No se pudo distinguir%'") == 0)
+    revisar("01-09. aviso 29 con rol y sin tribunal se guarda sin causa y con alerta (antes rompía la carga, caso movido desde el 09-10 el 18 de Octubre)",
+            S.execute("SELECT a.causa_id IS NULL, COUNT(al.id) FROM avisos a JOIN alertas al ON al.aviso_id = a.id "
+                      "WHERE a.orden = 29 AND al.texto LIKE 'El aviso tiene rol (1455-2023) pero no se encontró el tribunal%'").fetchone() == (1, 1))
     revisar("3.7b. 01-09. lote 44 del aviso 44 con su inscripción de La Serena",
             uno(S, "SELECT b.clave FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN bienes b ON b.id = r.bien_id WHERE a.orden = 44").endswith("|fojas 7694 n 6390 2009"))
     # 09-10. C-15288-2025 del 20° Civil, dos avisos (11:00 y 13:00) que la inscripción separa

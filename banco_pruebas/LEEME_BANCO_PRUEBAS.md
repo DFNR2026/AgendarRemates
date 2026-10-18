@@ -49,6 +49,7 @@ Lo que el banco enseñó. La mayoría de lo marcado "revisar" son fallas de reda
 ## Parte 3.7b (agregado el 2026-10-17)
 
 2026-09-01. Páginas B15 y C8 copiadas desde capturas con HUELLAS_ESPERADAS.txt (iguales al lector). Caso de prueba de los 26 remates del rol C-5656-2013 que se distinguen por la inscripción.
+2026-10-16. Edición completa (B13 a B15 y G07 a G12) copiada desde capturas el 18 de Octubre, con su navegacion.json. Caso de prueba del cortador (Buin con Viña del Mar, roles C-1442-2024 y C-1177-2025) en test_cortador.
 2026-10-06\banco_direccion_2026-10-06.json. VALIDACIÓN de la dirección. Los 62 avisos de la muestra ya sorteada (59 medibles, 62 remates), anotados por Claude ANTES de escribir las instrucciones. md5 bcea570d3ae0afc84900dd9463625a13. Script en anotacion_direccion. Se corrió una sola vez (MEDICION_DIR_2026-10-06_dir-2.txt).
 2026-10-14\banco_direccion_2026-10-14.json. AJUSTE de la dirección (57 medibles, 61 remates), reanotado desde el campo direccion del banco nivel 2, que queda igual. Las reglas de anotación están dentro de cada banco.
 Trampas nuevas del diario. Número de calle y de unidad en palabras ("número cero ciento sesenta y uno", "departamento número A trescientos nueve"), comuna nombrada solo como ciudad ("calle Camino Nuevo 2065, Chillán"), comuna "San Miguel, hoy San Joaquín", inscripción con año imposible ("año 2033"), varias inscripciones con el año al final.

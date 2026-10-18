@@ -78,10 +78,14 @@ def fecha_y_hora(texto: str, fecha_edicion: str | None = None) -> dict:
     # Red de seguridad. Si hay fechas DISTINTAS que siguen de cerca (100 caracteres) a un verbo de remate,
     # el trozo puede traer dos avisos pegados. No se entrega fecha.
     cercanas = set()
+    # Decisión de Diego del 18 de Octubre (opción C). Una fecha anterior a la edición (resolución, acta de la Corte o bases ya
+    # dictadas) no puede ser la de otro remate vigente pegado, así que no cuenta. En las 10 ediciones capturadas la regla saltó
+    # 10 veces. 2 eran pegados de verdad (Buin con Viña del Mar, ya separados por el cortador) y 8 falsas alarmas, 7 con fecha pasada.
     for v in VERBO.finditer(texto):
         for ini, fin, valor, cita in fechas:
             if v.end() <= ini <= v.end() + 100:
-                cercanas.add(valor)
+                if not (fecha_edicion and valor < fecha_edicion):
+                    cercanas.add(valor)
                 break
     resultado = {"fecha_remate": {"valor": None, "cita": None}, "hora_remate": {"valor": None, "cita": None}, "alertas": alertas}
     if len(cercanas) > 1:
@@ -337,7 +341,14 @@ _TIPO = (r"(civil|(?:de\s+)?letras\s+(?:en\s+lo\s+)?civil|(?:de\s+letras\s+)?(?:
          r"|de\s+letras(?:\s+del\s+trabajo)?|letras|de\s+familia|familia|de\s+polic[ií]a\s+local|polic[ií]a\s+local)")
 # Palabras que no son ciudad ("7° JUZGADO CIVIL, EN calle Huérfanos 1409")
 _NO_CIUDAD = {"en", "ubicado", "ubicada", "con", "causa", "autos", "rol", "huerfanos", "huérfanos", "calle", "avenida", "juicio", "expediente", "domiciliado"}
-_TRIBUNAL = re.compile(rf"(?:{_ORDINAL}\s*)?juz(?:gado)?\.?\s+{_TIPO}\s*,?\s*(?:de\s+|del\s+)?([A-ZÁÉÍÓÚÑa-záéíóúñ]+(?:\s+(?!(?i:huerfanos|huérfanos|ubicado))(?-i:[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]+))?)", re.I)
+# Arreglo traído del Mercurio (18 de Octubre). La ciudad acepta un "de", "del" o "de la" seguido de mayúscula ("Viña del Mar",
+# rol 1177-2025 del 16-10 y del 17-10).
+# Arreglo traído del Mercurio (18 de Octubre). También "15° TRIBUNAL CIVIL DE Santiago" (rol 14842-2019 del 15-10 y del 16-10),
+# que es el mismo juzgado civil. Se escribe igual que los demás ("15° Juzgado Civil de Santiago").
+# Arreglo traído del Mercurio (18 de Octubre). La segunda palabra de la ciudad no puede ser Causa, Caratulado, Rol, Juicio,
+# Autos ni Expediente ("6° JUZGADO CIVIL DE Santiago Causa" del 16-10 y del 17-10). Igual que en el Mercurio, también "ubicada" y
+# con límite de palabra (medido, no cambia ningún aviso de las 10 ediciones capturadas).
+_TRIBUNAL = re.compile(rf"(?:{_ORDINAL}\s*)?(?:juz(?:gado)?\.?|tribunal)\s+{_TIPO}\s*,?\s*(?:de\s+|del\s+)?([A-ZÁÉÍÓÚÑa-záéíóúñ]+(?:\s+(?!(?i:(?:huerfanos|huérfanos|ubicad[oa]|causa|caratulad\w*|rol|juicio|autos|expediente)\b))(?-i:[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]+))?(?:\s+(?-i:del?|de\s+la)\s+(?-i:[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+))?)", re.I)
 _MINUSC = {"de", "del", "y"}
 
 
