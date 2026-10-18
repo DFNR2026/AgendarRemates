@@ -50,3 +50,7 @@ La carátula de la causa la lee el código y se guarda en citas (campo caratulad
 ## Parte 4 (17 de Octubre)
 
 motor\republicaciones.py llena la tabla cambios al cargar y al retomar. Solo cambios de un valor a otro valor (decisión de Diego). Un aviso sin rol, sin tribunal y sin inscripción se identifica por la huella de su texto (antes quedaba con la clave vacía sin_rol|| y juntaba propiedades distintas). v_calendario muestra el vale vista y la dirección de la publicación anterior mientras el nuevo está pendiente de la IA (columnas vv_de_publicacion y direccion_de_publicacion). Los textos de pendiente están escritos en la vista y deben ser iguales a VV_NO_LEIDO y DIR_NO_LEIDA de db\carga.py (lo revisa test_republicaciones). Sin cambio de versión del esquema.
+
+## Nuevo llamado (18 de Octubre)
+
+Si la publicación anterior de una propiedad traía una fecha válida que ya pasó cuando sale la nueva, es un nuevo llamado (remate nuevo, con sus propias bases). motor\republicaciones.py no compara dato por dato y anota una sola fila en cambios con campo nuevo_llamado. Si la propiedad está en la agenda, vv_entregado y remate_asistido vuelven a 0 la primera vez que se detecta. v_calendario solo toma el vale vista o la dirección de una publicación anterior del mismo llamado. Sin cambio de versión del esquema.
