@@ -248,6 +248,8 @@ def retomar_vale_vista(con, fecha: str, cliente=None) -> dict:
 
 
 # --- Dirección leída por la IA (parte 3.7b, decisiones de Diego del 17 de Octubre) -----------------------------------
+SIN_REMATES = ("Sin remates. El lector no encontró la sección 1616 Remates de propiedades en esta edición. "
+               "Revisa en el diario que de verdad no traiga remates.")
 DIR_ALARMA = "Dirección. "      # comienzo de la línea de alarma de la edición (la busca retomar_direccion)
 
 
@@ -400,7 +402,14 @@ def desde_captura(fecha: str, carpeta: Path | None = None):
     d = carpeta or (CAPTURAS / fecha)
     nav = json.loads((d / "navegacion.json").read_text(encoding="utf-8"))
     if not nav["rollos"]:
-        raise ValueError(f"La edición {fecha} no tiene rollos de remates. No se cargó nada.")
+        # 18 de Octubre (aprobado por Diego). Antes no se guardaba nada y ese día se veía igual que un día sin correr el
+        # programa. Ahora queda anotada con alarma, porque en las 36 ediciones revisadas el 14 de Octubre todas traían
+        # remates, y una edición sin la sección puede ser una lectura fallida que Diego debe revisar en el diario.
+        alarmas = list(nav.get("alarmas") or []) + [SIN_REMATES]
+        cuerpos = " ".join(f"{c}{v.split('n=')[-1]}" for c, v in sorted((nav.get("cuerpos") or {}).items()))
+        edicion = {"fecha": fecha, "leida_en": nav["leida_en"], "estado": "con_alarmas", "cuerpos_revisados": cuerpos or None,
+                   "roles_en_texto": 0, "alarmas": "\n".join(alarmas), "_roles": set()}
+        return edicion, [], [], {}
     por_nombre = {p["pagina"]: p for p in nav["paginas_con_remates"]}
     paginas, cortados, roles = [], [], set()
     for rollo_nombres in nav["rollos"]:

@@ -149,5 +149,39 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("unir_rollos. resumen", resumen == ["Cuerpo G repite al B. 2 de 4 avisos unidos por huella del texto. 1 con diferencias de espacios. 2 solo en G."], str(resumen))
     A.close(); B.close(); U.close(); SB.close()
 
+    # Sincronización (18 de Octubre, aprobado por Diego). Franja negra si falta la edición de hoy o un día reciente,
+    # franja ámbar si una edición reciente quedó incompleta. Y una edición sin remates queda anotada, no se pierde.
+    from motor.sincronizacion import estado_sincronizacion
+    from motor.procesar_edicion import SIN_REMATES, VV_ALARMA
+    Z = crear(Path(tmp) / "sinc.db")
+    revisar("sincronización. base vacía", estado_sincronizacion(Z, "2026-10-14")["franja_negra"] == ["SIN SINCRONIZAR. La base no tiene ninguna edición cargada."])
+    for f in ("2026-10-13", "2026-10-14"):
+        cargar_edicion(Z, f, "x", RAIZ / "banco_pruebas" / f, usar_ia=False)
+    e = estado_sincronizacion(Z, "2026-10-14")
+    revisar("sincronización. al día con el 13 y el 14 (los días antes de la primera edición no cuentan)", e["al_dia"] and e["faltan"] == [], str(e))
+    e = estado_sincronizacion(Z, "2026-10-16")
+    revisar("sincronización. faltan el 15 y hoy 16, con el día escrito", e["faltan"] == ["2026-10-15", "2026-10-16"] and e["franja_negra"] == [
+        "SIN SINCRONIZAR. La última edición cargada es la del miércoles 14 de Octubre de 2026.",
+        "Falta la edición del jueves 15 de Octubre de 2026.", "Falta la edición de hoy, viernes 16 de Octubre de 2026."], str(e["franja_negra"]))
+    # Edición sin la sección de remates. Captura hecha a mano copiando el navegacion.json del 14 sin rollos.
+    d15 = Path(tmp) / "2026-10-15"; d15.mkdir()
+    nav = json.loads((RAIZ / "banco_pruebas" / "2026-10-14" / "navegacion.json").read_text(encoding="utf-8"))
+    nav.update(fecha="2026-10-15", rollos=[], paginas_con_remates=[], alarmas=[])
+    (d15 / "navegacion.json").write_text(json.dumps(nav, ensure_ascii=False), encoding="utf-8")
+    cargar_edicion(Z, "2026-10-15", "x", d15, usar_ia=False)
+    revisar("sin remates. la edición queda anotada con alarma y sin avisos",
+            Z.execute("SELECT estado, alarmas, avisos_extraidos FROM ediciones WHERE fecha = '2026-10-15'").fetchone() == ("con_alarmas", SIN_REMATES, 0))
+    e = estado_sincronizacion(Z, "2026-10-15")
+    revisar("sin remates. no cuenta como día sin sincronizar, pero sale en la franja ámbar",
+            e["faltan"] == [] and e["franja_negra"] == [] and e["franja_ambar"] == [f"La edición del jueves 15 de Octubre de 2026 está cargada pero incompleta. {SIN_REMATES}"], str(e))
+    with Z:
+        Z.execute("UPDATE ediciones SET estado = 'con_alarmas', alarmas = ? WHERE fecha = '2026-10-14'",
+                  ("Cuerpo G repite al B. 1 de 1 avisos unidos.\n" + VV_ALARMA + "2 de 61 avisos quedaron sin leer por la IA. Se puede retomar sin volver a leer el Mercurio.",))
+    e = estado_sincronizacion(Z, "2026-10-15")
+    revisar("incompleta. el vale vista sin leer sale en ámbar y la alarma de la unión de rollos no",
+            e["franja_ambar"][0] == "La edición del miércoles 14 de Octubre de 2026 está cargada pero incompleta. Vale vista. 2 de 61 avisos quedaron sin leer por la IA. Se puede retomar sin volver a leer el Mercurio."
+            and len(e["franja_ambar"]) == 2, str(e["franja_ambar"]))
+    Z.close()
+
 print("\nRESULTADO.", "TODO OK" if not FALLAS else f"{len(FALLAS)} fallas")
 sys.exit(1 if FALLAS else 0)
