@@ -117,7 +117,7 @@ function renderIzq(){
   if(!ag.length) h+=`<p class="peq gris">Todavía no tienes causas agendadas. Usa la lupa para buscar remates y agregarlos.</p>`;
   for(const it of ag){const k=clave(it);
     h+=`<article id="causa-${k}" class="tarjeta${UI.sel===k?' sel':''}">
-      <div class="fila"><div style="display:flex;gap:8px;align-items:center;color:var(--cafe)">${SVG[it.mod](18)}<span class="rol">${E(it.rol)}</span>${it.inmueble?`<span class="peq gris">· ${E(it.inmueble)}</span>`:""}</div>
+      <div class="fila"><div style="display:flex;gap:8px;align-items:center;color:var(--cafe)">${SVG[it.mod](18)}<span class="rol">${E(it.rol)}</span></div>
       <button class="x" data-acc="quitar" data-k="${k}" aria-label="Quitar del calendario">✕</button></div>
       ${it.tipo==='manual'?'<span class="etq mano">AGREGADA A MANO</span>':''}${it.nuevo_llamado?'<span class="etq llamado">NUEVO LLAMADO</span>':''}
       <div class="car">${E(it.caratula)}</div><div class="peq gris">${E(it.tribunal)}</div>
@@ -134,7 +134,7 @@ function renderIzq(){
 // --- Calendario ----------------------------------------------------------------------------------------------------
 const ALTO={chico:30,grande:44,medio:38};
 function iso(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
-function itemsCal(){return EST.agenda.map(it=>({k:clave(it),tc:it.tc,rol:it.rol+(it.inmueble?' · '+it.inmueble:''),remate:it.fecha_remate,hora:it.hora,mod:it.mod,
+function itemsCal(){return EST.agenda.map(it=>({k:clave(it),tc:it.tc,rol:it.rol,remate:it.fecha_remate,hora:it.hora,mod:it.mod,
   vd:(it.vv_desde||it.vv_hasta||'').slice(0,10)||null,vh:(it.vv_hasta||'').slice(0,10)||null,ent:it.vv_entregado,rojo:it.cambio_fecha,manual:it.tipo==='manual'}));}
 function mes(y,m,tam,ags){
   const dim=new Date(y,m+1,0).getDate(),g=tam==='grande',H=EST.hoy;const isos=[];for(let d=1;d<=dim;d++)isos.push(iso(y,m,d));
@@ -181,7 +181,7 @@ function renderCentro(){
   document.getElementById('centro').innerHTML=h;}
 
 // --- Panel derecho (buscador, causa a mano y ficha) -----------------------------------------------------------------
-function tarjetaRes(it){return `<article class="tarjeta"><div class="rol" style="color:var(--cafe)">${E(it.rol)}${it.inmueble?` · ${E(it.inmueble)}`:""}</div><div class="car">${E(it.caratula)}</div><div class="peq gris">${E(it.tribunal)}</div>
+function tarjetaRes(it){return `<article class="tarjeta"><div class="rol" style="color:var(--cafe)">${E(it.rol)}</div><div class="car">${E(it.caratula)}</div><div class="peq gris">${E(it.tribunal)}</div>
   <div class="peq"><span class="gris">Remate</span> ${E(it.remate_corto)} · ${E(it.mod_txt)}</div><div class="peq"><span class="gris">Vale vista</span> ${E(it.vv_txt)}</div>
   <div class="peq"><span class="gris">Monto VV</span> ${E(it.monto)}${etiquetas(it)}</div>${ufHTML(it)}<div class="gris" style="font-size:11px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Ver aviso')}
   ${it.en_calendario?'<div class="peq" style="font-weight:700;color:#3E6B2F;padding:8px 0">Ya está en tu calendario</div>':`<button class="btn" style="align-self:flex-start" data-acc="agendar" data-rid="${it.remate_id}">Agregar al calendario</button>`}</article>`;}
