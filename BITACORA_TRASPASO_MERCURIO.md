@@ -117,3 +117,7 @@ Lo que el Mercurio tiene y Agendar_Remates no (no perderlo en el traspaso).
 ## 2026-10-18. Vuelta de los arreglos del traspaso a Agendar_Remates
 Los cuatro arreglos del Mercurio (cortador con "EXTRACTO 3°JUZGADO" y las tres reglas de la ciudad del tribunal) quedaron aplicados en Agendar_Remates con la línea _TRIBUNAL idéntica a la del Mercurio. En las 10 ediciones capturadas cambian 2 avisos por el cortador y 7 por el tribunal, todos los esperados (bitácora del 18, puntos 6 a 9).
 Regla de las dos fechas. El Mercurio la quitó. Agendar_Remates la mantiene con la opción C de Diego, en que una fecha anterior a la edición no cuenta (7 de 8 falsas alarmas eran fechas pasadas, bitácora del 18, punto 10). Sigue como falsa alarma conocida el caso en que la segunda fecha es la entrega del vale vista y es futura (06-10, rol 4265-2021). Para el próximo traspaso, decidir si el Mercurio adopta la misma regla.
+
+## 2026-10-18. Vale vista en el remate (corrección de Diego)
+"Los vales vista recepcionados serán calificados al momento de hacerse el llamado al remate" SÍ es entrega en el remate (10° Juzgado Civil). Hay remates donde el vale vista se entrega minutos antes de empezar. Agendar_Remates lo acepta desde el 18 de Octubre (motor\vale_vista.py, _CALIFICA_LLAMADO). El Mercurio no necesita el vale vista, pero si algún día lo lee, la regla es esa. Lección general. Antes de escribir que la IA se equivocó, revisar si la regla del programa o la anotación del banco eran las equivocadas. En este caso Haiku tenía razón y el banco no.
+

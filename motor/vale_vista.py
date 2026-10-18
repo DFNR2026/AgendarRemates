@@ -100,6 +100,10 @@ def habil_antes(d):
 
 
 # --- Cálculo del desde y el hasta -----------------------------------------------------------------------------
+# CORRECCIÓN de Diego (18 de Octubre). "calificados al momento de hacerse el llamado al remate" es entrega en el remate.
+_CALIFICA_LLAMADO = re.compile(r"calificad[oa]s?\s+al\s+momento\s+de\s+(?:hacerse|efectuarse|realizarse)\s+el\s+llamado", re.I)
+
+
 def calcular(r: dict, fecha_remate: str, hora_remate: str | None, fecha_edicion: str) -> dict:
     """r = respuesta ya verificada. Devuelve {vv_desde, vv_desde_origen, vv_hasta, preguntas, motivo_rojo}."""
     out = {"vv_desde": None, "vv_desde_origen": None, "vv_hasta": None, "preguntas": [], "motivo_rojo": None}
@@ -255,9 +259,13 @@ def verificar(r: dict, texto: str) -> dict:
         if not re.search(patron, todo, re.I):
             motivos.append(f"La frase no trae las palabras propias de la regla {regla}.")
             break
-    if regla == "en_el_remate" and (not re.search(r"acompa[ñn]|entreg|present|exhib|consign", frase, re.I) or re.search(r"calific", frase, re.I)):
+    if regla == "en_el_remate" and not _CALIFICA_LLAMADO.search(frase) and (
+            not re.search(r"acompa[ñn]|entreg|present|exhib|consign", frase, re.I) or re.search(r"calific", frase, re.I)):
         # 14-10 avisos 27 y 28. "Los vales vista recepcionados serán calificados al momento de hacerse el llamado" no dice
         # cuándo se ENTREGAN, solo cuándo se califican.
+        # CORRECCIÓN de Diego (18 de Octubre). Esa frase SÍ vale como entrega en el remate. Hay remates donde el vale vista se
+        # entrega minutos antes de empezar, en el llamado. Por eso esa frase exacta pasa (_CALIFICA_LLAMADO). Las demás
+        # frases con "calificar" o sin verbo de entrega siguen en rojo.
         motivos.append("La frase no dice que el vale vista se entregue en el remate (solo cuándo se califica).")
     if regla == "dia_anterior" and re.search(r"h[áa]bil", frase, re.I):
         motivos.append("La frase dice día hábil, no día anterior.")

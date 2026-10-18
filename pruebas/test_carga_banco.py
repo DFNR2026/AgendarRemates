@@ -29,7 +29,8 @@ with tempfile.TemporaryDirectory() as tmp:
     # Cantidades
     revisar("61 avisos y 65 remates", (uno("SELECT COUNT(*) FROM avisos"), uno("SELECT COUNT(*) FROM remates")) == (61, 65))
     revisar("la edición registra 61 avisos y 65 remates", q("SELECT avisos_extraidos, remates_extraidos FROM ediciones") == [(61, 65)])
-    revisar("431 citas, todas encontradas en su aviso", (uno("SELECT COUNT(*) FROM citas"), uno("SELECT SUM(verificada) FROM citas")) == (431, 431))
+    # 18 de Octubre. 27 y 28 dejaron de ser "sin dato" en el banco (CORRECCIÓN de Diego, "calificados al momento de hacerse el llamado" es entrega en el remate). Suman 2 citas.
+    revisar("433 citas, todas encontradas en su aviso", (uno("SELECT COUNT(*) FROM citas"), uno("SELECT SUM(verificada) FROM citas")) == (433, 433))
     revisar("2 páginas con su ruta", q("SELECT ruta FROM paginas ORDER BY orden_rollo") == [("/2026/10/14/B/B-20261014-011",), ("/2026/10/14/C/L64MFDBT",)])
 
     # Partidores. Guardados para el cuadre, descartados y sin bien (no se pueden agendar)
@@ -78,7 +79,8 @@ with tempfile.TemporaryDirectory() as tmp:
 
     # Vale vista sin fecha. Lista de PREGUNTAS_ABOGADO.md (pregunta 7), con la numeración nueva del banco (57a=57, 58a=59, 58b=60, 59=61)
     sin_fecha = {r[0] for r in q("SELECT a.orden FROM alertas x JOIN avisos a ON a.id = x.aviso_id WHERE x.tipo = 'dato_faltante' AND x.origen = 'codigo'")}
-    revisar("alerta de vale vista sin fecha en 27, 28, 33, 50, 55, 57, 59, 60 y 61", sin_fecha == {27, 28, 33, 50, 55, 57, 59, 60, 61}, str(sorted(sin_fecha)))
+    # 18 de Octubre. 27 y 28 dejaron de ser "sin dato" en el banco (CORRECCIÓN de Diego, "calificados al momento de hacerse el llamado" es entrega en el remate).
+    revisar("alerta de vale vista sin fecha en 33, 50, 55, 57, 59, 60 y 61", sin_fecha == {33, 50, 55, 57, 59, 60, 61}, str(sorted(sin_fecha)))
     revisar("sin alerta repetida por la duda del banco", uno("SELECT COUNT(*) FROM alertas x JOIN avisos a ON a.id = x.aviso_id WHERE a.orden = 59") == 1)
 
     # Partidores reconocidos solo desde el texto, sin ayuda del tribunal anotado

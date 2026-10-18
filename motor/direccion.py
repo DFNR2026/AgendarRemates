@@ -241,7 +241,8 @@ def resolver(lecturas: list, texto: str, n_remates: int) -> dict:
 
 
 # --- Texto del rojo (decisión de Diego del 17 de Octubre, con las dos lecturas y la frase del aviso) -------------------
-_FALLA_IA = ("El aviso está bien escrito y fue Haiku el que se equivocó. El programa lo atrapó y por eso no te da la dirección. "
+# 18 de Octubre (aprobado por Diego). El programa no sabe quién falló, solo que la lectura no pasó sus revisiones.
+_FALLA_IA = ("La lectura de la IA no pasó las revisiones del programa, por eso no te da la dirección. "
              "Revisa en el aviso cuál es la correcta.")
 
 

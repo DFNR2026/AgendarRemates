@@ -83,11 +83,17 @@ def _hora(v):
     return v[11:16] if v and len(v) > 10 else None
 
 
-def texto_vv(desde, hasta, origen=None):
+EN_EL_REMATE = "Se entrega en el mismo remate, antes del llamado. Puede ser minutos antes de empezar."
+
+
+def texto_vv(desde, hasta, origen=None, regla=None):
     if not hasta:
         return "Sin fecha. Dato faltante"
     desde = desde or hasta
     d1, h1, d2, h2 = desde[:10], _hora(desde), hasta[:10], _hora(hasta)
+    if regla == "en_el_remate":
+        # Pedido de Diego (18 de Octubre). Que quede claro que hay remates donde el vale vista se entrega ahí mismo.
+        return f"{corta(d2)}{' a las ' + h2 if h2 else ''}. {EN_EL_REMATE}"
     if d1 == d2:
         if h1 and h2 and h1 != h2:
             return f"{corta(d1)} de {h1} a {h2}"
@@ -139,7 +145,7 @@ def dinero(f):
 # --- Un remate con todo lo que muestra la ficha ------------------------------------------------------------------
 _REMATE = ("SELECT r.id AS remate_id, r.bien_id, r.sub_orden, r.inmueble, r.direccion, r.comuna, r.fecha_remate, r.hora_remate, "
            "r.modalidad, r.plataforma, r.minimo_monto, r.minimo_moneda, r.minimo_costas_clp, r.garantia_porcentaje, r.garantia_base, "
-           "r.garantia_monto, r.garantia_moneda, r.vv_regla_texto, r.vv_desde, r.vv_desde_origen, r.vv_hasta, r.vv_estado, "
+           "r.garantia_monto, r.garantia_moneda, r.vv_regla, r.vv_regla_texto, r.vv_desde, r.vv_desde_origen, r.vv_hasta, r.vv_estado, "
            "a.id AS aviso_id, a.tipo_id, a.rol, a.anio, a.tribunal, e.fecha AS edicion, "
            "(SELECT c.valor FROM citas c WHERE c.aviso_id = a.id AND c.campo = 'caratulado' ORDER BY c.sub_orden, c.n_cita LIMIT 1) AS caratula "
            "FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN ediciones e ON e.id = a.edicion_id WHERE r.id = ?")
@@ -190,7 +196,7 @@ def armar(con, remate_id, extra=None):
         "mod": modo(f["modalidad"]), "mod_txt": modalidad_texto(f["modalidad"], f["plataforma"]),
         "direccion": ", ".join(x for x in (f["direccion"], f["comuna"]) if x) or "El programa todavía no lee la dirección de este aviso.",
         **din, "asumido": any("ASUMIDO" in a["texto"] for a in al),
-        "vv_desde": f["vv_desde"], "vv_hasta": f["vv_hasta"], "vv_txt": texto_vv(f["vv_desde"], f["vv_hasta"], f["vv_desde_origen"]),
+        "vv_desde": f["vv_desde"], "vv_hasta": f["vv_hasta"], "vv_txt": texto_vv(f["vv_desde"], f["vv_hasta"], f["vv_desde_origen"], f["vv_regla"]),
         "vv_color": color_vv(f["vv_estado"], f["vv_hasta"]), "vv_regla": f["vv_regla_texto"],
         "vv_de_publicacion": f.get("vv_de_publicacion"), "alertas": al,
         "pubs": pubs, "pub_txt": "Publicado en El Mercurio los días " + ", ".join(p["texto"] for p in vigentes) if vigentes else "",
@@ -204,7 +210,12 @@ def agenda(con, hoy):
     cur = con.execute("SELECT * FROM v_calendario")
     for fila in cur.fetchall():
         c = _dict(cur, fila)
-        it = armar(con, c["remate_id"], {"vv_desde": c["vv_desde"], "vv_hasta": c["vv_hasta"], "vv_estado": c["vv_estado"],
+        extra_regla = {}
+        if c["vv_de_publicacion"]:   # el vale vista viene de una publicación anterior (v_calendario), su regla también
+            x = con.execute("SELECT r.vv_regla FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN ediciones e ON e.id = a.edicion_id "
+                            "WHERE r.bien_id = ? AND e.fecha = ? AND r.vv_hasta = ? LIMIT 1", (c["bien_id"], c["vv_de_publicacion"], c["vv_hasta"])).fetchone()
+            extra_regla = {"vv_regla": x[0] if x else None}
+        it = armar(con, c["remate_id"], {**extra_regla, "vv_desde": c["vv_desde"], "vv_hasta": c["vv_hasta"], "vv_estado": c["vv_estado"],
                                          "vv_regla_texto": c["vv_regla_texto"], "vv_desde_origen": c["vv_desde_origen"],
                                          "vv_de_publicacion": c["vv_de_publicacion"], "direccion": c["direccion"], "comuna": c["comuna"]})
         sin_ver = {k[0] for k in con.execute("SELECT campo FROM cambios WHERE bien_id = ? AND visto = 0", (c["bien_id"],))}

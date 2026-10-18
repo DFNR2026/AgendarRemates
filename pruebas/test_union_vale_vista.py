@@ -131,9 +131,11 @@ GRUPO_SQL = " OR ".join(f"texto LIKE '{g}. %'" for g in ("Error del aviso", "Dud
 revisar("paso 4. una alerta revisar_lectura con grupo por cada remate en rojo",
         uno(C4, f"SELECT COUNT(*) FROM alertas WHERE tipo = 'revisar_lectura' AND ({GRUPO_SQL})") == n_rem("rojo") > 0)
 rojos = dict(C4.execute(f"SELECT a.orden, al.texto FROM alertas al JOIN avisos a ON a.id = al.aviso_id WHERE al.tipo = 'revisar_lectura' AND ({GRUPO_SQL.replace('texto', 'al.texto')})").fetchall())
-revisar("decisión 5, paso 2a. grupos de los 8 rojos del 14 de Octubre (9 error del aviso, los demás falla de la IA)",
-        {k: v.split(". ")[0] for k, v in rojos.items()} == {2: "Falla de la IA", 9: "Error del aviso", 13: "Falla de la IA", 27: "Falla de la IA",
-                                                           28: "Falla de la IA", 34: "Falla de la IA", 37: "Falla de la IA", 61: "Falla de la IA"},
+# 18 de Octubre. Los avisos 27 y 28 ("calificados al momento de hacerse el llamado") ya no son rojos. CORRECCIÓN de Diego,
+# esa frase SÍ es entrega en el remate. Eran 8 rojos y quedan 6.
+revisar("decisión 5, paso 2a. grupos de los 6 rojos del 14 de Octubre (9 error del aviso, los demás falla de la IA)",
+        {k: v.split(". ")[0] for k, v in rojos.items()} == {2: "Falla de la IA", 9: "Error del aviso", 13: "Falla de la IA",
+                                                           34: "Falla de la IA", 37: "Falla de la IA", 61: "Falla de la IA"},
         str({k: v.split(". ")[0] for k, v in rojos.items()}))
 revisar("decisión 5, paso 2a. ninguna alerta roja muestra nombres internos (dia_anterior, en_el_remate, _)", not [v for v in rojos.values() if "_" in v])
 revisar("paso 4. una alerta condicion_especial de pregunta al abogado por cada remate en ámbar",
@@ -391,8 +393,8 @@ B14 = crear(Path(tmp.name) / "banco14.db")
 ex = extraer_avisos(avisos, "2026-10-14"); agregar_vale_vista(avisos, ex, "2026-10-14")
 guardar_edicion(B14, edicion, paginas, avisos, ex, "2026-10-16T00:00:00", metodo="codigo")
 regs = registros_de_edicion(B14, "2026-10-14")
-revisar("paso 6. 14-10 da 11 registros, los 8 rojos y los 3 sin dato",
-        [(r["orden"], r["color"]) for r in regs] == [(2, "rojo"), (9, "rojo"), (13, "rojo"), (27, "rojo"), (28, "rojo"), (33, "sin_dato"),
+revisar("paso 6. 14-10 da 9 registros, los 6 rojos y los 3 sin dato (27 y 28 dejaron de ser rojos el 18 de Octubre)",
+        [(r["orden"], r["color"]) for r in regs] == [(2, "rojo"), (9, "rojo"), (13, "rojo"), (33, "sin_dato"),
                                                     (34, "rojo"), (37, "rojo"), (50, "sin_dato"), (59, "sin_dato"), (61, "rojo")], str([r["orden"] for r in regs]))
 revisar("paso 6. el grupo del banco es el mismo de la alerta de la base",
         all(r["grupo"] == rojos[r["orden"]].split(". ")[0] for r in regs if r["color"] == "rojo"))
@@ -403,7 +405,7 @@ CB = Path(tmp.name) / "banco_rojos"
 x1 = registrar(regs, CB, "t1")
 x2 = registrar(regs, CB, "t2")
 lineas = (CB / "rojos_2026-10.jsonl").read_text(encoding="utf-8").splitlines()
-revisar("paso 6. registrar dos veces no duplica", (x1["nuevos"], x2["nuevos"], x2["repetidos"], len(lineas)) == (11, 0, 11, 11), f"{x1} {x2} {len(lineas)}")
+revisar("paso 6. registrar dos veces no duplica", (x1["nuevos"], x2["nuevos"], x2["repetidos"], len(lineas)) == (9, 0, 9, 9), f"{x1} {x2} {len(lineas)}")
 # El mismo texto en otra edición queda marcado como republicación de la primera
 otra = [dict(r, edicion="2026-10-15") for r in regs[:2]]
 x3 = registrar(otra, CB, "t3")

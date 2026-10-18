@@ -66,7 +66,8 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("citas del banco siguen con método ia", A.execute("SELECT DISTINCT metodo FROM citas").fetchall() == [("ia",)])
     revisar("65 alertas de vale vista NO LEÍDO en el motor y ninguna que diga que el aviso no lo dice",
             (uno(B, f"SELECT COUNT(*) FROM alertas WHERE texto = '{VV_NO_LEIDO}'"), uno(B, f"SELECT COUNT(*) FROM alertas WHERE texto = '{VV_NO_DICE}'")) == (65, 0))
-    revisar("el banco sigue diciendo que el aviso no lo dice (9 remates)", uno(A, f"SELECT COUNT(*) FROM alertas WHERE texto = '{VV_NO_DICE}'") == 9)
+    # 18 de Octubre. 27 y 28 dejaron de ser "sin dato" en el banco (CORRECCIÓN de Diego, "calificados al momento de hacerse el llamado" es entrega en el remate). Eran 9.
+    revisar("el banco sigue diciendo que el aviso no lo dice (7 remates)", uno(A, f"SELECT COUNT(*) FROM alertas WHERE texto = '{VV_NO_DICE}'") == 7)
     revisar("alertas del código guardadas con su tipo y origen codigo",
             uno(B, "SELECT COUNT(*) FROM alertas WHERE tipo = 'condicion_especial' AND origen = 'codigo'") == 12
             and uno(B, "SELECT COUNT(*) FROM alertas WHERE origen = 'ia'") == 0)

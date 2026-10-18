@@ -31,6 +31,13 @@ revisar("formatos. fecha larga y corta con el día", (D.larga("2026-11-16"), D.c
 revisar("formatos. vale vista de un día con horario", D.texto_vv("2026-11-13 09:00", "2026-11-13 12:00") == "Vie. 13 Nov. de 09:00 a 12:00")
 revisar("formatos. vale vista con desde estimado", D.texto_vv("2026-10-18", "2026-11-05 14:00", "estimado_dia_siguiente_edicion")
         == "Desde Dom. 18 Oct. hasta Jue. 5 Nov. a las 14:00 (el desde es estimado)")
+# 18 de Octubre (corrección de Diego). "Calificados al momento de hacerse el llamado" es entrega en el remate y la causa lo dice claro.
+r5107 = uno("SELECT r.id FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN ediciones e ON e.id = a.edicion_id "
+            "WHERE a.rol = '5107' AND a.anio = '2022' AND e.fecha = '2026-10-14'")
+f5107 = D.armar(con, r5107)
+revisar("formatos. vale vista en el remate (C-5107-2022 del 14-10) dice que se entrega en el mismo remate",
+        f5107["vv_txt"] == "Jue. 29 Oct. a las 13:00. " + D.EN_EL_REMATE and f5107["vv_color"] == "verde"
+        and not [x for x in f5107["alertas"] if "Falla de la IA" in x["texto"]], f5107["vv_txt"])
 din = {"CLP": D.dinero({"minimo_monto": 93895646, "minimo_moneda": "CLP", "garantia_porcentaje": 10, "garantia_base": "minimo"}),
        "UF": D.dinero({"minimo_monto": 983.8089, "minimo_moneda": "UF", "garantia_porcentaje": 10, "garantia_base": "minimo"}),
        "20": D.dinero({"minimo_monto": 5119.97, "minimo_moneda": "UF", "garantia_porcentaje": 20, "garantia_base": "minimo"}),

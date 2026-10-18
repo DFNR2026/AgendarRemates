@@ -43,7 +43,9 @@ GRUPOS = {   # en orden de gravedad
                            "la hora en el aviso. Si faltan los feriados, hay que cargar el archivo de feriados de ese año.",
     "Regla nueva": "El aviso está bien y la IA no se equivocó. El programa todavía no sabe calcular esa regla. Lee la regla en "
                    "el aviso y anota la fecha a mano. Más adelante se agrega la regla, validándola con otra edición anotada.",
-    "Falla de la IA": "El aviso está bien escrito y fue Haiku el que se equivocó. El programa lo atrapó y por eso no te da una "
+    # 18 de Octubre (aprobado por Diego). Antes decía "fue Haiku el que se equivocó", y en los 12 avisos de "calificados al
+    # momento del llamado" el error era del programa. El programa no sabe quién falló, solo que la lectura no pasó sus revisiones.
+    "Falla de la IA": "La lectura de la IA no pasó las revisiones del programa, por eso no te da una "
                       "fecha. Lee la regla en el aviso y anota la fecha a mano. Si este error se repite mucho con el mismo tipo "
                       "de frase, se mejoran las instrucciones de la IA.",
 }

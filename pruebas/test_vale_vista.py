@@ -77,8 +77,15 @@ rojo("remate anterior a la edición", base, fecha="2026-10-01")
 t27 = av[27].texto
 r27 = {**base, "regla": "en_el_remate", "dias": None, "hora_hasta": None, "hora_desde": None,
        "frase_regla": "Los vales vista recepcionados serán calificados al momento de hacerse el llamado al remate.", "frases_extra": []}
-if V.resolver([r27, r27], t27, "2026-10-29", "13:00", "2026-10-14")["color"] != "rojo":
-    fallas.append("Aviso 27, 'serán calificados al momento del llamado' no quedó en rojo")
+# CORRECCIÓN de Diego (18 de Octubre). Antes esta frase debía quedar en rojo. Ahora SÍ vale como entrega en el remate.
+x27 = V.resolver([r27, r27], t27, "2026-10-29", "13:00", "2026-10-14")
+if x27["color"] == "rojo" or x27.get("vv_hasta") != "2026-10-29 13:00":
+    fallas.append(f"Aviso 27, 'serán calificados al momento del llamado' no quedó como entrega en el remate {x27.get('color')} {x27.get('vv_hasta')}")
+# Y "calificar" sin el llamado sigue en rojo (la corrección es solo para esa frase).
+f_cal = "Los vales vista serán calificados en la audiencia de remate."   # trae "audiencia", así que solo la regla de calificar la deja en rojo
+r_cal = {**r27, "frase_regla": f_cal}
+if V.resolver([r_cal, r_cal], t27 + " " + f_cal, "2026-10-29", "13:00", "2026-10-14")["color"] != "rojo":
+    fallas.append("'calificados' sin el llamado no quedó en rojo")
 # Día de la semana. Aviso 34 del 14-10 ("el día viernes anterior") leído como día anterior da el miércoles. Debe quedar en rojo.
 x34 = next(x for x in banco if x["n"] == 34)
 r34 = {**ideal(x34["vale_vista"]), "regla": "dia_anterior"}

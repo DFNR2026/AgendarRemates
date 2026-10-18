@@ -53,7 +53,8 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("el buscador marca agendada la 602 y no la 603", q("SELECT sub_orden, agendado FROM v_buscador WHERE orden = 3 ORDER BY sub_orden") == [(1, 1), (2, 0)])
     revisar("el aviso 59 (vale vista sin fecha) está en el calendario con su alerta", q("SELECT vv_estado, mostrar_ventana_vv, n_alertas FROM v_calendario WHERE orden = 59") == [("sin_dato", 0, 1)])
     revisar("la ficha del 59 dice que el aviso no trae fecha de vale vista", q("SELECT tipo FROM v_alertas WHERE orden = 59") == [("dato_faltante",)])
-    revisar("vales vista sin fecha visibles. 27, 28, 33, 50, 59 y 61 (los partidores no)", {r[0] for r in q("SELECT orden FROM v_alertas WHERE tipo = 'dato_faltante'")} == {27, 28, 33, 50, 59, 61})
+    # 18 de Octubre. 27 y 28 dejaron de ser "sin dato" en el banco (CORRECCIÓN de Diego, "calificados al momento de hacerse el llamado" es entrega en el remate).
+    revisar("vales vista sin fecha visibles. 33, 50, 59 y 61 (los partidores no)", {r[0] for r in q("SELECT orden FROM v_alertas WHERE tipo = 'dato_faltante'")} == {33, 50, 59, 61})
     revisar("el aviso 48 muestra la ventana completa del 15 al 28 de Octubre", q("SELECT vv_desde, vv_hasta FROM v_buscador WHERE orden = 48") == [("2026-10-15", "2026-10-28 12:00")])
 
     # 3. Entregas por tribunal y día

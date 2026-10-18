@@ -1350,13 +1350,22 @@
     "cita": "equivalente al 10% del precio mínimo fijado para la subasta"
    },
    "vale_vista": {
-    "regla": "sin_dato",
-    "vv_desde": null,
-    "vv_desde_origen": null,
-    "vv_hasta": null,
-    "vv_estado": "sin_dato",
-    "cita": null,
-    "nota": "No dice cuándo se entrega. Solo que los vales vista se califican al hacerse el llamado al remate."
+    "regla": "en_el_remate",
+    "vv_desde": "2026-10-29 13:00",
+    "vv_desde_origen": "texto",
+    "vv_hasta": "2026-10-29 13:00",
+    "vv_estado": "calculado",
+    "cita": "Los vales vista recepcionados serán calificados al momento de hacerse el llamado al remate.",
+    "nota": "CORRECCIÓN de Diego del 18 de Octubre. Esa frase SÍ vale como entrega en el remate. Hay remates donde el vale vista se entrega minutos antes de empezar, al hacerse el llamado.",
+    "anotacion_anterior": {
+     "regla": "sin_dato",
+     "vv_desde": null,
+     "vv_desde_origen": null,
+     "vv_hasta": null,
+     "vv_estado": "sin_dato",
+     "cita": null,
+     "nota": "No dice cuándo se entrega. Solo que los vales vista se califican al hacerse el llamado al remate."
+    }
    },
    "direccion": {
     "valor": "calle Apóstol Santiago 32, depto 2017, comuna de Estación Central",
@@ -1397,13 +1406,22 @@
     "cita": "equivalente al 10% del precio mínimo fijado para la subasta"
    },
    "vale_vista": {
-    "regla": "sin_dato",
-    "vv_desde": null,
-    "vv_desde_origen": null,
-    "vv_hasta": null,
-    "vv_estado": "sin_dato",
-    "cita": null,
-    "nota": "No dice cuándo se entrega. Solo que los vales vista se califican al hacerse el llamado al remate."
+    "regla": "en_el_remate",
+    "vv_desde": "2026-10-29 13:00",
+    "vv_desde_origen": "texto",
+    "vv_hasta": "2026-10-29 13:00",
+    "vv_estado": "calculado",
+    "cita": "Los vales vista recepcionados serán calificados al momento de hacerse el llamado al remate.",
+    "nota": "CORRECCIÓN de Diego del 18 de Octubre. Esa frase SÍ vale como entrega en el remate. Hay remates donde el vale vista se entrega minutos antes de empezar, al hacerse el llamado.",
+    "anotacion_anterior": {
+     "regla": "sin_dato",
+     "vv_desde": null,
+     "vv_desde_origen": null,
+     "vv_hasta": null,
+     "vv_estado": "sin_dato",
+     "cita": null,
+     "nota": "No dice cuándo se entrega. Solo que los vales vista se califican al hacerse el llamado al remate."
+    }
    },
    "direccion": {
     "valor": "Avenida Transversal Uno 939, comuna de Pudahuel",
