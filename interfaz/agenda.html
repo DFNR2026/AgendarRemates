@@ -89,7 +89,7 @@ const SVG={
  nose:s=>`<span style="font-size:${s-3}px;font-weight:800;line-height:1" aria-hidden="true">?</span>`};
 let EST=null;
 const FORM0=()=>({trib:'',rol:'',anio:'',car:'',fecha:'',hora:'',mod:'pres',vd:'',vh:'',monto:''});
-const UI={panel:null,ficha:null,sel:null,off:0,detC:false,detL:false,uf:'',f:{trib:'',rol:'',anio:'',edicion:'',pasados:false},res:null,form:FORM0(),err:''};
+const UI={panel:null,ficha:null,sel:null,off:0,detC:false,detL:false,uf:'',f:{trib:'',rol:'',anio:'',edicion:'',pasados:false},res:null,form:FORM0(),err:'',ftrib:''};
 const clave=it=>it.tipo==='manual'?'m'+it.manual_id:'b'+it.bien_id;
 const item=k=>(EST&&EST.agenda||[]).find(x=>clave(x)===k);
 
@@ -112,12 +112,16 @@ function ufHTML(it){return it.uf?`<div class="ufbox"><label class="lab" style="c
 
 // --- Columna izquierda ---------------------------------------------------------------------------------------------
 function renderIzq(){
-  const ag=EST.agenda;let h=`<div class="fila"><h2 class="tit">Causas agendadas</h2><span class="cuenta">${ag.length}</span></div>`;
+  const tribs=[...new Set(EST.agenda.map(it=>it.tribunal||'Sin tribunal'))].sort((a,b)=>a.localeCompare(b,'es',{numeric:true}));
+  if(UI.ftrib&&!tribs.includes(UI.ftrib))UI.ftrib='';   // el tribunal elegido ya no tiene causas agendadas
+  const ag=UI.ftrib?EST.agenda.filter(it=>(it.tribunal||'Sin tribunal')===UI.ftrib):EST.agenda;
+  let h=`<div class="fila"><h2 class="tit">Causas agendadas</h2><span class="cuenta">${UI.ftrib?ag.length+' de '+EST.agenda.length:ag.length}</span></div>`;
+  if(tribs.length>1)h+=`<label class="lab">Filtrar por tribunal<select class="campo" data-ftrib aria-label="Filtrar causas agendadas por tribunal"><option value="">Todos los tribunales</option>${tribs.map(t=>`<option value="${E(t)}" ${UI.ftrib===t?'selected':''}>${E(t)} (${EST.agenda.filter(it=>(it.tribunal||'Sin tribunal')===t).length})</option>`).join('')}</select></label>`;
   for(const q of EST.quitados) h+=`<div class="aviso-pub"><b>Una causa que quitaste volvió a publicarse</b><span>${E(q.titulo)}. ${E(q.texto)}</span><div class="fila"><button class="btn2" data-acc="reagendar" data-rid="${q.remate_id}">Volver a agendar</button><button class="btn2" data-acc="ignorarq" data-bien="${q.bien_id}">No, gracias</button></div></div>`;
   if(!ag.length) h+=`<p class="peq gris">Todavía no tienes causas agendadas. Usa la lupa para buscar remates y agregarlos.</p>`;
   for(const it of ag){const k=clave(it);
     h+=`<article id="causa-${k}" class="tarjeta${UI.sel===k?' sel':''}">
-      <div class="fila"><div style="display:flex;gap:8px;align-items:center;color:var(--cafe)">${SVG[it.mod](18)}<span class="rol">${E(it.rol)}</span></div>
+      <div class="fila"><div style="display:flex;gap:8px;align-items:center;color:var(--cafe)">${SVG[it.mod](18)}<span class="rol">${E(it.rol)}</span>${it.inmueble?`<span class="peq gris">· ${E(it.inmueble)}</span>`:""}</div>
       <button class="x" data-acc="quitar" data-k="${k}" aria-label="Quitar del calendario">✕</button></div>
       ${it.tipo==='manual'?'<span class="etq mano">AGREGADA A MANO</span>':''}${it.nuevo_llamado?'<span class="etq llamado">NUEVO LLAMADO</span>':''}
       <div class="car">${E(it.caratula)}</div><div class="peq gris">${E(it.tribunal)}</div>
@@ -134,7 +138,7 @@ function renderIzq(){
 // --- Calendario ----------------------------------------------------------------------------------------------------
 const ALTO={chico:30,grande:44,medio:38};
 function iso(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
-function itemsCal(){return EST.agenda.map(it=>({k:clave(it),tc:it.tc,rol:it.rol,remate:it.fecha_remate,hora:it.hora,mod:it.mod,
+function itemsCal(){return EST.agenda.map(it=>({k:clave(it),tc:it.tc,rol:it.rol+(it.inmueble?' · '+it.inmueble:''),remate:it.fecha_remate,hora:it.hora,mod:it.mod,
   vd:(it.vv_desde||it.vv_hasta||'').slice(0,10)||null,vh:(it.vv_hasta||'').slice(0,10)||null,ent:it.vv_entregado,rojo:it.cambio_fecha,manual:it.tipo==='manual'}));}
 function mes(y,m,tam,ags){
   const dim=new Date(y,m+1,0).getDate(),g=tam==='grande',H=EST.hoy;const isos=[];for(let d=1;d<=dim;d++)isos.push(iso(y,m,d));
@@ -175,13 +179,13 @@ function renderCentro(){
   if(EST.franja_ambar.length)h+=`<section class="franja ambar" role="status"><div style="font-size:15px;font-weight:800">EDICIONES CARGADAS PERO INCOMPLETAS</div>${EST.franja_ambar.map(x=>`<div style="font-size:13px">${E(x)}</div>`).join('')}</section>`;
   if(EST.cambios.length)h+=`<section class="franja rojo" role="alert"><div class="fila"><div style="flex:1 1 400px;font-size:22px;font-weight:800">${E(EST.titulo_cambios)}</div><button class="btn" style="background:var(--papel);color:var(--rojo)" data-acc="detC">${UI.detC?'Ocultar detalles':'Revisar detalles'}</button></div>${UI.detC?`<div class="detalle">${EST.cambios.map(c=>tablaCmp(c,true)).join('')}<button class="btn" style="align-self:flex-start" data-acc="vistoC">Marcar como visto</button></div>`:''}</section>`;
   if(EST.llamados.length)h+=`<section class="franja llam" role="status"><div class="fila"><div style="flex:1 1 400px"><div style="font-size:19px;font-weight:800">NUEVO LLAMADO EN UNA CAUSA AGENDADA</div><div class="peq" style="color:#5C4A39">Un remate que no se hizo vuelve a publicarse. Es un remate nuevo, con sus propias bases.</div></div><button class="btn" data-acc="detL">${UI.detL?'Ocultar detalles':'Revisar detalles'}</button></div>${UI.detL?`<div class="detalle">${EST.llamados.map(c=>tablaCmp(c,false)).join('')}<button class="btn" style="align-self:flex-start" data-acc="vistoL">Marcar como visto</button></div>`:''}</section>`;
-  h+=`<div class="nav"><button class="btn2" data-acc="mesAnt">◀ Mes anterior</button><button class="btn2" data-acc="mesHoy">Volver a hoy</button><button class="btn2" data-acc="mesSig">Mes siguiente ▶</button></div>`;
+  h+=`<div class="nav">${UI.off>0?'<button class="btn2" data-acc="mesAnt">◀ Mes anterior</button>':''}<button class="btn2" data-acc="mesHoy">Volver a hoy</button><button class="btn2" data-acc="mesSig">Mes siguiente ▶</button></div>`;
   const hoy=new Date(EST.hoy+'T12:00'),ags=itemsCal();
-  [-1,0,1].forEach((d,i)=>{const t=new Date(hoy.getFullYear(),hoy.getMonth()+UI.off+d,1);h+=mes(t.getFullYear(),t.getMonth(),i===1?'grande':(i===0?'chico':'medio'),ags);});
+  [0,1].forEach((d,i)=>{const t=new Date(hoy.getFullYear(),hoy.getMonth()+UI.off+d,1);h+=mes(t.getFullYear(),t.getMonth(),i===0?'grande':'medio',ags);});   // mes actual y siguiente (Diego, 18 de Octubre)
   document.getElementById('centro').innerHTML=h;}
 
 // --- Panel derecho (buscador, causa a mano y ficha) -----------------------------------------------------------------
-function tarjetaRes(it){return `<article class="tarjeta"><div class="rol" style="color:var(--cafe)">${E(it.rol)}</div><div class="car">${E(it.caratula)}</div><div class="peq gris">${E(it.tribunal)}</div>
+function tarjetaRes(it){return `<article class="tarjeta"><div class="rol" style="color:var(--cafe)">${E(it.rol)}${it.inmueble?` · ${E(it.inmueble)}`:""}</div><div class="car">${E(it.caratula)}</div><div class="peq gris">${E(it.tribunal)}</div>
   <div class="peq"><span class="gris">Remate</span> ${E(it.remate_corto)} · ${E(it.mod_txt)}</div><div class="peq"><span class="gris">Vale vista</span> ${E(it.vv_txt)}</div>
   <div class="peq"><span class="gris">Monto VV</span> ${E(it.monto)}${etiquetas(it)}</div>${ufHTML(it)}<div class="gris" style="font-size:11px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Ver aviso')}
   ${it.en_calendario?'<div class="peq" style="font-weight:700;color:#3E6B2F;padding:8px 0">Ya está en tu calendario</div>':`<button class="btn" style="align-self:flex-start" data-acc="agendar" data-rid="${it.remate_id}">Agregar al calendario</button>`}</article>`;}
@@ -234,13 +238,14 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-acc]
   else if(a==='detC'){UI.detC=!UI.detC;renderCentro();}else if(a==='detL'){UI.detL=!UI.detL;renderCentro();}
   else if(a==='vistoC'){UI.detC=false;await hacer('/api/visto',{tipo:'cambios',bienes:EST.cambios.map(c=>c.bien_id)});}
   else if(a==='vistoL'){UI.detL=false;await hacer('/api/visto',{tipo:'llamado',bienes:EST.llamados.map(c=>c.bien_id)});}
-  else if(a==='mesAnt'){UI.off--;renderCentro();}else if(a==='mesSig'){UI.off++;renderCentro();}else if(a==='mesHoy'){UI.off=0;renderCentro();}
+  else if(a==='mesAnt'){UI.off=Math.max(0,UI.off-1);renderCentro();}/* nunca antes del mes actual (Diego, 18 de Octubre) */else if(a==='mesSig'){UI.off++;renderCentro();}else if(a==='mesHoy'){UI.off=0;renderCentro();}
   else if(a==='guardarManual'){try{const r=await api('/api/manual',UI.form);UI.form=FORM0();UI.err='';UI.ficha='m'+r.manual_id;UI.sel=UI.ficha;UI.panel='ficha';await cargar();}catch(er){UI.err=er.message;renderPanel();}}
 });
 document.addEventListener('change',async e=>{const t=e.target;
   if(t.dataset.acc==='entregado'){const it=item(t.dataset.k);if(it)await hacer('/api/marcar',{campo:'vv_entregado',valor:t.checked,...(it.tipo==='manual'?{manual_id:it.manual_id}:{bien_id:it.bien_id})});}
   else if(t.dataset.filtro==='edicion'||t.dataset.filtro==='pasados'){UI.f[t.dataset.filtro]=t.type==='checkbox'?t.checked:t.value;await buscar();}
-  else if(t.dataset.form==='mod'){UI.form.mod=t.value;}});
+  else if(t.dataset.form==='mod'){UI.form.mod=t.value;}
+  else if('ftrib' in t.dataset){UI.ftrib=t.value;renderIzq();}});
 let espera=null;
 document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.filtro&&t.dataset.filtro!=='edicion'&&t.dataset.filtro!=='pasados'){UI.f[t.dataset.filtro]=t.value;clearTimeout(espera);espera=setTimeout(buscar,250);}
