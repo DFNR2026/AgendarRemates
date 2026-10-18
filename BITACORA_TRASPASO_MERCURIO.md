@@ -113,3 +113,7 @@ Qué pieza de Agendar_Remates resuelve qué (todas en D:\Agendar_Remates\motor).
 Lo que el Mercurio tiene y Agendar_Remates no (no perderlo en el traspaso).
 - Sus filtros de negocio (solo RM por comuna, no BancoEstado, no Estación Central, rol desde 2018, dominio anterior a 2020 con la salvaguarda de REVISAR), el fuzzy de cortes con la hoja REFERENCIA de causas_ojv.xlsx, la llave rol-año más tribunal y el Excel de M5 tal como lo usa el abogado.
 - Supuesto por confirmar en el código. El año de dominio del filtro CBR sería el mismo año de inscripción que ya lee extraccion.py.
+
+## 2026-10-18. Vuelta de los arreglos del traspaso a Agendar_Remates
+Los cuatro arreglos del Mercurio (cortador con "EXTRACTO 3°JUZGADO" y las tres reglas de la ciudad del tribunal) quedaron aplicados en Agendar_Remates con la línea _TRIBUNAL idéntica a la del Mercurio. En las 10 ediciones capturadas cambian 2 avisos por el cortador y 7 por el tribunal, todos los esperados (bitácora del 18, puntos 6 a 9).
+Regla de las dos fechas. El Mercurio la quitó. Agendar_Remates la mantiene con la opción C de Diego, en que una fecha anterior a la edición no cuenta (7 de 8 falsas alarmas eran fechas pasadas, bitácora del 18, punto 10). Sigue como falsa alarma conocida el caso en que la segunda fecha es la entrega del vale vista y es futura (06-10, rol 4265-2021). Para el próximo traspaso, decidir si el Mercurio adopta la misma regla.
