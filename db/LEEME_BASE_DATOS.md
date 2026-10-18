@@ -20,6 +20,8 @@ Un aviso es lo que se imprime. Un remate es lo que se agenda. Un aviso puede tra
 10. agenda. Los remates que Diego elige, uno por bien. Quitar uno del calendario es borrar su fila (botón X). Casillas opcionales de vale vista entregado y remate asistido.
 11. feriados. Se cargan desde db\feriados_AAAA.csv. Desde diciembre el programa avisa si falta el año siguiente.
 12. meta. Versión del esquema.
+13. agenda_manual (18 de Octubre). Causas que Diego agrega a mano porque no salieron en El Mercurio o el programa no las leyó. La fecha del remate es obligatoria. Si después la causa sale publicada (mismo rol, año y tribunal), la interfaz lo avisa y ofrece cambiarla por la publicada, o ignorarlo (publicado_ignorado).
+14. agenda_quitados (18 de Octubre). Lo que Diego quitó del calendario con la X, con la última edición que había en ese momento. Si la propiedad vuelve con un nuevo llamado después de quitarla, la interfaz lo avisa. Sin cambio de versión del esquema.
 
 ## Las vistas (ninguna muestra los avisos descartados)
 

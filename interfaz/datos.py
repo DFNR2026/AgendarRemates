@@ -347,9 +347,10 @@ def estado(con, hoy):
 
 def buscar(con, hoy, tribunal="", rol="", anio="", edicion="", pasados=False, limite=300):
     """Decisión de Diego. Por defecto los remates vigentes (que todavía no pasan) de todas las ediciones, la publicación
-    más nueva de cada propiedad. Con edición, solo lo publicado ese día. Los tres campos filtran solos."""
+    más nueva de cada propiedad. Con edición, solo lo publicado ese día. Los tres campos filtran solos. Los remates sin fecha
+    van al final, para que arriba queden los más próximos."""
     sql = ("SELECT remate_id FROM (SELECT b.*, ROW_NUMBER() OVER (PARTITION BY COALESCE(b.bien_id, -b.remate_id) "
-           "ORDER BY b.edicion DESC, b.remate_id DESC) AS n FROM v_buscador b {w}) WHERE n = 1 {v} ORDER BY fecha_remate, tribunal")
+           "ORDER BY b.edicion DESC, b.remate_id DESC) AS n FROM v_buscador b {w}) WHERE n = 1 {v} ORDER BY fecha_remate IS NULL, fecha_remate, tribunal")
     par = []
     w = ""
     if edicion:

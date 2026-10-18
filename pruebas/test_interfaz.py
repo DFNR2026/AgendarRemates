@@ -50,6 +50,10 @@ vig = uno("SELECT COUNT(*) FROM (SELECT COALESCE(bien_id, -remate_id) k, MAX(edi
           "OR (SELECT fecha_remate FROM v_buscador v2 WHERE COALESCE(v2.bien_id, -v2.remate_id) = k ORDER BY edicion DESC, remate_id DESC LIMIT 1) IS NULL)", HOY)
 revisar("buscador. un resultado por propiedad, solo vigentes", b["total"] == vig and all((r["fecha_remate"] or "9") >= HOY for r in b["resultados"])
         and len({r["bien_id"] for r in b["resultados"] if r["bien_id"]}) == len([r for r in b["resultados"] if r["bien_id"]]), f"{b['total']} contra {vig}")
+fechas = [r["fecha_remate"] for r in b["resultados"]]
+revisar("buscador. los que tienen fecha van primero y en orden, los sin fecha al final",
+        any(f is None for f in fechas) and fechas == sorted([f for f in fechas if f]) + [None] * fechas.count(None),
+        str(fechas[:3]))
 revisar("buscador. con pasados trae más", D.buscar(con, HOY, pasados=True)["total"] > b["total"])
 r9 = D.buscar(con, HOY, rol="9854")["resultados"]
 revisar("buscador. rol 9854 es la publicación del 10-10 y trae los 3 avisos, el del 1 Sep. como llamado anterior",
