@@ -3,7 +3,7 @@ Correr desde D:\\Agendar_Remates con. python -m pruebas.test_esquema
 
 Qué comprueba.
 1. Que la base se cree dos veces seguidas sobre el mismo archivo sin errores y sin duplicar nada.
-2. Que estén las 12 tablas y las 5 vistas esperadas.
+2. Que estén las 14 tablas y las 5 vistas esperadas.
 3. Que acepte lo nuevo (en_linea, descartado, garantía sobre tasación, varios remates por aviso, citas extra).
 4. Que rechace valores inválidos y duplicados.
 5. Que borrar un aviso borre sus remates, citas y alertas.
@@ -27,7 +27,7 @@ def rechaza(con, sql, args=()):
         return True
     return False
 
-ESPERADAS = {"meta", "ediciones", "paginas", "causas", "bienes", "avisos", "remates",
+ESPERADAS = {"meta", "ediciones", "paginas", "causas", "bienes", "avisos", "remates", "agenda_manual", "agenda_quitados",
              "citas", "alertas", "cambios", "agenda", "feriados"}
 
 with tempfile.TemporaryDirectory() as tmp:
@@ -45,7 +45,7 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("crear dos veces no duplica feriados", fer1 == fer2 and fer1 > 0, f"({fer1} y {fer2})")
     tablas = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     vistas = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='view'")}
-    revisar("las 12 tablas esperadas", tablas == ESPERADAS, f"sobran {tablas - ESPERADAS} faltan {ESPERADAS - tablas}")
+    revisar("las 14 tablas esperadas (12 más agenda_manual y agenda_quitados, 18 de Octubre)", tablas == ESPERADAS, f"sobran {tablas - ESPERADAS} faltan {ESPERADAS - tablas}")
     VISTAS = {"v_buscador", "v_alertas", "v_calendario", "v_entregas_vv", "v_historial_tribunal"}
     revisar("las 5 vistas esperadas", vistas == VISTAS, f"sobran {vistas - VISTAS} faltan {VISTAS - vistas}")
     revisar("versión del esquema", con.execute("SELECT valor FROM meta WHERE clave='version_esquema'").fetchone()[0] == VERSION_ESQUEMA)

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agenda de remates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Diseño de la variante B elegida por Diego el 18 de Octubre (crema y café). Si no hay internet, usa las letras del PC. */
+:root{--fondo:#F3EBDD;--papel:#FBF6EC;--blanco:#FFFFFF;--borde:#DCCBB0;--tinta:#3B2A1E;--suave:#7A6450;--cafe:#6B3F22;--vv:#D9B98C;--rojo:#A3301F;--negro:#1A1410}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fondo);color:var(--tinta);font-family:'Archivo','Segoe UI',system-ui,sans-serif}
+a{color:var(--cafe)}a:hover{color:#4A2A15}
+button{font-family:inherit}
+.raiz{position:relative;min-height:100vh;display:flex;flex-wrap:wrap}
+.izq{flex:0 0 340px;max-width:100%;background:var(--papel);border-right:1px solid var(--borde);padding:26px 20px;display:flex;flex-direction:column;gap:12px}
+.centro{flex:999 1 560px;min-width:0;padding:26px 28px 48px;display:flex;flex-direction:column;gap:16px}
+.riel{width:84px;padding-top:22px;display:flex;justify-content:center}
+.lupa{width:60px;height:60px;border-radius:18px;border:0;background:var(--cafe);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.panel{position:absolute;top:0;right:0;min-height:100%;width:440px;max-width:100%;background:var(--papel);border-left:1px solid var(--borde);box-shadow:-12px 0 32px rgba(59,42,30,.18);padding:26px 22px;display:flex;flex-direction:column;gap:12px}
+.oculto{display:none}
+h2.tit{margin:0;font-size:17px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.cuenta{background:var(--cafe);color:#fff;border-radius:999px;padding:2px 9px;font-size:13px;font-weight:700}
+.tarjeta{background:var(--blanco);border:1px solid var(--borde);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;scroll-margin-top:16px}
+.tarjeta.sel{background:#F2E2C6;border:2px solid var(--cafe)}
+.fila{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.rol{font-family:'JetBrains Mono',Consolas,monospace;font-size:13px;font-weight:600}
+.car{font-weight:600;font-size:14px;line-height:1.3}
+.peq{font-size:13px}.gris{color:var(--suave)}
+.x{width:32px;height:32px;border:1px solid var(--borde);background:var(--papel);color:var(--suave);border-radius:8px;cursor:pointer;flex:0 0 auto}
+.x44{width:44px;height:44px;border:1px solid var(--borde);background:var(--fondo);color:var(--tinta);border-radius:10px;cursor:pointer;font-size:18px}
+.etq{align-self:flex-start;font-size:11px;font-weight:800;padding:2px 7px;border-radius:4px;letter-spacing:.04em}
+.etq.mano{background:#E8D5B5;color:#4A2A10}.etq.llamado{background:var(--cafe);color:#fff}
+.tag{font-size:11px;font-weight:800;padding:2px 6px;border-radius:4px}
+.tag.asu{background:#E9C98F;color:#4A2A10}.tag.pct{background:var(--rojo);color:#fff}
+.al{font-size:12px;padding:6px 8px;border-radius:8px}
+.al.rojo{background:#F6DDD7;color:#7E2214;font-weight:700}.al.ambar{background:#F2E0BC;color:#5A3A0E}.al.info{background:#EFE5D3;color:#5C4A39}
+.links{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lk{display:inline-flex;align-items:center;min-height:30px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;text-decoration:none;background:#F2E2C6;color:#4A2A15;border:1px solid #C8A878}
+.lk.ant{background:var(--papel);color:var(--suave);border:1px dashed #B79A74}
+.btn{background:var(--cafe);color:#fff;border:0;border-radius:10px;padding:10px 16px;min-height:44px;font-size:14px;font-weight:700;cursor:pointer}
+.btn2{background:var(--papel);color:var(--cafe);border:1px solid var(--cafe);border-radius:8px;padding:6px 12px;min-height:36px;font-size:13px;font-weight:700;cursor:pointer}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}.chk input{width:18px;height:18px;accent-color:var(--cafe)}
+.aviso-pub{background:#E8D5B5;border-radius:8px;padding:8px 10px;font-size:12px;display:flex;flex-direction:column;gap:6px}
+header.cab{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.ley{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--suave)}
+.ley span{display:flex;gap:6px;align-items:center}
+.franja{border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;gap:10px}
+.franja.negra{background:var(--negro);color:#fff}.franja.ambar{background:#F6E3B4;color:#4A3000;border:1px solid #DDBB6C;padding:14px 20px;gap:4px}
+.franja.rojo{background:var(--rojo);color:#fff}.franja.llam{background:#E8D5B5;border:1px solid #C8A878}
+.detalle{background:var(--papel);color:var(--tinta);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:16px}
+table.cmp{border-collapse:collapse;width:100%;font-size:14px}
+table.cmp th,table.cmp td{text-align:left;padding:8px 10px;border-bottom:1px solid #E8DCC8}
+table.cmp thead th{border-bottom:2px solid var(--borde);color:var(--suave);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.mes{background:var(--papel);border:1px solid var(--borde);border-radius:14px;display:flex;flex-direction:column;gap:6px}
+.grilla{display:grid;border-bottom:1px solid #E8DCC8}
+.carril{font-size:12px;padding:0 8px 0 0;display:flex;flex-direction:column;justify-content:center;min-width:0;text-align:left;background:none;border:0;cursor:pointer;color:var(--tinta)}
+.carril b,.carril span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ico{display:flex;align-items:center;justify-content:center;border-radius:7px;cursor:pointer;padding:0;background:var(--papel);color:var(--cafe);border:2px solid var(--cafe)}
+.nav{display:flex;gap:8px;align-items:center}
+input.campo,select.campo{height:40px;border:1px solid #C8B08C;border-radius:10px;padding:0 10px;font-family:inherit;font-size:14px;background:#fff;color:var(--tinta);min-width:0;width:100%}
+label.lab{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--suave)}
+.caja{background:var(--blanco);border:1px solid var(--borde);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.caja h3{margin:0;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)}
+.chip{font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px}
+.chip.verde{background:#E3EDD9;color:#2F5424}.chip.ambar{background:#F6E3B4;color:#6A4300}.chip.rojo{background:#F6DDD7;color:#7E2214}
+.ufbox{background:var(--fondo);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+blockquote{margin:0;padding:8px 12px;background:var(--fondo);border-radius:8px;font-size:13px;line-height:1.45;color:#4A3A2C;font-style:italic}
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--rojo);color:#fff;padding:12px 18px;border-radius:10px;font-weight:700;z-index:9;max-width:90vw}
+</style>
+</head>
+<body>
+<div class="raiz">
+  <aside class="izq" id="izq" aria-label="Causas agendadas"></aside>
+  <main class="centro" id="centro"><p>Cargando la agenda...</p></main>
+  <div class="riel"><button class="lupa" data-acc="buscar" aria-label="Buscar y añadir remates"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4.2-4.2"></path></svg></button></div>
+  <aside class="panel oculto" id="panel"></aside>
+</div>
+<div id="toast" class="oculto" role="alert"></div>
+<script>
+// Agenda de remates (18 de Octubre). Lee todo de /api/estado y manda las acciones de Diego al servidor local.
+const MES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const INI=['D','L','M','M','J','V','S'];
+const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SVG={
+ pres:s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2.5l8.5 8.5-3.2 3.2-8.5-8.5z"/><path d="M14.1 9.9L4.5 19.5"/><path d="M3 21.5h9"/></svg>`,
+ virt:s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="3.5" width="19" height="12.5" rx="1.5"/><path d="M12 16v3.5"/><path d="M7.5 20.5h9"/></svg>`,
+ nose:s=>`<span style="font-size:${s-3}px;font-weight:800;line-height:1" aria-hidden="true">?</span>`};
+let EST=null;
+const FORM0=()=>({trib:'',rol:'',anio:'',car:'',fecha:'',hora:'',mod:'pres',vd:'',vh:'',monto:''});
+const UI={panel:null,ficha:null,sel:null,off:0,detC:false,detL:false,uf:'',f:{trib:'',rol:'',anio:'',edicion:'',pasados:false},res:null,form:FORM0(),err:''};
+const clave=it=>it.tipo==='manual'?'m'+it.manual_id:'b'+it.bien_id;
+const item=k=>(EST&&EST.agenda||[]).find(x=>clave(x)===k);
+
+async function api(ruta,cuerpo){
+  const r=await fetch(ruta,cuerpo?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cuerpo)}:{cache:'no-store'});
+  const j=await r.json(); if(j.ok===false) throw new Error(j.error||'Error'); return j;}
+function aviso(t){const d=document.getElementById('toast');d.textContent=t;d.classList.remove('oculto');clearTimeout(aviso.t);aviso.t=setTimeout(()=>d.classList.add('oculto'),7000);}
+async function cargar(){try{EST=await api('/api/estado');render();}catch(e){aviso('No se pudo leer la agenda. '+e.message);}}
+async function hacer(ruta,cuerpo){try{const r=await api(ruta,cuerpo);await cargar();if(UI.panel==='buscar')await buscar();return r;}catch(e){aviso(e.message);return null;}}
+
+function fmtCLP(n){return '$'+Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+function leerUF(t){if(!t)return null;const n=Number(String(t).replace(/[$\s]/g,'').replace(/\./g,'').replace(',','.'));return isFinite(n)&&n>0?n:null;}
+function ufCalc(uf,txt){const n=leerUF(UI.uf);return n?`${txt} × ${fmtCLP(n)} = ${fmtCLP(uf*n)}`:'Pega el valor de la UF para ver el monto en pesos';}
+function diaCorto(d){const t=new Date(d+'T12:00');return ['Dom.','Lun.','Mar.','Mié.','Jue.','Vie.','Sáb.'][t.getDay()]+' '+t.getDate()+' '+['Ene.','Feb.','Mar.','Abr.','May.','Jun.','Jul.','Ago.','Sep.','Oct.','Nov.','Dic.'][t.getMonth()];}
+
+function etiquetas(it){let h='';if(it.asumido)h+=' <span class="tag asu">ASUMIDO</span>';if(it.otro_porcentaje)h+=` <span class="tag pct">${E(it.otro_porcentaje)}</span>`;return h;}
+function linksHTML(pubs,titulo){if(!pubs||!pubs.length)return '';
+  return `<div class="links"><span class="gris" style="font-size:12px">${E(titulo)}</span>${pubs.map(p=>p.href?`<a class="lk${p.ant?' ant':''}" href="${E(p.href)}" target="_blank" rel="noopener">${p.ant?'Llamado anterior, ':''}${E(p.texto)}</a>`+(p.href_fin?`<a class="lk${p.ant?' ant':''}" href="${E(p.href_fin)}" target="_blank" rel="noopener">${E(p.texto)} (sigue)</a>`:''):'').join('')}</div>`;}
+function ufHTML(it){return it.uf?`<div class="ufbox"><label class="lab" style="color:var(--tinta);font-weight:700">Cálculo de VV por UF<input class="campo" data-uf-in value="${E(UI.uf)}" placeholder="Pega aquí el valor de la UF"></label><div class="rol" data-uf="${it.uf}" data-uftxt="${E(it.uf_txt)}">${E(ufCalc(it.uf,it.uf_txt))}</div></div>`:'';}
+
+// --- Columna izquierda ---------------------------------------------------------------------------------------------
+function renderIzq(){
+  const ag=EST.agenda;let h=`<div class="fila"><h2 class="tit">Causas agendadas</h2><span class="cuenta">${ag.length}</span></div>`;
+  for(const q of EST.quitados) h+=`<div class="aviso-pub"><b>Una causa que quitaste volvió a publicarse</b><span>${E(q.titulo)}. ${E(q.texto)}</span><div class="fila"><button class="btn2" data-acc="reagendar" data-rid="${q.remate_id}">Volver a agendar</button><button class="btn2" data-acc="ignorarq" data-bien="${q.bien_id}">No, gracias</button></div></div>`;
+  if(!ag.length) h+=`<p class="peq gris">Todavía no tienes causas agendadas. Usa la lupa para buscar remates y agregarlos.</p>`;
+  for(const it of ag){const k=clave(it);
+    h+=`<article id="causa-${k}" class="tarjeta${UI.sel===k?' sel':''}">
+      <div class="fila"><div style="display:flex;gap:8px;align-items:center;color:var(--cafe)">${SVG[it.mod](18)}<span class="rol">${E(it.rol)}</span>${it.inmueble?`<span class="peq gris">· ${E(it.inmueble)}</span>`:""}</div>
+      <button class="x" data-acc="quitar" data-k="${k}" aria-label="Quitar del calendario">✕</button></div>
+      ${it.tipo==='manual'?'<span class="etq mano">AGREGADA A MANO</span>':''}${it.nuevo_llamado?'<span class="etq llamado">NUEVO LLAMADO</span>':''}
+      <div class="car">${E(it.caratula)}</div><div class="peq gris">${E(it.tribunal)}</div>
+      <div class="peq"><span class="gris">Remate</span> ${E(it.remate_corto)} · ${E(it.mod_txt)}</div>
+      <div class="peq"><span class="gris">Vale vista</span> ${E(it.vv_txt)}</div>
+      <div class="peq"><span class="gris">Monto VV</span> ${E(it.monto)}${etiquetas(it)}</div>
+      ${it.alertas.map(a=>`<div class="al ${a.clase}">${E(a.texto)}</div>`).join('')}
+      ${(it.publicado||[]).map(p=>`<div class="aviso-pub"><span>${E(p.texto)} ¿La cambio por la del diario?</span><div class="fila"><button class="btn2" data-acc="reemplazar" data-man="${it.manual_id}" data-rid="${p.remate_id}">Sí, cambiarla</button><button class="btn2" data-acc="nopub" data-man="${it.manual_id}">No, dejarla a mano</button></div></div>`).join('')}
+      ${linksHTML(it.pubs,'Avisos en El Mercurio')}
+      <div class="fila"><label class="chk"><input type="checkbox" data-acc="entregado" data-k="${k}" ${it.vv_entregado?'checked':''}>Vale vista entregado</label>
+      <button class="btn2" data-acc="ficha" data-k="${k}">Ver ficha</button></div></article>`;}
+  document.getElementById('izq').innerHTML=h;}
+
+// --- Calendario ----------------------------------------------------------------------------------------------------
+const ALTO={chico:30,grande:44,medio:38};
+function iso(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
+function itemsCal(){return EST.agenda.map(it=>({k:clave(it),tc:it.tc,rol:it.rol+(it.inmueble?' · '+it.inmueble:''),remate:it.fecha_remate,hora:it.hora,mod:it.mod,
+  vd:(it.vv_desde||it.vv_hasta||'').slice(0,10)||null,vh:(it.vv_hasta||'').slice(0,10)||null,ent:it.vv_entregado,rojo:it.cambio_fecha,manual:it.tipo==='manual'}));}
+function mes(y,m,tam,ags){
+  const dim=new Date(y,m+1,0).getDate(),g=tam==='grande',H=EST.hoy;const isos=[];for(let d=1;d<=dim;d++)isos.push(iso(y,m,d));
+  const lanes=ags.filter(a=>isos.includes(a.remate)||(a.vd&&!a.ent&&a.vd<=isos[dim-1]&&a.vh>=isos[0]));
+  const negro='#1A1410',sh='inset 3px 0 0 '+negro+',inset -3px 0 0 '+negro;
+  const cols=`grid-template-columns:${g?'190px':'170px'} repeat(${dim},minmax(0,1fr))`;
+  const nR=ags.filter(a=>isos.includes(a.remate)).length;
+  let h=`<section class="mes" style="padding:${g?'20px 20px 16px':'14px 18px'}"><div class="fila"><h2 style="margin:0;font-weight:800;font-size:${g?'30px':'18px'};color:${g?'var(--tinta)':'var(--suave)'}">${MES[m]} ${y}</h2><span class="gris" style="font-size:12px">${nR?(nR===1?'1 remate':nR+' remates'):''}</span></div>`;
+  h+=`<div class="grilla" style="${cols}"><div class="gris" style="font-size:11px;align-self:end;padding:4px 0">Causa</div>`;
+  for(const d of isos){const dw=new Date(d+'T12:00').getDay(),fer=EST.feriados[d],hoy=d===H,fin=dw===0||dw===6;
+    h+=`<div title="${E(fer||'')}" style="display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;padding:4px 0;min-width:0;color:${fer?'var(--rojo)':(fin?'#9C8670':'var(--suave)')};${hoy?'box-shadow:'+sh+',inset 0 3px 0 '+negro+(lanes.length?';border-radius:6px 6px 0 0':',inset 0 -3px 0 '+negro+';border-radius:6px'):''}"><span>${INI[dw]}</span><span style="font-size:${g?13:11}px;font-weight:700;color:${fer?'var(--rojo)':'var(--tinta)'}">${+d.slice(8)}</span></div>`;}
+  h+='</div>';
+  lanes.forEach((a,ia)=>{
+    const sub=a.remate?(isos.includes(a.remate)?'Remate '+diaCorto(a.remate)+(a.hora?' '+a.hora:''):'Remate el '+diaCorto(a.remate)):'Sin fecha del remate';
+    h+=`<div class="grilla" style="${cols}"><button class="carril" data-acc="ficha" data-k="${a.k}"><b>${E(a.tc)} · <span class="rol" style="font-size:12px">${E(a.rol)}</span></b><span class="gris" style="font-size:11px">${a.manual?'A mano · ':''}${E(sub)}</span></button>`;
+    for(const d of isos){const enVV=a.vd&&!a.ent&&a.vd<=d&&d<=a.vh,esR=a.remate===d,hoy=d===H;const ini=enVV&&(d===a.vd||d===isos[0]),fin=enVV&&(d===a.vh||d===isos[dim-1]);
+      let st=`height:${ALTO[tam]}px;min-width:0;display:flex;align-items:center;justify-content:center;`;
+      if(enVV)st+='background:var(--vv);'+(ini?'border-top-left-radius:6px;border-bottom-left-radius:6px;':'')+(fin?'border-top-right-radius:6px;border-bottom-right-radius:6px;':'');
+      if(hoy)st+='box-shadow:'+sh+(ia===lanes.length-1?',inset 0 -3px 0 '+negro+';border-bottom-left-radius:6px;border-bottom-right-radius:6px;':';');
+      let c='';if(esR){const s=g?28:24,mar=UI.sel===a.k;
+        c=`<button class="ico" data-acc="ficha" data-k="${a.k}" aria-label="Remate ${E(a.rol)} ${E(a.hora||'')}" style="width:${s}px;height:${s}px;${mar?'background:var(--cafe);color:#fff;':''}${a.rojo?'border-color:var(--rojo);'+(mar?'':'color:var(--rojo);'):''}${a.manual?'border-style:dashed;':''}">${SVG[a.mod](17)}</button>`;}
+      h+=`<div style="${st}">${c}</div>`;}
+    h+='</div>';});
+  if(!lanes.length)h+=`<div class="peq gris" style="padding:8px 0">Sin remates agendados este mes</div>`;
+  return h+'</section>';}
+
+function tablaCmp(c,tachar){return `<div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:15px;font-weight:800">${E(c.titulo)}</div><div class="peq gris">${E(c.caratula)}</div><div style="overflow-x:auto"><table class="cmp"><thead><tr><th scope="col">Dato</th><th scope="col">${E(c.antes)}</th><th scope="col">${E(c.despues)}</th></tr></thead><tbody>${c.filas.map(f=>`<tr><th scope="row">${E(f.campo)}</th><td style="color:var(--suave);${tachar?'text-decoration:line-through':''}">${E(f.a)}</td><td style="font-weight:700;${tachar?'color:var(--rojo)':''}">${E(f.b)}</td></tr>`).join('')}</tbody></table></div>${c.nota?`<div class="gris" style="font-size:12px">${E(c.nota)}</div>`:''}</div>`;}
+
+function renderCentro(){
+  let h=`<header class="cab"><div style="font-size:26px;font-weight:800">Agendar Remates</div><div class="ley">
+    <span style="color:var(--cafe)">${SVG.pres(16)}<span class="gris">Presencial</span></span><span style="color:var(--cafe)">${SVG.virt(16)}<span class="gris">Virtual</span></span>
+    <span><span style="width:16px;height:16px;border:2px solid var(--cafe);color:var(--cafe);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">?</span>Sin modalidad</span>
+    <span><span style="width:18px;height:18px;border:2px solid var(--rojo);border-radius:6px"></span>Fecha cambiada</span>
+    <span><span style="width:26px;height:10px;background:var(--vv);border-radius:3px"></span>Ventana del vale vista</span>
+    <span><span style="width:14px;height:18px;border:3px solid var(--negro);border-radius:4px"></span>Hoy</span>
+    <span style="color:var(--tinta);font-weight:600">Hoy, ${E(EST.hoy_txt.toLowerCase())}</span></div></header>`;
+  if(EST.franja_negra.length){const [t,...r]=EST.franja_negra;h+=`<section class="franja negra" role="alert"><div style="font-size:22px;font-weight:800">SIN SINCRONIZAR</div>${[t.replace('SIN SINCRONIZAR. ',''),...r].map(x=>`<div style="font-size:14px">${E(x)}</div>`).join('')}<div style="font-size:13px;color:#E8D5B5">El calendario puede no estar al día. Corre el programa para cargar las ediciones que faltan. Este aviso no se puede cerrar mientras falten.</div></section>`;}
+  if(EST.franja_ambar.length)h+=`<section class="franja ambar" role="status"><div style="font-size:15px;font-weight:800">EDICIONES CARGADAS PERO INCOMPLETAS</div>${EST.franja_ambar.map(x=>`<div style="font-size:13px">${E(x)}</div>`).join('')}</section>`;
+  if(EST.cambios.length)h+=`<section class="franja rojo" role="alert"><div class="fila"><div style="flex:1 1 400px;font-size:22px;font-weight:800">${E(EST.titulo_cambios)}</div><button class="btn" style="background:var(--papel);color:var(--rojo)" data-acc="detC">${UI.detC?'Ocultar detalles':'Revisar detalles'}</button></div>${UI.detC?`<div class="detalle">${EST.cambios.map(c=>tablaCmp(c,true)).join('')}<button class="btn" style="align-self:flex-start" data-acc="vistoC">Marcar como visto</button></div>`:''}</section>`;
+  if(EST.llamados.length)h+=`<section class="franja llam" role="status"><div class="fila"><div style="flex:1 1 400px"><div style="font-size:19px;font-weight:800">NUEVO LLAMADO EN UNA CAUSA AGENDADA</div><div class="peq" style="color:#5C4A39">Un remate que no se hizo vuelve a publicarse. Es un remate nuevo, con sus propias bases.</div></div><button class="btn" data-acc="detL">${UI.detL?'Ocultar detalles':'Revisar detalles'}</button></div>${UI.detL?`<div class="detalle">${EST.llamados.map(c=>tablaCmp(c,false)).join('')}<button class="btn" style="align-self:flex-start" data-acc="vistoL">Marcar como visto</button></div>`:''}</section>`;
+  h+=`<div class="nav"><button class="btn2" data-acc="mesAnt">◀ Mes anterior</button><button class="btn2" data-acc="mesHoy">Volver a hoy</button><button class="btn2" data-acc="mesSig">Mes siguiente ▶</button></div>`;
+  const hoy=new Date(EST.hoy+'T12:00'),ags=itemsCal();
+  [-1,0,1].forEach((d,i)=>{const t=new Date(hoy.getFullYear(),hoy.getMonth()+UI.off+d,1);h+=mes(t.getFullYear(),t.getMonth(),i===1?'grande':(i===0?'chico':'medio'),ags);});
+  document.getElementById('centro').innerHTML=h;}
+
+// --- Panel derecho (buscador, causa a mano y ficha) -----------------------------------------------------------------
+function tarjetaRes(it){return `<article class="tarjeta"><div class="rol" style="color:var(--cafe)">${E(it.rol)}${it.inmueble?` · ${E(it.inmueble)}`:""}</div><div class="car">${E(it.caratula)}</div><div class="peq gris">${E(it.tribunal)}</div>
+  <div class="peq"><span class="gris">Remate</span> ${E(it.remate_corto)} · ${E(it.mod_txt)}</div><div class="peq"><span class="gris">Vale vista</span> ${E(it.vv_txt)}</div>
+  <div class="peq"><span class="gris">Monto VV</span> ${E(it.monto)}${etiquetas(it)}</div>${ufHTML(it)}<div class="gris" style="font-size:11px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Ver aviso')}
+  ${it.en_calendario?'<div class="peq" style="font-weight:700;color:#3E6B2F;padding:8px 0">Ya está en tu calendario</div>':`<button class="btn" style="align-self:flex-start" data-acc="agendar" data-rid="${it.remate_id}">Agregar al calendario</button>`}</article>`;}
+function renderRes(){const c=document.getElementById('res');if(!c)return;if(!UI.res){c.innerHTML='<p class="peq gris">Buscando...</p>';return;}
+  const r=UI.res;c.innerHTML=`<div class="gris" style="font-size:12px">${r.total} resultados${r.total>r.mostrados?`, se muestran los primeros ${r.mostrados}. Usa los filtros para acotar.`:''}</div>`+r.resultados.map(tarjetaRes).join('');}
+async function buscar(){const f=UI.f;const q=new URLSearchParams({trib:f.trib,rol:f.rol,anio:f.anio,edicion:f.edicion,pasados:f.pasados?'1':'0'});
+  try{UI.res=await api('/api/buscar?'+q);renderRes();}catch(e){aviso(e.message);}}
+function renderPanel(){
+  const p=document.getElementById('panel');if(!UI.panel){p.classList.add('oculto');p.innerHTML='';return;}p.classList.remove('oculto');let h='';
+  if(UI.panel==='buscar'){const f=UI.f;
+    h=`<div class="fila"><h2 class="tit">Buscar remates</h2><button class="x44" data-acc="cerrar" aria-label="Cerrar buscador">✕</button></div>
+    <label class="lab">Corte<input class="campo" value="CA de Santiago" disabled style="background:var(--fondo);color:var(--suave)"></label>
+    <div style="display:grid;grid-template-columns:1.6fr 1fr .8fr;gap:8px"><label class="lab">Tribunal<input class="campo" data-filtro="trib" value="${E(f.trib)}"></label><label class="lab">Rol<input class="campo" data-filtro="rol" value="${E(f.rol)}"></label><label class="lab">Año<input class="campo" data-filtro="anio" value="${E(f.anio)}"></label></div>
+    <label class="lab">Edición<select class="campo" data-filtro="edicion"><option value="">Todas las ediciones</option>${EST.ediciones.map(e=>`<option value="${e}" ${f.edicion===e?'selected':''}>${E(EST.ediciones_txt[e])}</option>`).join('')}</select></label>
+    <label class="chk"><input type="checkbox" data-filtro="pasados" ${f.pasados?'checked':''}>Incluir remates que ya pasaron</label>
+    <button class="btn2" style="border-style:dashed;min-height:44px" data-acc="manual">+ Agregar una causa a mano</button><div id="res" style="display:flex;flex-direction:column;gap:12px"></div>`;}
+  else if(UI.panel==='manual'){const F=UI.form;const c=(n,t,lab,ph)=>`<label class="lab">${lab}<input class="campo" type="${t}" data-form="${n}" value="${E(F[n])}" ${ph?`placeholder="${E(ph)}"`:''}></label>`;
+    h=`<div class="fila"><h2 class="tit">Causa a mano</h2><button class="x44" data-acc="buscar" aria-label="Volver al buscador">←</button></div>
+    <div class="peq" style="color:#5C4A39">Para una causa que no salió en El Mercurio o que el programa no leyó. En el calendario queda marcada como agregada a mano.</div>
+    ${c('trib','text','Tribunal','Ej. 15° Juzgado Civil de Santiago')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${c('rol','text','Rol')}${c('anio','text','Año')}</div>${c('car','text','Carátula (opcional)')}
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:8px">${c('fecha','date','Fecha del remate')}${c('hora','time','Hora')}</div>
+    <label class="lab">Modalidad<select class="campo" data-form="mod">${[['pres','Presencial'],['virt','Virtual (Zoom o en línea)'],['nose','No lo sé']].map(([v,t])=>`<option value="${v}" ${F.mod===v?'selected':''}>${t}</option>`).join('')}</select></label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${c('vd','date','Vale vista desde')}${c('vh','date','Vale vista hasta')}</div>${c('monto','text','Monto del vale vista (opcional)','Ej. $7.500.000 o 98,5 UF')}
+    ${UI.err?`<div class="al rojo" style="font-size:13px">${E(UI.err)}</div>`:''}<button class="btn" style="align-self:flex-start" data-acc="guardarManual">Agregar al calendario</button>`;}
+  else if(UI.panel==='ficha'){const it=item(UI.ficha);if(!it){UI.panel=null;return renderPanel();}const k=clave(it);
+    h=`<div class="fila"><div style="display:flex;gap:10px;align-items:center;color:var(--cafe)">${SVG[it.mod](22)}<span class="rol" style="font-size:16px">${E(it.rol)}</span></div><button class="x44" data-acc="cerrar" aria-label="Cerrar ficha">✕</button></div>
+    <div><h2 style="margin:0;font-size:21px;font-weight:800;line-height:1.25">${E(it.caratula)}</h2><div class="gris" style="font-size:14px">${E(it.tribunal)}</div>
+    <div style="display:flex;gap:6px;margin-top:4px">${it.tipo==='manual'?'<span class="etq mano">AGREGADA A MANO</span>':''}${it.nuevo_llamado?'<span class="etq llamado">NUEVO LLAMADO</span>':''}</div></div>
+    <section class="caja"><h3>Remate</h3><div style="font-size:15px;font-weight:700">${E(it.remate_txt)}</div><div style="font-size:14px">${E(it.mod_txt)}</div><div style="font-size:14px;color:#5C4A39">${E(it.direccion)}</div></section>
+    <section class="caja"><h3>Dinero</h3><div style="font-size:14px"><span class="gris">Mínimo</span> ${E(it.minimo)}</div><div style="font-size:14px"><span class="gris">Garantía</span> ${E(it.garantia)}${etiquetas(it)}</div><div style="font-size:16px;font-weight:800">Vale vista por ${E(it.monto)}</div>${ufHTML(it)}</section>
+    <section class="caja"><div class="fila"><h3>Vale vista</h3><span class="chip ${it.vv_color}">${{verde:'Calculado',ambar:'Revisar',rojo:'Sin fecha'}[it.vv_color]}</span></div><div style="font-size:15px;font-weight:700">${E(it.vv_txt)}</div>${it.vv_regla?`<blockquote>“${E(it.vv_regla)}”</blockquote>`:''}
+    <label class="chk" style="font-size:14px"><input type="checkbox" data-acc="entregado" data-k="${k}" ${it.vv_entregado?'checked':''}>Vale vista entregado</label></section>
+    <section style="display:flex;flex-direction:column;gap:6px"><h3 style="margin:0;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)">Alertas del aviso</h3>${it.alertas.length?it.alertas.map(a=>`<div class="al ${a.clase}">${E(a.texto)}</div>`).join(''):'<div class="peq" style="color:#3E6B2F;font-weight:700">Sin alertas.</div>'}</section>
+    <div class="gris" style="font-size:12px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Cada aviso publicado')}
+    <div class="fila" style="justify-content:flex-start"><button class="btn2" style="color:var(--rojo);border-color:var(--rojo);min-height:44px" data-acc="quitar" data-k="${k}">Quitar del calendario</button></div>`;}
+  p.innerHTML=h;if(UI.panel==='buscar')renderRes();}
+function render(){renderIzq();renderCentro();renderPanel();}
+
+// --- Acciones ------------------------------------------------------------------------------------------------------
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-acc]');if(!b||b.type==='checkbox')return;const a=b.dataset.acc,k=b.dataset.k;
+  if(a==='buscar'){UI.panel='buscar';renderPanel();if(!UI.res)await buscar();}
+  else if(a==='cerrar'){UI.panel=null;renderPanel();}
+  else if(a==='manual'){UI.panel='manual';UI.err='';renderPanel();}
+  else if(a==='ficha'){UI.ficha=k;UI.sel=k;UI.panel='ficha';render();const c=document.getElementById('causa-'+k);if(c)c.scrollIntoView({block:'nearest',behavior:'smooth'});}
+  else if(a==='quitar'){const it=item(k);if(!it)return;if(UI.ficha===k)UI.panel=null;await hacer('/api/quitar',it.tipo==='manual'?{manual_id:it.manual_id}:{bien_id:it.bien_id});}
+  else if(a==='agendar'||a==='reagendar'){await hacer('/api/agendar',{remate_id:+b.dataset.rid});}
+  else if(a==='ignorarq'){await hacer('/api/ignorar_quitado',{bien_id:+b.dataset.bien});}
+  else if(a==='reemplazar'){await hacer('/api/reemplazar_manual',{manual_id:+b.dataset.man,remate_id:+b.dataset.rid});}
+  else if(a==='nopub'){await hacer('/api/ignorar_publicado',{manual_id:+b.dataset.man});}
+  else if(a==='detC'){UI.detC=!UI.detC;renderCentro();}else if(a==='detL'){UI.detL=!UI.detL;renderCentro();}
+  else if(a==='vistoC'){UI.detC=false;await hacer('/api/visto',{tipo:'cambios',bienes:EST.cambios.map(c=>c.bien_id)});}
+  else if(a==='vistoL'){UI.detL=false;await hacer('/api/visto',{tipo:'llamado',bienes:EST.llamados.map(c=>c.bien_id)});}
+  else if(a==='mesAnt'){UI.off--;renderCentro();}else if(a==='mesSig'){UI.off++;renderCentro();}else if(a==='mesHoy'){UI.off=0;renderCentro();}
+  else if(a==='guardarManual'){try{const r=await api('/api/manual',UI.form);UI.form=FORM0();UI.err='';UI.ficha='m'+r.manual_id;UI.sel=UI.ficha;UI.panel='ficha';await cargar();}catch(er){UI.err=er.message;renderPanel();}}
+});
+document.addEventListener('change',async e=>{const t=e.target;
+  if(t.dataset.acc==='entregado'){const it=item(t.dataset.k);if(it)await hacer('/api/marcar',{campo:'vv_entregado',valor:t.checked,...(it.tipo==='manual'?{manual_id:it.manual_id}:{bien_id:it.bien_id})});}
+  else if(t.dataset.filtro==='edicion'||t.dataset.filtro==='pasados'){UI.f[t.dataset.filtro]=t.type==='checkbox'?t.checked:t.value;await buscar();}
+  else if(t.dataset.form==='mod'){UI.form.mod=t.value;}});
+let espera=null;
+document.addEventListener('input',e=>{const t=e.target;
+  if(t.dataset.filtro&&t.dataset.filtro!=='edicion'&&t.dataset.filtro!=='pasados'){UI.f[t.dataset.filtro]=t.value;clearTimeout(espera);espera=setTimeout(buscar,250);}
+  else if('ufIn' in t.dataset){UI.uf=t.value;document.querySelectorAll('[data-uf-in]').forEach(x=>{if(x!==t)x.value=t.value;});document.querySelectorAll('[data-uf]').forEach(x=>{x.textContent=ufCalc(+x.dataset.uf,x.dataset.uftxt);});}
+  else if(t.dataset.form){UI.form[t.dataset.form]=t.value;}});
+cargar();
+setInterval(()=>{if(document.visibilityState==='visible'&&!UI.panel)cargar();},5*60*1000);   // por si se cargó una edición con la página abierta
+</script>
+</body>
+</html>

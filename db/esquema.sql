@@ -182,6 +182,35 @@ CREATE TABLE IF NOT EXISTS agenda (
   notas           TEXT
 );
 
+-- 6b. CAUSAS AGREGADAS A MANO (18 de Octubre, decisión de Diego). No vienen del diario, por eso van aparte de agenda.
+-- Si después la causa sale publicada, la interfaz lo avisa y ofrece cambiarla por la del diario. publicado_ignorado = 1
+-- cuando Diego dijo que no.
+CREATE TABLE IF NOT EXISTS agenda_manual (
+  id                 INTEGER PRIMARY KEY,
+  tribunal           TEXT,
+  rol                TEXT,
+  anio               TEXT,
+  caratula           TEXT,
+  fecha_remate       TEXT NOT NULL,                  -- AAAA-MM-DD
+  hora_remate        TEXT,
+  modalidad          TEXT NOT NULL DEFAULT 'sin_dato' CHECK (modalidad IN ('zoom','presencial','sin_dato')),
+  vv_desde           TEXT,
+  vv_hasta           TEXT,
+  monto_vv           TEXT,                           -- tal como lo escribió Diego
+  agregado_en        TEXT NOT NULL,
+  vv_entregado       INTEGER NOT NULL DEFAULT 0 CHECK (vv_entregado IN (0,1)),
+  remate_asistido    INTEGER NOT NULL DEFAULT 0 CHECK (remate_asistido IN (0,1)),
+  publicado_ignorado INTEGER NOT NULL DEFAULT 0 CHECK (publicado_ignorado IN (0,1))
+);
+
+-- 6c. CAUSAS QUITADAS CON LA X (18 de Octubre). Para avisar si la propiedad vuelve con un NUEVO LLAMADO.
+-- ultima_edicion es la publicación más nueva de la propiedad cuando se quitó (o cuando Diego ignoró el aviso).
+CREATE TABLE IF NOT EXISTS agenda_quitados (
+  bien_id         INTEGER PRIMARY KEY REFERENCES bienes(id),
+  quitado_en      TEXT NOT NULL,
+  ultima_edicion  TEXT NOT NULL
+);
+
 -- 7. FERIADOS. Para calcular reglas como "el viernes anterior, o el día hábil anterior si es feriado".
 CREATE TABLE IF NOT EXISTS feriados (
   fecha   TEXT PRIMARY KEY,                         -- AAAA-MM-DD
