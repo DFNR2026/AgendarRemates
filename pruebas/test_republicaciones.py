@@ -68,6 +68,24 @@ revisar("los textos de pendiente de la vista son los de db\\carga.py", VV_NO_LEI
 # Correr de nuevo no duplica. Una posible republicación se avisa (caso armado moviendo un remate a otro bien).
 RP.registrar_cambios(con, "2026-10-11", "x")
 revisar("registrar los cambios dos veces no duplica", con.execute(QC).fetchall() == ESPERADOS)
+# Costumbre del tribunal en la garantía (18 de Octubre, aprobado por Diego). En las 7 ediciones del banco el 21° Civil pide 20%
+# en todas sus propiedades que lo dicen. El 06-10 aviso 73 (rol 8679-2024, dos departamentos) imprime "al 20 del mínimo"
+# sin el signo %. Desde el arreglo del porcentaje sin signo se lee 20% y ya no hay ninguna alerta de costumbre en las 7.
+# Para probar la alerta se le borra el porcentaje a ese aviso en la base de prueba, como estaba antes del arreglo.
+QK = ("SELECT e.fecha, a.orden, x.sub_orden, x.texto FROM alertas x JOIN avisos a ON a.id = x.aviso_id JOIN ediciones e ON e.id = a.edicion_id "
+      "WHERE x.texto LIKE 'Costumbre del tribunal.%' ORDER BY 1, 2, 3")
+revisar("costumbre. ninguna alerta en las 7 ediciones con la lectura actual", con.execute(QK).fetchall() == [], str(con.execute(QK).fetchall())[:300])
+with con:
+    con.execute("UPDATE remates SET garantia_porcentaje = NULL, garantia_base = 'sin_dato' WHERE aviso_id IN "
+                "(SELECT a.id FROM avisos a JOIN ediciones e ON e.id = a.edicion_id WHERE e.fecha = '2026-10-06' AND a.orden = 73)")
+RP.alertas_costumbre(con)
+ck = con.execute(QK).fetchall()
+revisar("costumbre. alerta solo en los dos remates del 06-10 aviso 73 (21° Civil, 20 sin el signo %)",
+        [(f, o, s) for f, o, s, _ in ck] == [("2026-10-06", 73, 1), ("2026-10-06", 73, 2)], str(ck)[:400])
+revisar("costumbre. el texto dice el porcentaje y la cuenta del tribunal",
+        bool(ck) and ck[0][3].startswith("Costumbre del tribunal. El 21° Juzgado Civil de Santiago pidió garantía del 20% en ") and "Este aviso no dice el porcentaje." in ck[0][3], ck[0][3] if ck else "")
+RP.alertas_costumbre(con)
+revisar("costumbre. rehacerla no duplica", con.execute(QK).fetchall() == ck)
 rid = uno("SELECT r.id FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN ediciones e ON e.id = a.edicion_id WHERE e.fecha = '2026-10-14' AND a.orden = 1")
 con.execute("INSERT INTO bienes(clave, creado_en) VALUES ('prueba', 'x')"); con.execute("UPDATE remates SET bien_id = last_insert_rowid() WHERE id = ?", (rid,)); con.commit()
 rp = RP.registrar_cambios(con, "2026-10-14", "x")

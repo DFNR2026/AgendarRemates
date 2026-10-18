@@ -154,6 +154,60 @@ def registrar_cambios(con, fecha: str, ahora: str) -> dict:
     return res
 
 
+# --- Costumbre del tribunal en la garantía (18 de Octubre, aprobado por Diego) -----------------------------------
+# Un abogado le contó a Diego que el 21° Civil pide el 20% y no el 10%. En las 10 ediciones de la marcha blanca 23 de sus
+# 25 propiedades lo dicen, y el 06-10 rol 8679-2024 imprime "al 20 del mínimo" sin el signo %, así que caía en sin dato.
+# La historia del tribunal solo ALARMA, nunca decide (regla del proyecto). Se cuentan propiedades distintas, con el porcentaje
+# de su publicación más nueva que lo diga, sin contar la propia. Hace falta un mínimo de propiedades y una mayoría clara.
+COSTUMBRE = "Costumbre del tribunal. "
+COSTUMBRE_MIN_PROPIEDADES = 5
+COSTUMBRE_MIN_PROPORCION = 0.8
+
+
+def alertas_costumbre(con) -> dict:
+    """Rehace en toda la base la alerta de costumbre del tribunal en la garantía. Salta cuando el aviso no dice el porcentaje
+    (ni un monto fijo) y el tribunal suele pedir otro que no es el 10%, o cuando el aviso dice un porcentaje distinto al
+    que el tribunal suele pedir."""
+    from collections import Counter
+    res = {"alertas": 0}
+    with con:
+        con.execute("DELETE FROM alertas WHERE tipo = 'condicion_especial' AND origen = 'codigo' AND texto LIKE ?", (COSTUMBRE + "%",))
+        filas = con.execute("SELECT r.id, r.bien_id, a.id, r.sub_orden, a.tribunal, r.garantia_porcentaje, r.garantia_monto, e.fecha "
+                            "FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN ediciones e ON e.id = a.edicion_id "
+                            "WHERE a.filtro_estado <> 'descartado' AND a.tribunal IS NOT NULL AND r.bien_id IS NOT NULL "
+                            "ORDER BY e.fecha, r.id").fetchall()
+        dicho = {}
+        for _, bien, _, _, trib, pct, _, _ in filas:
+            if pct is not None:
+                dicho[(trib, bien)] = float(pct)          # queda el de la publicación más nueva que lo dice
+        hist = {}
+        for (trib, _), pct in dicho.items():
+            hist.setdefault(trib, Counter())[pct] += 1
+        for _, bien, aviso_id, sub, trib, pct, monto, _ in filas:
+            cuenta = Counter(hist.get(trib) or {})
+            propio = dicho.get((trib, bien))
+            if propio is not None:
+                cuenta[propio] -= 1
+            total = sum(cuenta.values())
+            if total < COSTUMBRE_MIN_PROPIEDADES:
+                continue
+            dom, veces = cuenta.most_common(1)[0]
+            if veces / total < COSTUMBRE_MIN_PROPORCION:
+                continue
+            if pct is None and monto is None and dom != 10:
+                fin = "Este aviso no dice el porcentaje."
+            elif pct is not None and float(pct) != dom:
+                fin = f"Este aviso dice {float(pct):g}%."
+            else:
+                continue
+            texto = (f"{COSTUMBRE}El {trib} pidió garantía del {dom:g}% en {veces} de {total} propiedades. {fin} "
+                     "Revisa el aviso antes de sacar el vale vista.")
+            con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, cita, origen) VALUES (?,?,?,?,?,?)",
+                        (aviso_id, sub, "condicion_especial", texto, None, "codigo"))
+            res["alertas"] += 1
+    return res
+
+
 def texto_cambio(campo: str, anterior, nuevo, fecha_anterior: str) -> str:
     """Cómo se le muestra un cambio a Diego. Ejemplo. 'Cambió la fecha del remate respecto de la publicación del 6 de
     Octubre de 2026. Antes 20 de Octubre de 2025, ahora 20 de Octubre de 2026.'"""

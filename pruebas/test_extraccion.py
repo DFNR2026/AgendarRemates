@@ -151,6 +151,30 @@ _peg = ("REMATE: 2° JUZGADO DE LETRAS de Buin subastará el 4 de noviembre de 2
 if not extraer(_peg, "2026-10-16")["pegado"]:
     fallas.append("el pegado real de Buin con Viña del Mar dejó de marcarse")
 print("dos fechas. 09-10 rol 22836-2024 sin falsa alarma", bool(_x) and not _x[0]["pegado"], "| pegado real de Buin con Viña del Mar marcado", extraer(_peg, "2026-10-16")["pegado"])
+# Modalidad (18 de Octubre, aprobado por Diego). Una comparación hipotética no hace mixto un remate por Zoom (17-10, rol 435-2024).
+# Un remate que de verdad ofrece las dos formas sigue mixto (16-10, Cobranza de Concepción, rol 770-2014).
+from motor.extraccion import modalidad
+CASOS_MODALIDAD = {
+    "El remate decretado precedentemente se realizará mediante la plataforma virtual ‘zoom’, debiendo contar las partes con computador. "
+    "Se insta a las partes a comparecer puntualmente a la hora señalada en la presente resolución, en los mismos términos que si esta "
+    "se hiciere de forma presencial en dependencias del tribunal, bajo apercibimiento de realizarse la diligencia solo con quienes asistan.": "zoom",
+    "Ingenieria y Servicios Mecanicos Ltda., vía plataforma Zoom o en forma presencial, 11/11/2026, 10:00 horas, Rematará inmueble": "mixta",
+}
+for texto, esperado in CASOS_MODALIDAD.items():
+    obtenido = modalidad(texto)["modalidad"]["valor"]
+    if obtenido != esperado:
+        fallas.append(f"modalidad. '{texto[:50]}' dio {obtenido} y debía dar {esperado}")
+print(f"casos fijos de modalidad {len(CASOS_MODALIDAD)}")
+# Garantía con el porcentaje impreso sin el signo % (18 de Octubre, aprobado por Diego). Caso inventado, porque el real es del
+# banco de validación (06-10 rol 8679-2024, "garantía equivalente al 20 del mínimo"). Con signo se sigue leyendo igual.
+from motor.extraccion import garantia
+_g = garantia("los postores deberán constituir garantía equivalente al 15 del mínimo fijado, mediante vale vista endosable a la orden del Tribunal.")
+if not (_g["garantia"]["porcentaje"] == 15 and _g["garantia"]["base"] == "minimo" and any(t == "error_escritura" for t, _ in _g["alertas"])):
+    fallas.append(f"garantía sin signo %. dio {_g}")
+_g2 = garantia("deberán rendir garantía por el 10% del mínimo, mediante vale vista. Plazo de 15 días.")
+if not (_g2["garantia"]["porcentaje"] == 10 and not any(t == "error_escritura" for t, _ in _g2["alertas"])):
+    fallas.append(f"garantía con signo %. dio {_g2}")
+print("garantía sin signo %", _g["garantia"]["porcentaje"], [t for t, _ in _g["alertas"]])
 for c, n in aciertos.items():
     print(f"{c:12} aciertos {n} de {len(banco)} (mínimo {MINIMOS[c]})")
     if n < MINIMOS[c]: fallas.append(f"{c} bajó a {n} aciertos")

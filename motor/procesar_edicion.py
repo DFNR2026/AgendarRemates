@@ -445,6 +445,7 @@ def cargar_edicion(con, fecha: str, ahora: str, carpeta: Path | None = None, cli
     if dr is not None:
         res["direccion"] = dr
     res["cambios"] = RP.registrar_cambios(con, fecha, ahora)        # parte 4, cambios entre publicaciones
+    res["costumbre"] = RP.alertas_costumbre(con)                     # costumbre del tribunal en la garantía (18 de Octubre)
     return res
 
 
@@ -484,6 +485,8 @@ if __name__ == "__main__":
         print("Dirección.", retomar_direccion(con, fecha, cliente))      # parte 3.7b
         from motor.republicaciones import registrar_cambios
         print("Cambios.", registrar_cambios(con, fecha, dt.datetime.now().isoformat(timespec="seconds")))   # parte 4
+        from motor.republicaciones import alertas_costumbre
+        print("Costumbre del tribunal.", alertas_costumbre(con))      # 18 de Octubre
         raise SystemExit(0)
     usar_ia = "--sin-ia" not in sys.argv
     cliente, motivo = cliente_o_nada() if usar_ia and not solo_guardadas else (None, None)

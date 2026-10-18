@@ -228,6 +228,7 @@ def minimo_y_costas(texto: str) -> dict:
 # --- Etapa 3. Garantía --------------------------------------------------------------------------------------
 _GARANTIA = re.compile(r"garant[ií]a|cauci[oó]n|vale\s+(?:a\s+la\s+)?vista|consignar", re.I)
 _PORC = re.compile(r"(?:un\s+)?(\d{1,2}(?:,\d+)?)\s?%", re.I)
+_PORC_SIN_SIGNO = re.compile(r"(?:\bal|\bel|\bpor\s+el|\bequivalente\s+al)\s+(\d{1,2})\s+del?\s+(?:(?:precio|valor|monto)\s+)?(m[ií]nimo|tasaci[oó]n)", re.I)
 _MONTO_FIJO = re.compile(rf"(?:garant[ií]a|cauci[oó]n)[^.$%]{{0,40}}?{_PESOS}|ascendente\s+a\s+{_PESOS}", re.I)
 
 
@@ -244,6 +245,20 @@ def garantia(texto: str) -> dict:
         if any(a - 80 <= p.start() <= a + 300 for a in anclas):
             porcentajes.append(p)
     g = {"porcentaje": None, "base": "sin_dato", "base_origen": None, "monto": None, "moneda": None, "cita": None}
+    # Porcentaje impreso sin el signo % ("garantía equivalente al 20 del mínimo", 06-10 rol 8679-2024 del 21° Civil).
+    # Solo si no hay ningún porcentaje con signo cerca de la garantía. Aprobado por Diego el 18 de Octubre.
+    sin_signo = None
+    if not porcentajes:
+        for q in _PORC_SIN_SIGNO.finditer(texto):
+            if any(a - 80 <= q.start() <= a + 300 for a in anclas):
+                sin_signo = q
+                break
+    if sin_signo:
+        g["porcentaje"] = int(sin_signo.group(1))
+        g["base"] = "tasacion" if sin_signo.group(2).lower().startswith("tasaci") else "minimo"
+        g["base_origen"] = "texto"
+        g["cita"] = sin_signo.group(0)
+        alertas.append(("error_escritura", f"El aviso escribe la garantía sin el signo % (\u201c{sin_signo.group(0)}\u201d). Se leyó como {g['porcentaje']}%."))
     if porcentajes:
         p = porcentajes[0]
         g["porcentaje"] = float(p.group(1).replace(",", "."))
@@ -294,9 +309,16 @@ _MIXTA = re.compile(r"(?:zoom|video[\s-]?conferencia|meet|vendaya)[^.]{0,30}?\b(
                     r"|presencial(?:mente)?[^.]{0,30}?\b(?:o|y)\s+(?:v[ií]a\s+)?(?:zoom|video[\s-]?conferencia)", re.I)
 
 
+# Comparación hipotética, no es la modalidad. "en los mismos términos que si esta se hiciere de forma presencial" (20° Civil,
+# remate por Zoom, 17-10 rol 20089-2024 y 435-2024). Aprobado por Diego el 18 de Octubre.
+_HIPOTESIS = re.compile(r"\b(?:que|como)\s+si\s+(?:\w+\s+){0,3}$", re.I)
+
+
 def _presencial(texto):
     for m in _PRESENCIAL.finditer(texto):
         alrededor = texto[max(0, m.start() - 120):m.start()] + texto[m.end():m.end() + 30]
+        if _HIPOTESIS.search(texto[max(0, m.start() - 60):m.start()]):
+            continue
         if not _NO_ES_REMATE.search(alrededor) and not _NO_ES_REMATE.search(m.group(0)):
             return m
     return None
