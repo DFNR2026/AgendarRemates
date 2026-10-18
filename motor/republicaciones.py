@@ -123,11 +123,15 @@ def registrar_cambios(con, fecha: str, ahora: str) -> dict:
         for f in [x for x in (fecha, sig) if x]:
             nuevos = con.execute(_Q + "AND e.fecha = ?", (f,)).fetchall()
             ids = [x[0] for x in nuevos]
-            ya_avisados = set()
+            ya_avisados, vistos = set(), set()
             if ids:
                 marcas = ','.join('?' * len(ids))
                 ya_avisados = {tuple(x) for x in con.execute(
                     f"SELECT bien_id, remate_nuevo FROM cambios WHERE campo = 'nuevo_llamado' AND remate_nuevo IN ({marcas})", ids)}
+                # Lo que Diego ya marcó como visto se conserva al rehacer, si el cambio es el mismo (aprobado el 18 de Octubre).
+                vistos = {tuple(x) for x in con.execute(
+                    f"SELECT bien_id, remate_anterior, remate_nuevo, campo, valor_anterior, valor_nuevo FROM cambios "
+                    f"WHERE visto = 1 AND remate_nuevo IN ({marcas})", ids)}
                 con.execute(f"DELETE FROM cambios WHERE remate_nuevo IN ({marcas})", ids)
             for n in nuevos:
                 ant = con.execute(_Q + "AND r.bien_id = ? AND e.fecha < ? ORDER BY e.fecha DESC, r.id DESC LIMIT 1", (n[1], f)).fetchone()
@@ -138,8 +142,9 @@ def registrar_cambios(con, fecha: str, ahora: str) -> dict:
                     # Decisión de Diego del 18 de Octubre. Un nuevo llamado es un remate nuevo con sus propias bases. No se compara
                     # dato por dato con el llamado anterior. Se anota una sola vez y, si la propiedad está en la agenda, el vale
                     # vista entregado y el remate asistido vuelven a cero (solo la primera vez que se detecta, así retomar no los borra).
-                    con.execute("INSERT INTO cambios(bien_id, remate_anterior, remate_nuevo, campo, valor_anterior, valor_nuevo, detectado_en) "
-                                "VALUES (?,?,?,?,?,?,?)", (n[1], ant[0], n[0], "nuevo_llamado", ant[3], n[3], ahora))
+                    fila = (n[1], ant[0], n[0], "nuevo_llamado", ant[3], n[3])
+                    con.execute("INSERT INTO cambios(bien_id, remate_anterior, remate_nuevo, campo, valor_anterior, valor_nuevo, detectado_en, visto) "
+                                "VALUES (?,?,?,?,?,?,?,?)", fila + (ahora, int(fila in vistos)))
                     res["nuevos_llamados"] = res.get("nuevos_llamados", 0) + 1
                     if (n[1], n[0]) not in ya_avisados:
                         con.execute("UPDATE agenda SET vv_entregado = 0, remate_asistido = 0 WHERE bien_id = ?", (n[1],))
@@ -153,8 +158,9 @@ def registrar_cambios(con, fecha: str, ahora: str) -> dict:
                     # Si quitando espacios y puntuación una contiene a la otra, es la misma dirección.
                     if campo == "direccion" and (clave(va) in clave(vn) or clave(vn) in clave(va)):
                         continue
-                    con.execute("INSERT INTO cambios(bien_id, remate_anterior, remate_nuevo, campo, valor_anterior, valor_nuevo, detectado_en) "
-                                "VALUES (?,?,?,?,?,?,?)", (n[1], ant[0], n[0], campo, str(va), str(vn), ahora))
+                    fila = (n[1], ant[0], n[0], campo, str(va), str(vn))
+                    con.execute("INSERT INTO cambios(bien_id, remate_anterior, remate_nuevo, campo, valor_anterior, valor_nuevo, detectado_en, visto) "
+                                "VALUES (?,?,?,?,?,?,?,?)", fila + (ahora, int(fila in vistos)))
                     res["cambios"] += 1; res["por_campo"][campo] = res["por_campo"].get(campo, 0) + 1
             # Posible republicación. El mismo texto (solo letras y números) de otro día quedó en otra propiedad.
             avisos_f = con.execute("SELECT a.id, a.texto, GROUP_CONCAT(r.bien_id) FROM avisos a JOIN ediciones e ON e.id = a.edicion_id "

@@ -69,6 +69,15 @@ revisar("los textos de pendiente de la vista son los de db\\carga.py", VV_NO_LEI
 # Correr de nuevo no duplica. Una posible republicación se avisa (caso armado moviendo un remate a otro bien).
 RP.registrar_cambios(con, "2026-10-11", "x")
 revisar("registrar los cambios dos veces no duplica", con.execute(QC).fetchall() == ESPERADOS)
+# El visto se conserva al rehacer los cambios de una edición (18 de Octubre, aprobado por Diego). Antes volvía a 0.
+with con:
+    con.execute("UPDATE cambios SET visto = 1 WHERE campo IN ('fecha_remate', 'nuevo_llamado')")
+nv = uno("SELECT COUNT(*) FROM cambios WHERE visto = 1")
+RP.registrar_cambios(con, "2026-10-09", "y"); RP.registrar_cambios(con, "2026-10-11", "y")
+revisar("visto. rehacer los cambios conserva lo que Diego marcó como visto", uno("SELECT COUNT(*) FROM cambios WHERE visto = 1") == nv == 5
+        and con.execute(QC).fetchall() == ESPERADOS, str(nv))
+with con:
+    con.execute("UPDATE cambios SET visto = 0")
 # Nuevo llamado (18 de Octubre, decisión de Diego). Texto, vuelta a cero de la agenda una sola vez, y el calendario no toma
 # datos del llamado anterior.
 revisar("nuevo llamado. texto para Diego", RP.texto_cambio("nuevo_llamado", "2026-09-16", "2026-10-23", "2026-09-01")
