@@ -29,13 +29,14 @@ uno = lambda sql, *p: con.execute(sql, p).fetchone()[0]
 QC = ("SELECT b.clave, e1.fecha, e2.fecha, k.campo, k.valor_anterior, k.valor_nuevo FROM cambios k JOIN bienes b ON b.id = k.bien_id "
       "JOIN remates r1 ON r1.id = k.remate_anterior JOIN avisos a1 ON a1.id = r1.aviso_id JOIN ediciones e1 ON e1.id = a1.edicion_id "
       "JOIN remates r2 ON r2.id = k.remate_nuevo JOIN avisos a2 ON a2.id = r2.aviso_id JOIN ediciones e2 ON e2.id = a2.edicion_id ORDER BY 1, 4")
+# 18 de Octubre (decisión de Diego). El 3° Familia C-9854-2025 es un NUEVO LLAMADO (el remate del 16 de Septiembre no se hizo
+# y vuelve a publicarse para el 23 de Octubre). Ya no se compara dato por dato (antes eran 2 cambios, fecha y mínimo).
 ESPERADOS = sorted([
-    ("9854-2025|3 juzgado de familia de santiago", "2026-09-01", "2026-10-09", "fecha_remate", "2026-09-16", "2026-10-23"),
-    ("9854-2025|3 juzgado de familia de santiago", "2026-09-01", "2026-10-09", "minimo", "84185608.0 CLP", "86542822.0 CLP"),
+    ("9854-2025|3 juzgado de familia de santiago", "2026-09-01", "2026-10-09", "nuevo_llamado", "2026-09-16", "2026-10-23"),
 ] + [(f"20712-2024|12 juzgado civil de santiago|lote {k}", "2026-10-06", "2026-10-11", "fecha_remate", "2025-10-20", "2026-10-20") for k in (1, 2, 3, 4)],
     key=lambda x: (x[0], x[3]))
 cambios = con.execute(QC).fetchall()
-revisar("los 6 cambios reales y ningún otro (3° Familia fecha y mínimo, 4 lotes del 12° Civil de 2025 a 2026)", cambios == ESPERADOS, str(cambios)[:300])
+revisar("los 5 cambios reales y ningún otro (nuevo llamado del 3° Familia, 4 lotes del 12° Civil de 2025 a 2026)", cambios == ESPERADOS, str(cambios)[:300])
 revisar("ningún cambio de vacío a valor ni de valor a vacío", uno("SELECT COUNT(*) FROM cambios WHERE valor_anterior IS NULL OR valor_nuevo IS NULL") == 0)
 revisar("texto del cambio con el mes en palabras", RP.texto_cambio("fecha_remate", "2025-10-20", "2026-10-20", "2026-10-06")
         == "Cambió la fecha del remate respecto de la publicación del 6 de Octubre de 2026. Antes 20 de Octubre de 2025, ahora 20 de Octubre de 2026.")
@@ -68,6 +69,36 @@ revisar("los textos de pendiente de la vista son los de db\\carga.py", VV_NO_LEI
 # Correr de nuevo no duplica. Una posible republicación se avisa (caso armado moviendo un remate a otro bien).
 RP.registrar_cambios(con, "2026-10-11", "x")
 revisar("registrar los cambios dos veces no duplica", con.execute(QC).fetchall() == ESPERADOS)
+# Nuevo llamado (18 de Octubre, decisión de Diego). Texto, vuelta a cero de la agenda una sola vez, y el calendario no toma
+# datos del llamado anterior.
+revisar("nuevo llamado. texto para Diego", RP.texto_cambio("nuevo_llamado", "2026-09-16", "2026-10-23", "2026-09-01")
+        == "Nuevo llamado. El remate anterior de esta propiedad era el 16 de Septiembre de 2026 (aviso del 1 de Septiembre de 2026) y no se hizo. Este aviso es un remate nuevo, con sus propias bases.")
+b9854 = uno("SELECT b.id FROM bienes b JOIN causas c ON c.id = b.causa_id WHERE c.rol = '9854' AND c.anio = '2025'")
+r01, r09, r10 = [uno("SELECT r.id FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN ediciones e ON e.id = a.edicion_id WHERE r.bien_id = ? AND e.fecha = ?", b9854, f)
+                 for f in ("2026-09-01", "2026-10-09", "2026-10-10")]
+with con:
+    con.execute("INSERT INTO agenda(bien_id, remate_base_id, agregado_en, vv_entregado, remate_asistido) VALUES (?, ?, 'x', 1, 1)", (b9854, r01))
+RP.registrar_cambios(con, "2026-10-09", "x")
+revisar("nuevo llamado. retomar no borra lo que Diego marcó después", con.execute("SELECT vv_entregado, remate_asistido FROM agenda WHERE bien_id = ?", (b9854,)).fetchone() == (1, 1))
+with con:
+    con.execute("DELETE FROM cambios WHERE campo = 'nuevo_llamado' AND bien_id = ?", (b9854,))
+RP.registrar_cambios(con, "2026-10-09", "x")
+revisar("nuevo llamado. al detectarlo por primera vez, vale vista entregado y remate asistido vuelven a cero",
+        con.execute("SELECT vv_entregado, remate_asistido FROM agenda WHERE bien_id = ?", (b9854,)).fetchone() == (0, 0))
+revisar("nuevo llamado. sigue siendo uno solo", con.execute(QC).fetchall() == ESPERADOS)
+a10 = uno("SELECT aviso_id FROM remates WHERE id = ?", r10)
+with con:
+    con.execute("UPDATE remates SET vv_hasta = '2026-09-15 14:00', vv_estado = 'calculado' WHERE id = ?", (r01,))
+    con.execute("UPDATE remates SET vv_hasta = NULL WHERE id IN (?, ?)", (r09, r10))
+    con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, origen) VALUES (?, 0, 'dato_faltante', ?, 'codigo')", (a10, VV_NO_LEIDO))
+cal = con.execute("SELECT vv_hasta, vv_de_publicacion FROM v_calendario WHERE bien_id = ?", (b9854,)).fetchone()
+revisar("nuevo llamado. con el vale vista pendiente, el calendario NO toma el del llamado anterior", cal == (None, None), str(cal))
+with con:
+    con.execute("UPDATE remates SET vv_hasta = '2026-10-22 14:00' WHERE id = ?", (r09,))
+cal = con.execute("SELECT vv_hasta, vv_de_publicacion FROM v_calendario WHERE bien_id = ?", (b9854,)).fetchone()
+revisar("nuevo llamado. sí toma una publicación anterior del mismo llamado", cal == ("2026-10-22 14:00", "2026-10-09"), str(cal))
+with con:
+    con.execute("DELETE FROM agenda WHERE bien_id = ?", (b9854,))
 # Costumbre del tribunal en la garantía (18 de Octubre, aprobado por Diego). En las 7 ediciones del banco el 21° Civil pide 20%
 # en todas sus propiedades que lo dicen. El 06-10 aviso 73 (rol 8679-2024, dos departamentos) imprime "al 20 del mínimo"
 # sin el signo %. Desde el arreglo del porcentaje sin signo se lee 20% y ya no hay ninguna alerta de costumbre en las 7.

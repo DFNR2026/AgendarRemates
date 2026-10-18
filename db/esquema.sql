@@ -237,6 +237,7 @@ CREATE VIEW v_calendario AS
   -- Parte 4 (17 de Octubre, pedido de Diego). Si en la publicación más nueva el vale vista o la dirección quedaron PENDIENTES
   -- de la IA (alerta de no leído), el calendario sigue mostrando el dato de la publicación anterior, con su fecha en
   -- vv_de_publicacion o direccion_de_publicacion. Los textos de esas alertas son los de db\carga.py (VV_NO_LEIDO y DIR_NO_LEIDA).
+  -- 18 de Octubre (decisión de Diego). Solo se toma una publicación anterior del MISMO llamado. Un nuevo llamado tiene sus propias bases.
   SELECT g.id AS agenda_id, g.bien_id, b.inmueble, a.rol, a.anio, a.tribunal,
          (SELECT c.valor FROM citas c WHERE c.aviso_id = a.id AND c.campo = 'caratulado' ORDER BY c.sub_orden, c.n_cita LIMIT 1) AS caratula,   -- parte 3.7c
          e.fecha AS edicion_vigente, r.id AS remate_id, a.id AS aviso_id, a.orden,
@@ -270,14 +271,14 @@ CREATE VIEW v_calendario AS
                                                     AND x.texto = 'El programa todavía no lee la regla del vale vista de este aviso. Revísala en el aviso.')
                                        THEN (SELECT r3.id FROM remates r3 JOIN avisos a3 ON a3.id = r3.aviso_id JOIN ediciones e3 ON e3.id = a3.edicion_id
                                              WHERE r3.bien_id = g.bien_id AND a3.filtro_estado <> 'descartado' AND e3.fecha < e.fecha
-                                             AND r3.vv_hasta IS NOT NULL ORDER BY e3.fecha DESC, r3.id DESC LIMIT 1) END
+                                             AND r3.vv_hasta IS NOT NULL AND NOT EXISTS (SELECT 1 FROM cambios kl JOIN remates rl ON rl.id = kl.remate_nuevo JOIN avisos al ON al.id = rl.aviso_id JOIN ediciones el ON el.id = al.edicion_id WHERE kl.bien_id = g.bien_id AND kl.campo = 'nuevo_llamado' AND el.fecha > e3.fecha AND el.fecha <= e.fecha) ORDER BY e3.fecha DESC, r3.id DESC LIMIT 1) END
   LEFT JOIN avisos av ON av.id = rv.aviso_id
   LEFT JOIN ediciones ev ON ev.id = av.edicion_id
   LEFT JOIN remates rd ON rd.id = CASE WHEN EXISTS (SELECT 1 FROM alertas x WHERE x.aviso_id = a.id AND x.sub_orden IN (0, r.sub_orden)
                                                     AND x.texto = 'El programa todavía no lee la dirección de este aviso. Revísala en el aviso.')
                                        THEN (SELECT r3.id FROM remates r3 JOIN avisos a3 ON a3.id = r3.aviso_id JOIN ediciones e3 ON e3.id = a3.edicion_id
                                              WHERE r3.bien_id = g.bien_id AND a3.filtro_estado <> 'descartado' AND e3.fecha < e.fecha
-                                             AND r3.direccion IS NOT NULL ORDER BY e3.fecha DESC, r3.id DESC LIMIT 1) END
+                                             AND r3.direccion IS NOT NULL AND NOT EXISTS (SELECT 1 FROM cambios kl JOIN remates rl ON rl.id = kl.remate_nuevo JOIN avisos al ON al.id = rl.aviso_id JOIN ediciones el ON el.id = al.edicion_id WHERE kl.bien_id = g.bien_id AND kl.campo = 'nuevo_llamado' AND el.fecha > e3.fecha AND el.fecha <= e.fecha) ORDER BY e3.fecha DESC, r3.id DESC LIMIT 1) END
   LEFT JOIN avisos ad ON ad.id = rd.aviso_id
   LEFT JOIN ediciones ed ON ed.id = ad.edicion_id
   LEFT JOIN paginas pi ON pi.id = a.pagina_inicio_id

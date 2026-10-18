@@ -104,6 +104,15 @@ def _legible(campo, v):
     return str(v)
 
 
+def es_nuevo_llamado(ant, n) -> bool:
+    """La publicación anterior traía una fecha válida (no anterior a su propia edición) que ya pasó cuando salió la nueva.
+    Ese remate no se hizo y la propiedad vuelve a rematarse. En las 10 ediciones de la marcha blanca hay 6 cambios de fecha.
+    1 es nuevo llamado (3° Familia C-9854-2025, del 16 de Septiembre al 23 de Octubre) y 5 son correcciones de una fecha mal
+    escrita, que ya venía anterior a su propia edición (6 de 6 bien separados). ant y n son filas de _Q."""
+    fecha_ant, edicion_ant, edicion_n = ant[3], ant[2], n[2]
+    return bool(fecha_ant) and fecha_ant >= edicion_ant and fecha_ant < edicion_n
+
+
 def registrar_cambios(con, fecha: str, ahora: str) -> dict:
     """Compara cada remate visible de la edición con la publicación anterior de su mismo bien y guarda en cambios lo que
     pasó de un valor a otro valor. También revisa la edición siguiente, si ya estaba cargada (una edición vieja cargada
@@ -114,13 +123,27 @@ def registrar_cambios(con, fecha: str, ahora: str) -> dict:
         for f in [x for x in (fecha, sig) if x]:
             nuevos = con.execute(_Q + "AND e.fecha = ?", (f,)).fetchall()
             ids = [x[0] for x in nuevos]
+            ya_avisados = set()
             if ids:
-                con.execute(f"DELETE FROM cambios WHERE remate_nuevo IN ({','.join('?' * len(ids))})", ids)
+                marcas = ','.join('?' * len(ids))
+                ya_avisados = {tuple(x) for x in con.execute(
+                    f"SELECT bien_id, remate_nuevo FROM cambios WHERE campo = 'nuevo_llamado' AND remate_nuevo IN ({marcas})", ids)}
+                con.execute(f"DELETE FROM cambios WHERE remate_nuevo IN ({marcas})", ids)
             for n in nuevos:
                 ant = con.execute(_Q + "AND r.bien_id = ? AND e.fecha < ? ORDER BY e.fecha DESC, r.id DESC LIMIT 1", (n[1], f)).fetchone()
                 if not ant:
                     continue
                 res["comparados"] += 1
+                if es_nuevo_llamado(ant, n):
+                    # Decisión de Diego del 18 de Octubre. Un nuevo llamado es un remate nuevo con sus propias bases. No se compara
+                    # dato por dato con el llamado anterior. Se anota una sola vez y, si la propiedad está en la agenda, el vale
+                    # vista entregado y el remate asistido vuelven a cero (solo la primera vez que se detecta, así retomar no los borra).
+                    con.execute("INSERT INTO cambios(bien_id, remate_anterior, remate_nuevo, campo, valor_anterior, valor_nuevo, detectado_en) "
+                                "VALUES (?,?,?,?,?,?,?)", (n[1], ant[0], n[0], "nuevo_llamado", ant[3], n[3], ahora))
+                    res["nuevos_llamados"] = res.get("nuevos_llamados", 0) + 1
+                    if (n[1], n[0]) not in ya_avisados:
+                        con.execute("UPDATE agenda SET vv_entregado = 0, remate_asistido = 0 WHERE bien_id = ?", (n[1],))
+                    continue
                 for i, (campo, _, clave) in enumerate(CAMPOS, start=3):
                     va, vn = _N(ant[i]), _N(n[i])
                     if va is None or vn is None or clave(va) == clave(vn):
@@ -211,6 +234,9 @@ def alertas_costumbre(con) -> dict:
 def texto_cambio(campo: str, anterior, nuevo, fecha_anterior: str) -> str:
     """Cómo se le muestra un cambio a Diego. Ejemplo. 'Cambió la fecha del remate respecto de la publicación del 6 de
     Octubre de 2026. Antes 20 de Octubre de 2025, ahora 20 de Octubre de 2026.'"""
+    if campo == "nuevo_llamado":
+        return (f"Nuevo llamado. El remate anterior de esta propiedad era el {_legible('fecha_remate', anterior)} "
+                f"(aviso del {fecha_legible(fecha_anterior)}) y no se hizo. Este aviso es un remate nuevo, con sus propias bases.")
     etiqueta = dict((c, e) for c, e, _ in CAMPOS).get(campo, campo)
     return (f"Cambió {etiqueta} respecto de la publicación del {fecha_legible(fecha_anterior)}. "
             f"Antes {_legible(campo, anterior)}, ahora {_legible(campo, nuevo)}.")
