@@ -131,6 +131,7 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
 ✅ Una sola alerta de error de escritura cuando la fecha del remate ya pasó (bitácora del 17, punto 69)
 ✅ Arreglos traídos del traspaso al Mercurio (bitácora del 18, puntos 1 a 14). Cortador con "EXTRACTO 3°JUZGADO" (Buin y Viña del Mar separados), tribunal con "TRIBUNAL CIVIL", sin palabra pegada a la ciudad y con "Viña del Mar" (línea _TRIBUNAL igual al Mercurio). Regla de las dos fechas con la opción C de Diego (una fecha anterior a la edición no cuenta). 18 avisos cambian en las 10 ediciones capturadas, todos los esperados
 ⬜ (Pendiente menor) Reutilizar la lectura de Haiku cuando el aviso se republica igual con otros espacios (ahorro de 1,5%, Diego lo dejó para después)
+✅ Tres cambios al motor del 18 de Octubre (bitácora del 18, puntos 26 a 29). Modalidad sin falsos mixtos, alerta de costumbre del tribunal en la garantía (el 21° Civil pide 20%) y porcentaje impreso sin el signo %
 🔄 Interfaz con buscador, calendario, alertas y link a la página (incluye agregar una causa a mano al calendario, idea de Diego del 15 de Octubre). Diseño por pantallas empezado el 18 de Octubre
 ⬜ Traspaso del motor al Mercurio (guía en BITACORA_TRASPASO_MERCURIO.md)
 ⬜ (Futuro) Google Calendar o celular
