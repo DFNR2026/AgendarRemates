@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 18 de Octubre de 2026 (noche). Interfaz escrita y probada sobre una base de prueba (bitácora del 18, puntos 41 a 49). Falta que Diego la pruebe con sus propios ojos. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45), BITACORA_2026-10-16.md, BITACORA_2026-10-17.md y BITACORA_2026-10-18.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 20 de Octubre de 2026. Interfaz cerrada por Diego (bitácora del 18, punto 62). Ensayo con la edición del 18 de Octubre cargado en la base de prueba (punto 64), falta que Diego lo mire en la agenda de prueba. Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45), BITACORA_2026-10-16.md, BITACORA_2026-10-17.md y BITACORA_2026-10-18.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -144,7 +144,7 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
    ✅ Prueba completa sobre interfaz_prueba.db y revisión con pantallazos (puntos 46 a 49)
    ✅ Primera revisión de Diego. Filtro por tribunal, mes actual y siguiente, acceso del escritorio, vale vista en el remate y texto de las alertas (puntos 50 a 58)
    ✅ Diego la probó con "Abrir Agenda (prueba).bat" y la dio por cerrada el 18 de Octubre (bitácora del 18, punto 62)
-   ⬜ Ensayo con la edición del 18 de Octubre en la base de prueba (bitácora del 18, punto 63)
+   🔄 Ensayo con la edición del 18 de Octubre en la base de prueba. Cargado con Haiku el 20 de Octubre (bitácora del 18, puntos 63 y 64), falta que Diego lo mire
    ⬜ Primera carga en la base real (sesión con Claude Code antes)
 ⬜ Traspaso del motor al Mercurio (guía en BITACORA_TRASPASO_MERCURIO.md)
 ⬜ (Futuro) Google Calendar o celular
