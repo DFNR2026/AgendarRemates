@@ -80,6 +80,9 @@ class Manejador(BaseHTTPRequestHandler):
         try:
             largo = int(self.headers.get("Content-Length") or 0)
             p = json.loads(self.rfile.read(largo) or b"{}")
+            if u.path == "/api/actualizar":          # mitad del PC del lector diario (20 de Octubre)
+                from interfaz import nube
+                return self._json(nube.actualizar(self.ruta_base, hoy_chile()))
             con = self._con()
             try:
                 acciones = {

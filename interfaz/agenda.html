@@ -44,6 +44,7 @@ h2.tit{margin:0;font-size:17px;font-weight:800;letter-spacing:.06em;text-transfo
 .chk{display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}.chk input{width:18px;height:18px;accent-color:var(--cafe)}
 .aviso-pub{background:#E8D5B5;border-radius:8px;padding:8px 10px;font-size:12px;display:flex;flex-direction:column;gap:6px}
 header.cab{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.velo{position:fixed;inset:0;background:rgba(26,20,16,.82);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}.velo[hidden]{display:none}.velo .caja{background:var(--papel);color:var(--tinta);border-radius:18px;padding:28px 30px;max-width:560px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
 .ley{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--suave)}
 .ley span{display:flex;gap:6px;align-items:center}
 .franja{border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;gap:10px}
@@ -78,6 +79,7 @@ blockquote{margin:0;padding:8px 12px;background:var(--fondo);border-radius:8px;f
   <aside class="panel oculto" id="panel"></aside>
 </div>
 <div id="toast" class="oculto" role="alert"></div>
+<div id="velo" class="velo" hidden></div>
 <script>
 // Agenda de remates (18 de Octubre). Lee todo de /api/estado y manda las acciones de Diego al servidor local.
 const MES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -174,8 +176,8 @@ function renderCentro(){
     <span><span style="width:18px;height:18px;border:2px solid var(--rojo);border-radius:6px"></span>Fecha cambiada</span>
     <span><span style="width:26px;height:10px;background:var(--vv);border-radius:3px"></span>Ventana del vale vista</span>
     <span><span style="width:14px;height:18px;border:3px solid var(--negro);border-radius:4px"></span>Hoy</span>
-    <span style="color:var(--tinta);font-weight:600">Hoy, ${E(EST.hoy_txt.toLowerCase())}</span></div></header>`;
-  if(EST.franja_negra.length){const [t,...r]=EST.franja_negra;h+=`<section class="franja negra" role="alert"><div style="font-size:22px;font-weight:800">SIN SINCRONIZAR</div>${[t.replace('SIN SINCRONIZAR. ',''),...r].map(x=>`<div style="font-size:14px">${E(x)}</div>`).join('')}<div style="font-size:13px;color:#E8D5B5">El calendario puede no estar al día. Corre el programa para cargar las ediciones que faltan. Este aviso no se puede cerrar mientras falten.</div></section>`;}
+    <span style="color:var(--tinta);font-weight:600">Hoy, ${E(EST.hoy_txt.toLowerCase())}</span><button class="btn2" data-acc="nubeAct">Actualizar ahora</button></div></header>`;
+  if(EST.franja_negra.length){const [t,...r]=EST.franja_negra;h+=`<section class="franja negra" role="alert"><div style="font-size:22px;font-weight:800">SIN SINCRONIZAR</div>${[t.replace('SIN SINCRONIZAR. ',''),...r].map(x=>`<div style="font-size:14px">${E(x)}</div>`).join('')}<div style="font-size:13px;color:#E8D5B5">El calendario puede no estar al día. Aprieta Actualizar ahora. Si siguen faltando, la nube todavía no ha leído esas ediciones. Este aviso no se puede cerrar mientras falten.</div></section>`;}
   if(EST.franja_ambar.length)h+=`<section class="franja ambar" role="status"><div style="font-size:15px;font-weight:800">EDICIONES CARGADAS PERO INCOMPLETAS</div>${EST.franja_ambar.map(x=>`<div style="font-size:13px">${E(x)}</div>`).join('')}</section>`;
   if(EST.cambios.length)h+=`<section class="franja rojo" role="alert"><div class="fila"><div style="flex:1 1 400px;font-size:22px;font-weight:800">${E(EST.titulo_cambios)}</div><button class="btn" style="background:var(--papel);color:var(--rojo)" data-acc="detC">${UI.detC?'Ocultar detalles':'Revisar detalles'}</button></div>${UI.detC?`<div class="detalle">${EST.cambios.map(c=>tablaCmp(c,true)).join('')}<button class="btn" style="align-self:flex-start" data-acc="vistoC">Marcar como visto</button></div>`:''}</section>`;
   if(EST.llamados.length)h+=`<section class="franja llam" role="status"><div class="fila"><div style="flex:1 1 400px"><div style="font-size:19px;font-weight:800">NUEVO LLAMADO EN UNA CAUSA AGENDADA</div><div class="peq" style="color:#5C4A39">Un remate que no se hizo vuelve a publicarse. Es un remate nuevo, con sus propias bases.</div></div><button class="btn" data-acc="detL">${UI.detL?'Ocultar detalles':'Revisar detalles'}</button></div>${UI.detL?`<div class="detalle">${EST.llamados.map(c=>tablaCmp(c,false)).join('')}<button class="btn" style="align-self:flex-start" data-acc="vistoL">Marcar como visto</button></div>`:''}</section>`;
@@ -226,7 +228,9 @@ function render(){renderIzq();renderCentro();renderPanel();}
 
 // --- Acciones ------------------------------------------------------------------------------------------------------
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-acc]');if(!b||b.type==='checkbox')return;const a=b.dataset.acc,k=b.dataset.k;
-  if(a==='buscar'){UI.panel='buscar';renderPanel();if(!UI.res)await buscar();}
+  if(a==='nubeAct'||a==='nubeReintentar'){await actualizarNube();}
+  else if(a==='nubeSeguir'||a==='nubeOk'){NUBE.estado='oculto';renderVelo();}
+  else if(a==='buscar'){UI.panel='buscar';renderPanel();if(!UI.res)await buscar();}
   else if(a==='cerrar'){UI.panel=null;renderPanel();}
   else if(a==='manual'){UI.panel='manual';UI.err='';renderPanel();}
   else if(a==='ficha'){UI.ficha=k;UI.sel=k;UI.panel='ficha';render();const c=document.getElementById('causa-'+k);if(c)c.scrollIntoView({block:'nearest',behavior:'smooth'});}
@@ -251,7 +255,25 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.filtro&&t.dataset.filtro!=='edicion'&&t.dataset.filtro!=='pasados'){UI.f[t.dataset.filtro]=t.value;clearTimeout(espera);espera=setTimeout(buscar,250);}
   else if('ufIn' in t.dataset){UI.uf=t.value;document.querySelectorAll('[data-uf-in]').forEach(x=>{if(x!==t)x.value=t.value;});document.querySelectorAll('[data-uf]').forEach(x=>{x.textContent=ufCalc(+x.dataset.uf,x.dataset.uftxt);});}
   else if(t.dataset.form){UI.form[t.dataset.form]=t.value;}});
-cargar();
+/* Actualización obligatoria al abrir (decisión de Diego, 20 de Octubre). Tapa la agenda hasta terminar. */
+const NUBE={estado:'oculto',r:null};
+function dmTxt(f){return ((EST&&EST.ediciones_txt&&EST.ediciones_txt[f])||f).replace(/\.$/,'');}   /* sin el punto final, lo pone la frase */
+function renderVelo(){const v=document.getElementById('velo');if(NUBE.estado==='oculto'){v.hidden=true;v.innerHTML='';return;}
+  const r=NUBE.r||{};let h='';
+  if(NUBE.estado==='trabajando')h=`<div style="font-size:24px;font-weight:800">Actualizando con El Mercurio...</div><div class="peq gris">Se bajan y se cargan las ediciones nuevas que la nube ya leyó. Puede tardar un par de minutos. No cierres la ventana.</div>`;
+  else if(NUBE.estado==='error')h=`<div style="font-size:24px;font-weight:800;color:var(--rojo)">No se pudo actualizar</div><div>${E(r.error||'Error desconocido.')}</div><button class="btn" data-acc="nubeReintentar">Reintentar</button><button class="btn2" style="align-self:flex-start" data-acc="nubeSeguir">Abrir la agenda sin actualizar</button><div class="peq gris">Si la abres así, la franja SIN SINCRONIZAR te recordará lo que falta.</div>`;
+  else{const c=(r.cargadas||[]).map(dmTxt),t=(r.retomadas||[]).map(dmTxt);
+    h=`<div style="font-size:22px;font-weight:800">Actualización terminada con avisos</div>`+
+      (c.length?`<div>Se cargaron las ediciones del ${E(c.join(', '))}.</div>`:'')+(t.length?`<div>Se completaron las ediciones del ${E(t.join(', '))}.</div>`:'')+
+      (r.bloqueo?`<div style="font-weight:700">${E(r.bloqueo)}</div>`:'')+(r.problemas||[]).map(x=>`<div style="color:var(--rojo);font-weight:700">${E(x)}</div>`).join('')+
+      `<button class="btn" data-acc="nubeOk">Entendido</button>`;}
+  v.hidden=false;v.innerHTML=`<div class="caja" role="alertdialog" aria-live="assertive">${h}</div>`;}
+async function actualizarNube(){if(NUBE.estado==='trabajando')return;NUBE.estado='trabajando';renderVelo();
+  try{const r=await fetch('/api/actualizar',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});NUBE.r=await r.json();
+    if(NUBE.r.ok===false)NUBE.estado='error';else if((NUBE.r.problemas||[]).length||NUBE.r.bloqueo)NUBE.estado='aviso';else NUBE.estado='oculto';}
+  catch(e){NUBE.r={error:'No se pudo hablar con el programa de la agenda. Cierra la ventana minimizada y ábrela de nuevo.'};NUBE.estado='error';}
+  await cargar();renderVelo();}
+cargar().then(actualizarNube);
 setInterval(()=>{if(document.visibilityState==='visible'&&!UI.panel)cargar();},5*60*1000);   // por si se cargó una edición con la página abierta
 </script>
 </body>
