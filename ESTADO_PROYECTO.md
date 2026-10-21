@@ -153,7 +153,7 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
    ✅ Código de la nube (servidor\diario.py, servidor\estado.py, .github\workflows\diario.yml) y prueba 18 (pruebas\test_servidor.py)
    ✅ Código del PC (interfaz\nube.py, /api/actualizar, pantalla obligatoria al abrir) y prueba 19 (pruebas\test_nube.py)
    ⬜ Diego agrega SUPABASE_URL, SUPABASE_KEY y CARGA_REAL_APROBADA a su config.py
-   ⬜ Sesión con Claude Code (push y ensayo en GitHub)
+   ✅ Sesión con Claude Code. Push 6b3055d y dos ensayos en verde (20 de Octubre con Haiku, 18 de Octubre idéntico al PC en 8 de 8 páginas). Bitácora del 20, puntos 19 a 24
    ⬜ cron-job.org
 ⬜ Traspaso del motor al Mercurio (guía en BITACORA_TRASPASO_MERCURIO.md)
 ⬜ (Futuro) Google Calendar o celular
