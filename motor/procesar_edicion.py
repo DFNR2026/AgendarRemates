@@ -21,7 +21,7 @@ sys.path.insert(0, str(RAIZ))
 from motor.cortador import construir_rollo, cortar, roles_en
 from motor.orden_columnas import leer_pagina
 from motor.extraccion import extraer
-from db.carga import guardar_edicion, es_partidor
+from db.carga import guardar_edicion, es_partidor, motivo_descarte
 
 CAPTURAS = RAIZ / "capturas"
 
@@ -152,7 +152,7 @@ def agregar_vale_vista(avisos: list, extraido: dict, fecha: str, cliente=None) -
     resumen = {"leidos": 0, "sin_ia": 0, "saltados": 0, "colores": {}, "errores": []}
     for a in avisos:
         ex = extraido[a.orden]
-        if ex.get("pegado") or es_partidor(ex.get("tribunal"), a.texto):
+        if ex.get("pegado") or motivo_descarte(ex.get("tribunal"), a.texto):   # descartados no van a Haiku
             resumen["saltados"] += 1; continue
         try:
             g = V.leer_con_ia(a.texto, cliente)
@@ -281,7 +281,7 @@ def agregar_direccion(avisos: list, extraido: dict, fecha: str, cliente=None) ->
     resumen = {"leidos": 0, "sin_ia": 0, "saltados": 0, "colores": {}, "errores": []}
     for a in avisos:
         ex = extraido[a.orden]
-        if ex.get("pegado") or es_partidor(ex.get("tribunal"), a.texto):
+        if ex.get("pegado") or motivo_descarte(ex.get("tribunal"), a.texto):   # descartados no van a Haiku
             resumen["saltados"] += 1; continue
         n = _n_remates(ex)
         try:

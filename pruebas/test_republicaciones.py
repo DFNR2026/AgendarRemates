@@ -12,6 +12,14 @@ from db.carga import VV_NO_LEIDO, DIR_NO_LEIDA
 from motor.procesar_edicion import cargar_edicion
 from motor import republicaciones as RP
 
+# 21 de Octubre. Decisión de Diego, los tribunales no civiles se descartan. El único nuevo llamado real de las ediciones es el
+# C-9854-2025 del 3° Juzgado de Familia, así que esta prueba APAGA el descarte de tribunales no civiles para seguir probando la
+# lógica con ese caso (como si fuera un juzgado civil). Al final se vuelve a encender y se revisa que ese aviso quede descartado.
+import re as _re
+import db.carga as _CARGA
+_NO_CIVIL_REAL = _CARGA.NO_CIVIL
+_CARGA.NO_CIVIL = _re.compile(r"(?!)")          # no calza con nada
+
 FALLAS = []
 def revisar(nombre, condicion, detalle=""):
     print(("OK    " if condicion else "FALLA ") + nombre, detalle)
@@ -162,5 +170,14 @@ revisar("edición vieja cargada después. los 4 lotes cambian igual de fecha", D
 D.close(); tmp.cleanup()
 despues = sorted(p.name for p in (RAIZ / "ia_respuestas").rglob("*.json"))
 revisar("candado. la prueba no escribió ninguna respuesta nueva en ia_respuestas (no llamó a Haiku)", antes == despues)
+# Descarte encendido otra vez. El aviso de Familia del C-9854-2025 (9 de Octubre, aviso 24) queda descartado y fuera del buscador.
+_CARGA.NO_CIVIL = _NO_CIVIL_REAL
+_tmp_fam = tempfile.TemporaryDirectory()
+_F = crear(Path(_tmp_fam.name) / "familia.db")
+cargar_edicion(_F, "2026-10-09", "x", RAIZ / "banco_pruebas" / "2026-10-09")
+revisar("descarte encendido. el aviso de Familia C-9854-2025 queda descartado con su motivo y no está en el buscador",
+        _F.execute("SELECT filtro_estado, filtro_motivos FROM avisos WHERE rol = '9854' AND anio = '2025'").fetchall() == [("descartado", "tribunal no civil")]
+        and _F.execute("SELECT COUNT(*) FROM v_buscador WHERE rol = '9854'").fetchone()[0] == 0)
+_F.close(); _tmp_fam.cleanup()
 print("\nRESULTADO.", "TODO OK" if not FALLAS else f"{len(FALLAS)} fallas")
 sys.exit(1 if FALLAS else 0)

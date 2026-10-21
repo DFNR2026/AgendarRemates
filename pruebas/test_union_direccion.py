@@ -42,10 +42,12 @@ def cargar(nombre, con_direccion=True, carpeta=None):
 
 
 C, dr = cargar("dir14.db")
-revisar("14-10. 57 avisos leídos con lo guardado, 4 partidores saltados, ninguno sin IA", (dr["leidos"], dr["saltados"], dr["sin_ia"]) == (57, 4, 0), str(dr["colores"]))
-revisar("14-10. colores por aviso 56 verde y 1 rojo (el 26)", dr["colores"] == {"verde": 56, "rojo": 1}, str(dr["colores"]))
+# 21 de Octubre. Decisión de Diego, tribunales no civiles descartados. Salen el 56 y el 61 del 14-10 (Cobranza Laboral), los dos
+# con dirección verde en el código anterior. Antes 57 leídos, 4 saltados, 56 verdes, 60 remates con dirección y 61 alertas sin Haiku.
+revisar("14-10. 55 avisos leídos con lo guardado, 6 saltados (4 partidores y 2 de Cobranza Laboral), ninguno sin IA", (dr["leidos"], dr["saltados"], dr["sin_ia"]) == (55, 6, 0), str(dr["colores"]))
+revisar("14-10. colores por aviso 54 verde y 1 rojo (el 26)", dr["colores"] == {"verde": 54, "rojo": 1}, str(dr["colores"]))
 n_dir = uno(C, "SELECT COUNT(*) FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE a.filtro_estado <> 'descartado' AND r.direccion IS NOT NULL")
-revisar("14-10. 60 remates visibles con dirección (61 menos el rojo)", n_dir == 60, str(n_dir))
+revisar("14-10. 58 remates visibles con dirección (59 menos el rojo)", n_dir == 58, str(n_dir))
 revisar("14-10. aviso 1 con dirección y comuna", C.execute("SELECT r.direccion, r.comuna FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE a.orden = 1").fetchone()
         == ("calle Santiago Bueras 3951", "Peñaflor"))
 lotes = [x for x in C.execute("SELECT r.direccion FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE a.orden = 30 ORDER BY r.sub_orden")]
@@ -69,10 +71,10 @@ revisar("identidad_inmueble no usa una dirección leída por la IA", identidad_i
 
 # Sin Haiku (carpeta vacía y sin cliente). Alerta por remate, alarma de la edición y retomar con lo guardado.
 V, drv = cargar("vacia14.db", carpeta=Path(tmp.name) / "vacia")
-revisar("sin Haiku. 57 avisos quedan sin leer, la carga no se cae", drv["sin_ia"] == 57 and drv["leidos"] == 0, str(drv["sin_ia"]))
-revisar("sin Haiku. una alerta de dirección no leída por remate visible (61)", uno(V, f"SELECT COUNT(*) FROM alertas WHERE texto = '{DIR_NO_LEIDA}'") == 61)
+revisar("sin Haiku. 55 avisos quedan sin leer, la carga no se cae", drv["sin_ia"] == 55 and drv["leidos"] == 0, str(drv["sin_ia"]))
+revisar("sin Haiku. una alerta de dirección no leída por remate visible (59)", uno(V, f"SELECT COUNT(*) FROM alertas WHERE texto = '{DIR_NO_LEIDA}'") == 59)
 al = uno(V, "SELECT alarmas FROM ediciones") or ""
-revisar("sin Haiku. alarma de la edición", f"{DIR_ALARMA}57 de 57 avisos quedaron sin leer por la IA. Se puede retomar sin volver a leer el Mercurio." in al, al)
+revisar("sin Haiku. alarma de la edición", f"{DIR_ALARMA}55 de 55 avisos quedaron sin leer por la IA. Se puede retomar sin volver a leer el Mercurio." in al, al)
 rr = retomar_direccion(V, "2026-10-14")
 def foto(con):
     q = lambda sql: sorted(con.execute(sql).fetchall(), key=repr)

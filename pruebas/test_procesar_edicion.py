@@ -34,6 +34,9 @@ PERMITIDAS = {
     (61, "modalidad"): ("presencial", "sin_dato"),                              # "Se realizará dependencias Tribunal", vacío conocido
 }
 PARTIDORES = {55, 57, 58, 60}
+# 21 de Octubre. Decisión de Diego. Los de Cobranza Laboral (56 y 61 del 14 de Octubre, misma numeración en el banco y en la
+# carga del motor, 1 remate cada uno) se descartan igual que los partidores. Antes 61 bienes y 57 avisos visibles.
+NO_CIVILES = {56, 61}
 
 with tempfile.TemporaryDirectory() as tmp:
     A = crear(Path(tmp) / "banco.db"); cargar(A)
@@ -57,12 +60,12 @@ with tempfile.TemporaryDirectory() as tmp:
             if va != vb and PERMITIDAS.get((k[0], c)) != (ra[k][i], rb[k][i]):
                 raras.append(f"{k} {c} banco={ra[k][i]!r} motor={rb[k][i]!r}")
     revisar("sin diferencias fuera de las explicadas", not raras, " | ".join(raras[:8]))
-    revisar("los 4 partidores descartados por el texto", {r[0] for r in B.execute("SELECT orden FROM avisos WHERE filtro_estado = 'descartado'")} == PARTIDORES)
-    revisar("61 bienes, igual que el banco", uno(B, "SELECT COUNT(*) FROM bienes") == uno(A, "SELECT COUNT(*) FROM bienes") == 61)
+    revisar("los 4 partidores y los 2 de Cobranza Laboral descartados", {r[0] for r in B.execute("SELECT orden FROM avisos WHERE filtro_estado = 'descartado'")} == PARTIDORES | NO_CIVILES)
+    revisar("59 bienes, igual que el banco", uno(B, "SELECT COUNT(*) FROM bienes") == uno(A, "SELECT COUNT(*) FROM bienes") == 59)
     # Desde la parte 3.7c (17 de Octubre) se suman las 57 carátulas (antes 382).
     revisar("citas del motor con método codigo y todas encontradas en su aviso (315 de la 3.6, 67 inscripciones de la 3.7b y 57 carátulas de la 3.7c)",
             B.execute("SELECT metodo, COUNT(*), SUM(verificada) FROM citas GROUP BY metodo").fetchall() == [("codigo", 439, 439)])
-    revisar("3.7c. carátula de los 57 avisos visibles en el buscador", B.execute("SELECT COUNT(DISTINCT aviso_id), SUM(caratula IS NULL) FROM v_buscador").fetchone() == (57, 0))
+    revisar("3.7c. carátula de los 55 avisos visibles en el buscador", B.execute("SELECT COUNT(DISTINCT aviso_id), SUM(caratula IS NULL) FROM v_buscador").fetchone() == (55, 0))
     revisar("citas del banco siguen con método ia", A.execute("SELECT DISTINCT metodo FROM citas").fetchall() == [("ia",)])
     revisar("65 alertas de vale vista NO LEÍDO en el motor y ninguna que diga que el aviso no lo dice",
             (uno(B, f"SELECT COUNT(*) FROM alertas WHERE texto = '{VV_NO_LEIDO}'"), uno(B, f"SELECT COUNT(*) FROM alertas WHERE texto = '{VV_NO_DICE}'")) == (65, 0))

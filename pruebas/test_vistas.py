@@ -22,6 +22,9 @@ def revisar(nombre, condicion, detalle=""):
     if not condicion: FALLAS.append(nombre)
 
 PARTIDORES = {55, 57, 58, 60}
+# 21 de Octubre. Decisión de Diego. Los de Cobranza Laboral (56 y 61 del banco, 1 remate cada uno) se descartan igual que los
+# partidores. Antes el buscador tenía 61 remates y los vales vista sin fecha visibles eran 33, 50, 59 y 61.
+NO_CIVILES = {56, 61}
 VISTAS_CON_ORDEN = ("v_buscador", "v_alertas", "v_calendario")
 
 with tempfile.TemporaryDirectory() as tmp:
@@ -35,8 +38,8 @@ with tempfile.TemporaryDirectory() as tmp:
         con.execute("INSERT INTO agenda(bien_id, remate_base_id, agregado_en) VALUES (?,?,?)", (bid, rid, "2026-10-15"))
 
     # 1. Buscador
-    revisar("buscador con 61 remates (65 menos 4 de partidores)", uno("SELECT COUNT(*) FROM v_buscador") == 61)
-    revisar("buscador sin partidores", not {r[0] for r in q("SELECT orden FROM v_buscador")} & PARTIDORES)
+    revisar("buscador con 59 remates (65 menos 4 de partidores y 2 de Cobranza Laboral)", uno("SELECT COUNT(*) FROM v_buscador") == 59)
+    revisar("buscador sin partidores ni tribunales no civiles", not {r[0] for r in q("SELECT orden FROM v_buscador")} & (PARTIDORES | NO_CIVILES))
     revisar("buscar el rol 20712 da los 4 lotes", uno("SELECT COUNT(*) FROM v_buscador WHERE rol = '20712'") == 4)
     revisar("buscar el 7° Civil da sus 6 avisos (18 al 23)", uno("SELECT COUNT(*) FROM v_buscador WHERE tribunal LIKE '7° Juzgado Civil%'") == 6,
             str(uno("SELECT COUNT(*) FROM v_buscador WHERE tribunal LIKE '7° Juzgado Civil%'")))
@@ -54,7 +57,7 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("el aviso 59 (vale vista sin fecha) está en el calendario con su alerta", q("SELECT vv_estado, mostrar_ventana_vv, n_alertas FROM v_calendario WHERE orden = 59") == [("sin_dato", 0, 1)])
     revisar("la ficha del 59 dice que el aviso no trae fecha de vale vista", q("SELECT tipo FROM v_alertas WHERE orden = 59") == [("dato_faltante",)])
     # 18 de Octubre. 27 y 28 dejaron de ser "sin dato" en el banco (CORRECCIÓN de Diego, "calificados al momento de hacerse el llamado" es entrega en el remate).
-    revisar("vales vista sin fecha visibles. 33, 50, 59 y 61 (los partidores no)", {r[0] for r in q("SELECT orden FROM v_alertas WHERE tipo = 'dato_faltante'")} == {33, 50, 59, 61})
+    revisar("vales vista sin fecha visibles. 33, 50 y 59 (los partidores y el 61 de Cobranza Laboral no)", {r[0] for r in q("SELECT orden FROM v_alertas WHERE tipo = 'dato_faltante'")} == {33, 50, 59})
     revisar("el aviso 48 muestra la ventana completa del 15 al 28 de Octubre", q("SELECT vv_desde, vv_hasta FROM v_buscador WHERE orden = 48") == [("2026-10-15", "2026-10-28 12:00")])
 
     # 3. Entregas por tribunal y día

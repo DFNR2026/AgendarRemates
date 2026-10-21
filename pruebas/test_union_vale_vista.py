@@ -117,12 +117,13 @@ ex = extraer_avisos(avisos, "2026-10-14")
 rv = agregar_vale_vista(avisos, ex, "2026-10-14")                 # cliente None. Solo respuestas guardadas
 C4 = crear(Path(tmp.name) / "paso4.db")
 r4 = guardar_edicion(C4, edicion, paginas, avisos, ex, "2026-10-16T00:00:00", metodo="codigo")
-revisar("paso 4. 57 avisos leídos, 4 partidores saltados, 0 sin IA", (rv["leidos"], rv["saltados"], rv["sin_ia"]) == (57, 4, 0), str(rv))
+# 21 de Octubre. Decisión de Diego, tribunales no civiles descartados. En el 14-10 son el 56 (verde, acierto) y el 61 (rojo, acierto), revisado con el código anterior. Antes 57 leídos, 4 saltados, 53 aciertos y 57 con bloque.
+revisar("paso 4. 55 avisos leídos, 6 saltados (4 partidores y 2 de Cobranza Laboral), 0 sin IA", (rv["leidos"], rv["saltados"], rv["sin_ia"]) == (55, 6, 0), str(rv))
 cuenta, colores = medir_base(C4)
-revisar("paso 4. desde la base. 53 aciertos, 4 no leídos (rojo), 0 equivocados, igual que la medición",
-        cuenta == {"acierto": 53, "no_leido": 4}, str(cuenta))
+revisar("paso 4. desde la base. 51 aciertos, 4 no leídos (rojo), 0 equivocados, igual que la medición",
+        cuenta == {"acierto": 51, "no_leido": 4}, str(cuenta))
 revisar("paso 4. colores en la base iguales a los de resolver() (por aviso)", colores == rv["colores"], f"{colores} {rv['colores']}")
-revisar("paso 4. 61 avisos visibles con bloque, ninguno se perdió", sum(colores.values()) == 57 and None not in colores)
+revisar("paso 4. 55 avisos visibles con bloque, ninguno se perdió", sum(colores.values()) == 55 and None not in colores)
 revisar("paso 4. citas del vale vista con método ia y todas verificadas, las del código siguen con codigo",
         C4.execute("SELECT metodo, SUM(campo = 'vv_regla_texto') > 0, SUM(campo NOT IN ('vv_regla_texto', 'inscripcion', 'caratulado')), COUNT(*) = SUM(verificada) "
                    "FROM citas GROUP BY metodo ORDER BY metodo").fetchall() == [("codigo", 0, 315, 1), ("ia", 1, 0, 1)])
@@ -133,9 +134,10 @@ revisar("paso 4. una alerta revisar_lectura con grupo por cada remate en rojo",
 rojos = dict(C4.execute(f"SELECT a.orden, al.texto FROM alertas al JOIN avisos a ON a.id = al.aviso_id WHERE al.tipo = 'revisar_lectura' AND ({GRUPO_SQL.replace('texto', 'al.texto')})").fetchall())
 # 18 de Octubre. Los avisos 27 y 28 ("calificados al momento de hacerse el llamado") ya no son rojos. CORRECCIÓN de Diego,
 # esa frase SÍ es entrega en el remate. Eran 8 rojos y quedan 6.
-revisar("decisión 5, paso 2a. grupos de los 6 rojos del 14 de Octubre (9 error del aviso, los demás falla de la IA)",
+# 21 de Octubre. El 61 (Cobranza Laboral) quedó descartado. Eran 6 rojos y quedan 5.
+revisar("decisión 5, paso 2a. grupos de los 5 rojos del 14 de Octubre (9 error del aviso, los demás falla de la IA)",
         {k: v.split(". ")[0] for k, v in rojos.items()} == {2: "Falla de la IA", 9: "Error del aviso", 13: "Falla de la IA",
-                                                           34: "Falla de la IA", 37: "Falla de la IA", 61: "Falla de la IA"},
+                                                           34: "Falla de la IA", 37: "Falla de la IA"},
         str({k: v.split(". ")[0] for k, v in rojos.items()}))
 revisar("decisión 5, paso 2a. ninguna alerta roja muestra nombres internos (dia_anterior, en_el_remate, _)", not [v for v in rojos.values() if "_" in v])
 revisar("paso 4. una alerta condicion_especial de pregunta al abogado por cada remate en ámbar",
@@ -144,9 +146,9 @@ revisar("paso 4. una alerta dato_faltante de la IA por cada remate sin dato",
         uno(C4, "SELECT COUNT(*) FROM alertas WHERE tipo = 'dato_faltante' AND texto = ?", (NO_ENCONTRADA,)) == n_rem("sin_dato") > 0)
 revisar("paso 4. contradicción real solo en el aviso 9 (de 11 a 14 y hasta las 12)",
         [x[0] for x in C4.execute("SELECT a.orden FROM alertas al JOIN avisos a ON a.id = al.aviso_id WHERE al.tipo = 'contradiccion'")] == [9])
-revisar("paso 4. la alerta de vale vista no leído queda solo en los 4 remates de partidores (no se ven)",
+revisar("paso 4. la alerta de vale vista no leído queda solo en los 6 remates descartados, 4 partidores y 2 de Cobranza Laboral (no se ven)",
         uno(C4, "SELECT COUNT(*) FROM alertas al JOIN avisos a ON a.id = al.aviso_id WHERE al.texto = ? AND a.filtro_estado = 'descartado'", (VV_NO_LEIDO,))
-        == uno(C4, "SELECT COUNT(*) FROM alertas WHERE texto = ?", (VV_NO_LEIDO,)) == 4)
+        == uno(C4, "SELECT COUNT(*) FROM alertas WHERE texto = ?", (VV_NO_LEIDO,)) == 6)
 revisar("paso 4. ninguna alerta dice que el aviso no lo dice", uno(C4, "SELECT COUNT(*) FROM alertas WHERE texto = ?", (VV_NO_DICE,)) == 0)
 revisar("paso 4. ningún rojo ni sin dato con fechas guardadas",
         uno(C4, "SELECT COUNT(*) FROM remates WHERE (vv_estado = 'sin_dato' OR (vv_estado = 'revisar' AND vv_hasta IS NULL)) AND vv_desde IS NOT NULL") == 0)
@@ -169,7 +171,7 @@ for nombre, cli in (("sin cliente", None), ("cliente que falla", ClienteCaido())
         r5 = guardar_edicion(C5, edicion, paginas, avisos, ex, "2026-10-16T00:00:00", metodo="codigo")
         revisar(f"Haiku no disponible ({nombre}). la carga no se cae y quedan las 65 alertas de vale vista no leído",
                 (rv["sin_ia"], r5["remates"], uno(C5, "SELECT COUNT(*) FROM alertas WHERE texto = ?", (VV_NO_LEIDO,)),
-                 uno(C5, "SELECT COUNT(*) FROM citas WHERE metodo = 'ia'")) == (57, 65, 65, 0), str(rv["errores"][:1]))
+                 uno(C5, "SELECT COUNT(*) FROM citas WHERE metodo = 'ia'")) == (55, 65, 65, 0), str(rv["errores"][:1]))   # 21 de Octubre, antes 57 sin IA
         revisar(f"Haiku no disponible ({nombre}). no se guardó ninguna respuesta", not V.CARPETA_RESPUESTAS.exists())
         C5.close()
     finally:
@@ -179,7 +181,7 @@ for nombre, cli in (("sin cliente", None), ("cliente que falla", ClienteCaido())
 if (RAIZ / "capturas" / "2026-10-14" / "navegacion.json").exists():
     C6 = crear(Path(tmp.name) / "captura.db")
     r6 = cargar_edicion(C6, "2026-10-14", "2026-10-16T00:00:00")
-    revisar("captura 14-10. cargar_edicion da 53 aciertos, 4 no leídos, 0 equivocados", medir_base(C6)[0] == {"acierto": 53, "no_leido": 4}, str(r6.get("vale_vista")))
+    revisar("captura 14-10. cargar_edicion da 51 aciertos, 4 no leídos, 0 equivocados (21 de Octubre, antes 53)", medir_base(C6)[0] == {"acierto": 51, "no_leido": 4}, str(r6.get("vale_vista")))
     C6.close()
 else:
     print("AVISO capturas\\2026-10-14 no está en este equipo. Se omite la revisión desde la captura.")
@@ -322,16 +324,17 @@ ex = extraer_avisos(avisos, "2026-10-14"); agregar_vale_vista(avisos, ex, "2026-
 guardar_edicion(F14, edicion, paginas, avisos, ex, "2026-10-16T00:00:00", metodo="codigo")
 revisar("decisión 8, paso 4. 14-10 retomado queda igual que cargado con la IA (remates, alertas, citas y edición)", foto(R14) == foto(F14),
         str([k for k in foto(R14) if foto(R14)[k] != foto(F14)[k]]))
-revisar("decisión 8, paso 4. 14-10 retomado da 53 aciertos, 4 no leídos, 0 equivocados", medir_base(R14)[0] == {"acierto": 53, "no_leido": 4}, str(rr))
+revisar("decisión 8, paso 4. 14-10 retomado da 51 aciertos, 4 no leídos, 0 equivocados (21 de Octubre, antes 53)", medir_base(R14)[0] == {"acierto": 51, "no_leido": 4}, str(rr))
 antes = foto(R14); rr2 = retomar_vale_vista(R14, "2026-10-14")
 revisar("decisión 8, paso 4. retomar dos veces no duplica nada", foto(R14) == antes and rr2["pendientes_antes"] == 0, str(rr2))
 
 # 09-10 (B y G, alarma de la unión). Sin IA quedan todos pendientes, retomar deja lo mismo que la carga fresca.
 # CAMBIO del 18 de Octubre (decisión de Diego, opción C). El aviso 120 ya no es falso pegado, así que también se le pregunta a la IA.
-# Pasa de 121 de 121 a 122 de 122.
+# Pasa de 121 de 121 a 122 de 122. 21 de Octubre. Bajan a 119 de 119 los avisos que la IA debe leer, porque se descartan el 18
+# (Policía Local de Pudahuel), el 24 (3° de Familia) y el 126 (Cobranza Laboral de Temuco).
 R09 = cargar_sin_ia("ret09.db", "2026-10-09", D09)
-revisar("decisión 8, paso 4. 09-10 cargado sin IA deja la alarma 122 de 122",
-        "Vale vista. 122 de 122 avisos quedaron sin leer por la IA." in (R09.execute("SELECT alarmas FROM ediciones").fetchone()[0] or ""))
+revisar("decisión 8, paso 4. 09-10 cargado sin IA deja la alarma 119 de 119",
+        "Vale vista. 119 de 119 avisos quedaron sin leer por la IA." in (R09.execute("SELECT alarmas FROM ediciones").fetchone()[0] or ""))
 rr = retomar_vale_vista(R09, "2026-10-09")
 F09 = crear(Path(tmp.name) / "fresca09.db"); cargar_edicion(F09, "2026-10-09", "2026-10-16T00:00:00", D09)
 revisar("decisión 8, paso 4. 09-10 retomado queda igual que cargado con la IA (incluida la alarma de pendientes)", foto(R09) == foto(F09),
@@ -346,9 +349,9 @@ try:
 finally:
     V.CARPETA_RESPUESTAS = carpeta_real
 despues = foto(R2)
-revisar("decisión 8, paso 4. con Haiku caído al retomar no cambian remates, alertas ni citas, y la edición queda con la alarma 57 de 57",
-        all(despues[k] == antes[k] for k in ("remates", "alertas", "citas")) and rr["sin_ia"] == 57
-        and despues["edicion"] == [("con_alarmas", "Vale vista. 57 de 57 avisos quedaron sin leer por la IA. Se puede retomar sin volver a leer el Mercurio.")],
+revisar("decisión 8, paso 4. con Haiku caído al retomar no cambian remates, alertas ni citas, y la edición queda con la alarma 55 de 55 (21 de Octubre, antes 57)",
+        all(despues[k] == antes[k] for k in ("remates", "alertas", "citas")) and rr["sin_ia"] == 55
+        and despues["edicion"] == [("con_alarmas", "Vale vista. 55 de 55 avisos quedaron sin leer por la IA. Se puede retomar sin volver a leer el Mercurio.")],
         str(despues["edicion"]))
 try:
     retomar_vale_vista(R2, "2030-01-01"); revisar("decisión 8, paso 4. edición que no está en la base da error claro", False)
@@ -393,9 +396,9 @@ B14 = crear(Path(tmp.name) / "banco14.db")
 ex = extraer_avisos(avisos, "2026-10-14"); agregar_vale_vista(avisos, ex, "2026-10-14")
 guardar_edicion(B14, edicion, paginas, avisos, ex, "2026-10-16T00:00:00", metodo="codigo")
 regs = registros_de_edicion(B14, "2026-10-14")
-revisar("paso 6. 14-10 da 9 registros, los 6 rojos y los 3 sin dato (27 y 28 dejaron de ser rojos el 18 de Octubre)",
+revisar("paso 6. 14-10 da 8 registros, los 5 rojos y los 3 sin dato (27 y 28 dejaron de ser rojos el 18 de Octubre, el 61 se descartó el 21)",
         [(r["orden"], r["color"]) for r in regs] == [(2, "rojo"), (9, "rojo"), (13, "rojo"), (33, "sin_dato"),
-                                                    (34, "rojo"), (37, "rojo"), (50, "sin_dato"), (59, "sin_dato"), (61, "rojo")], str([r["orden"] for r in regs]))
+                                                    (34, "rojo"), (37, "rojo"), (50, "sin_dato"), (59, "sin_dato")], str([r["orden"] for r in regs]))
 revisar("paso 6. el grupo del banco es el mismo de la alerta de la base",
         all(r["grupo"] == rojos[r["orden"]].split(". ")[0] for r in regs if r["color"] == "rojo"))
 revisar("paso 6. cada registro trae texto, dos lecturas, motivos técnicos, huella, ruta y revisión vacía",
@@ -405,7 +408,7 @@ CB = Path(tmp.name) / "banco_rojos"
 x1 = registrar(regs, CB, "t1")
 x2 = registrar(regs, CB, "t2")
 lineas = (CB / "rojos_2026-10.jsonl").read_text(encoding="utf-8").splitlines()
-revisar("paso 6. registrar dos veces no duplica", (x1["nuevos"], x2["nuevos"], x2["repetidos"], len(lineas)) == (9, 0, 9, 9), f"{x1} {x2} {len(lineas)}")
+revisar("paso 6. registrar dos veces no duplica", (x1["nuevos"], x2["nuevos"], x2["repetidos"], len(lineas)) == (8, 0, 8, 8), f"{x1} {x2} {len(lineas)}")
 # El mismo texto en otra edición queda marcado como republicación de la primera
 otra = [dict(r, edicion="2026-10-15") for r in regs[:2]]
 x3 = registrar(otra, CB, "t3")

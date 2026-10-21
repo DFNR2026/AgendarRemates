@@ -121,3 +121,6 @@ Regla de las dos fechas. El Mercurio la quitó. Agendar_Remates la mantiene con 
 ## 2026-10-18. Vale vista en el remate (corrección de Diego)
 "Los vales vista recepcionados serán calificados al momento de hacerse el llamado al remate" SÍ es entrega en el remate (10° Juzgado Civil). Hay remates donde el vale vista se entrega minutos antes de empezar. Agendar_Remates lo acepta desde el 18 de Octubre (motor\vale_vista.py, _CALIFICA_LLAMADO). El Mercurio no necesita el vale vista, pero si algún día lo lee, la regla es esa. Lección general. Antes de escribir que la IA se equivocó, revisar si la regla del programa o la anotación del banco eran las equivocadas. En este caso Haiku tenía razón y el banco no.
 
+## Agregado el 21 de Octubre
+- Agendar_Remates descarta desde el 21 de Octubre los avisos de Juzgados de Familia, Cobranza Laboral y Previsional, Letras del Trabajo y Policía Local (decisión de Diego, solo civiles y Juzgados de Letras). Regla NO_CIVIL en db\carga.py de Agendar. Queda para que Diego decida si el Mercurio debe hacer lo mismo. En 12 ediciones fueron 20 avisos.
+

@@ -3,7 +3,8 @@ Parte 3.5, etapa 2. Lo extraído usa el formato del banco nivel 2 (banco_pruebas
 que es el mismo formato que deberá entregar la extracción de la parte 3.6.
 
 Reglas que aplica.
-- Ningún aviso se bota. Los de JUEZ PARTIDOR se guardan como 'descartado' (solo para el cuadre de cuentas).
+- Ningún aviso se bota. Los de JUEZ PARTIDOR y los de tribunales no civiles (Familia, Cobranza Laboral, Letras del Trabajo y
+  Policía Local, decisión de Diego del 21 de Octubre) se guardan como 'descartado' (solo para el cuadre de cuentas).
 - Un aviso con lista de mínimos genera un remate por cada elemento (aviso 30 del 14 de Octubre, 4 lotes).
 - Cada remate visible queda unido a un bien. Si la causa trae un solo remate se une por causa. Si trae varios,
   por el número de depto, lote u oficina. La unión con publicaciones de otras ediciones se mide en la parte 4.
@@ -77,6 +78,21 @@ PARTICION = re.compile(r"\bJUEZA?\s+(?:[ÁA]RBITRO|PARTIDORA?)\b|\bANTE\s+(?:EL\
 def es_partidor(tribunal: str | None, texto: str) -> bool:
     t = normalizar(tribunal)
     return t.startswith(("juez partidor", "jueza partidora", "juez arbitro", "jueza arbitro")) or bool(PARTICION.search(texto[:300]))
+
+
+# Tribunales que no son civiles (decisión de Diego del 21 de Octubre). Se descartan del todo igual que los partidores.
+# Familia, Cobranza Laboral y Previsional, Letras del Trabajo y Policía Local. Los Juzgados Civiles y los Juzgados de Letras
+# (Buin, San Bernardo, Colina y regiones, que ven causas civiles) se mantienen. Solo se mira el tribunal que leyó el código.
+NO_CIVIL = re.compile(r"juzgado\s+de\s+familia|cobranza\s+laboral|polic[ií]a\s+local|\bdel\s+trabajo\b", re.I)
+
+
+def motivo_descarte(tribunal: str | None, texto: str) -> str | None:
+    """'juez partidor', 'tribunal no civil' o None si el aviso se muestra."""
+    if es_partidor(tribunal, texto):
+        return "juez partidor"
+    if tribunal and NO_CIVIL.search(tribunal):
+        return "tribunal no civil"
+    return None
 
 
 def _citas_de(ex: dict, sub_lista: dict):
@@ -201,12 +217,13 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
                 con.execute("INSERT OR IGNORE INTO causas(clave, tipo_id, rol, anio, tribunal) VALUES (?,?,?,?,?)",
                             (clave, a.tipo_id, a.rol, a.anio, tribunal))
                 causa_id = con.execute("SELECT id FROM causas WHERE clave = ?", (clave,)).fetchone()[0]
-            descartado = es_partidor(tribunal, a.texto)
+            motivo = motivo_descarte(tribunal, a.texto)
+            descartado = motivo is not None
             cur = con.execute(
                 "INSERT INTO avisos(edicion_id, causa_id, orden, pagina_inicio_id, pagina_fin_id, texto, rol_impreso, tipo_id, rol, anio, "
                 "tribunal, filtro_estado, filtro_motivos) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (ed_id, causa_id, a.orden, id_pag[a.paginas[0]], id_pag[a.paginas[-1]], a.texto, a.rol_impreso, a.tipo_id, a.rol, a.anio,
-                 tribunal, "descartado" if descartado else "pasa", "juez partidor" if descartado else None))
+                 tribunal, "descartado" if descartado else "pasa", motivo))
             aviso_id = cur.lastrowid
             if sin_tribunal:
                 con.execute("INSERT INTO alertas(aviso_id, tipo, texto, origen) VALUES (?,?,?,?)",

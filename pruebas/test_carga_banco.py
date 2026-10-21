@@ -19,6 +19,9 @@ def revisar(nombre, condicion, detalle=""):
 
 banco = {a["n"]: a for a in json.loads((RAIZ / "banco_pruebas/2026-10-14/banco_nivel2_2026-10-14.json").read_text(encoding="utf-8"))["avisos"]}
 PARTIDORES = {55, 57, 58, 60}
+# 21 de Octubre. Decisión de Diego. Los tribunales no civiles se descartan igual que los partidores. En el banco son el 56
+# (Cobranza Laboral de Concepción) y el 61 (Cobranza Laboral de Santiago), 1 remate cada uno. Antes 57 visibles y 61 bienes.
+NO_CIVILES = {56, 61}
 
 with tempfile.TemporaryDirectory() as tmp:
     con = crear(Path(tmp) / "banco.db")
@@ -35,11 +38,13 @@ with tempfile.TemporaryDirectory() as tmp:
 
     # Partidores. Guardados para el cuadre, descartados y sin bien (no se pueden agendar)
     desc = {r[0] for r in q("SELECT orden FROM avisos WHERE filtro_estado = 'descartado'")}
-    revisar("los 4 partidores quedan descartados", desc == PARTIDORES, str(sorted(desc)))
-    revisar("cuadre. 57 visibles + 4 descartados = 61", uno("SELECT COUNT(*) FROM avisos WHERE filtro_estado = 'pasa'") == 57)
+    revisar("los 4 partidores y los 2 de Cobranza Laboral quedan descartados", desc == PARTIDORES | NO_CIVILES, str(sorted(desc)))
+    revisar("cada descartado con su motivo", dict(q("SELECT orden, filtro_motivos FROM avisos WHERE filtro_estado = 'descartado'")) ==
+            {**{n: "juez partidor" for n in PARTIDORES}, **{n: "tribunal no civil" for n in NO_CIVILES}})
+    revisar("cuadre. 55 visibles + 6 descartados = 61", uno("SELECT COUNT(*) FROM avisos WHERE filtro_estado = 'pasa'") == 55)
     revisar("los remates de partidores no tienen bien", uno("SELECT COUNT(*) FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE a.filtro_estado = 'descartado' AND r.bien_id IS NOT NULL") == 0)
     revisar("todo remate visible tiene su bien", uno("SELECT COUNT(*) FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE a.filtro_estado = 'pasa' AND r.bien_id IS NULL") == 0)
-    revisar("61 bienes y 57 causas", (uno("SELECT COUNT(*) FROM bienes"), uno("SELECT COUNT(*) FROM causas")) == (61, 57))
+    revisar("59 bienes y 57 causas (la causa se registra antes del descarte)", (uno("SELECT COUNT(*) FROM bienes"), uno("SELECT COUNT(*) FROM causas")) == (59, 57))
 
     # Varios remates en un aviso
     a3 = q("SELECT r.inmueble, r.minimo_monto, b.clave FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN bienes b ON b.id = r.bien_id WHERE a.orden = 3 ORDER BY r.sub_orden")

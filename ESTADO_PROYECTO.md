@@ -34,6 +34,7 @@ CORRECCIÓN de Diego (15 de Octubre, tarde). El calendario muestra la fecha del 
 El "desde" del vale vista cuando el aviso solo dice hasta cuándo. Diego cree que es desde el mismo día de la publicación. Pregunta 9 al abogado. Mientras tanto sigue la regla del día siguiente.
 Todo remate agendado sin fecha de vale vista se avisa en el HUD como dato faltante que Diego debe resolver.
 Agenda sin estado "descartado". Si Diego no irá a un remate, lo quita del calendario con un botón X. A Diego le indican a qué remate ir, por eso ningún aviso se elimina por filtros. Los que no pasan quedan visibles como "fuera de filtro". EXCEPCIÓN (Diego, 2026-10-15). Los remates de JUEZ PARTIDOR se descartan del todo y no aparecen en la búsqueda. Incluye los remates de partición ante juez o jueza ÁRBITRO (decisión del 15 de Octubre, noche). Regla PARTICION en db\carga.py.
+Decisión de Diego del 21 de Octubre. SOLO CIVILES. Se descartan del todo, igual que JUEZ PARTIDOR, los avisos de Juzgados de Familia, de Cobranza Laboral y Previsional, de Letras del Trabajo y de Policía Local. Se mantienen los Juzgados Civiles y los Juzgados de Letras (Buin, San Bernardo, Colina y regiones). Motivo guardado "tribunal no civil", no pasan por Haiku. Un aviso sin tribunal leído no se puede clasificar y se sigue mostrando. db\carga.py, NO_CIVIL y motivo_descarte. Bitácora del 21, puntos 5 a 8.
 Rol sin guion después de la letra (C2461-2022). Se avisa como detalle menor, con tono normal (decisión del 15 de Octubre, noche). CORRECCIÓN del 16 de Octubre. El ejemplo C2461-2022 era falso (el diario imprime "Rol C-" y "2461-2022" en dos renglones y el programa borraba el guion). La decisión sigue, con ejemplos reales como "C 19087-2024" y "C8834-2022".
 Feriados de Chile cargados desde fuente oficial y aviso en diciembre si falta el año siguiente. PENDIENTE (decisión de Diego del 17 de Octubre). Los feriados 2027 están cargados como PROVISORIOS, calculados por ley (db\feriados_calculo). Hay que esperar la lista oficial a fines de 2026 o comienzos de 2027, reemplazar db\feriados_2027.csv y anotar la corrección. La alarma de la base lo recuerda mientras siga provisorio.
 La lectura debe ser perfecta por diseño. La IA nunca tiene la última palabra. Lo de formato fijo (rol, montos, fechas) lo lee el código. Lo de texto libre lo interpreta la IA citando la frase exacta, y el código verifica que la frase exista. Lo que no se pueda verificar se marca en rojo.
@@ -145,7 +146,9 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
    ✅ Primera revisión de Diego. Filtro por tribunal, mes actual y siguiente, acceso del escritorio, vale vista en el remate y texto de las alertas (puntos 50 a 58)
    ✅ Diego la probó con "Abrir Agenda (prueba).bat" y la dio por cerrada el 18 de Octubre (bitácora del 18, punto 62)
    🔄 Ensayo con la edición del 18 de Octubre en la base de prueba. Cargado con Haiku el 20 de Octubre (bitácora del 18, puntos 63 y 64), falta que Diego lo mire
-   ⬜ Primera carga en la base real (sesión con Claude Code antes)
+   ✅ Links a cada aviso en las tablas de cambios (bitácora del 21, punto 4)
+✅ Descarte de tribunales no civiles (bitácora del 21, puntos 5 a 8)
+⬜ Primera carga en la base real (sesión con Claude Code antes)
 🔄 Lector diario en la nube (bitácora del 20). La nube lee y llama a Haiku, el PC baja y carga al abrir la agenda
    ✅ Diseño de Diego (dos mitades, actualización obligatoria al abrir, de 6:30 a 8:35)
    ✅ Proyecto Supabase Agendar_Calendario y bucket privado "agendar"
