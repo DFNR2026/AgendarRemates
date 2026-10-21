@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 21 de Octubre de 2026 (tarde). Lector diario en la nube funcionando desde el 21 de Octubre, links a cada aviso en las tablas de cambios y descarte de tribunales no civiles. Sigue la primera carga en la base real (ver Próximo paso). Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45), BITACORA_2026-10-16.md, BITACORA_2026-10-17.md y BITACORA_2026-10-18.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 21 de Octubre de 2026 (noche). Primera carga en la base real hecha (edición del 21 de Octubre, bitácora del 21, puntos 13 a 15). La base real se nutre sola cada vez que se abre la agenda (ver Próximo paso). Bitácoras en BITACORA_2026-10-14.md, BITACORA_2026-10-15.md (puntos 1 a 45), BITACORA_2026-10-16.md, BITACORA_2026-10-17.md y BITACORA_2026-10-18.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -148,14 +148,14 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
    🔄 Ensayo con la edición del 18 de Octubre en la base de prueba. Cargado con Haiku el 20 de Octubre (bitácora del 18, puntos 63 y 64), falta que Diego lo mire
    ✅ Links a cada aviso en las tablas de cambios (bitácora del 21, punto 4)
 ✅ Descarte de tribunales no civiles (bitácora del 21, puntos 5 a 8)
-⬜ Primera carga en la base real (sesión con Claude Code antes)
+✅ Primera carga en la base real (21 de Octubre, sin sesión previa de Claude Code por decisión de Diego). 77 avisos, 77 remates, igual remate por remate al 21 de la base de prueba. Bitácora del 21, puntos 13 a 15
 🔄 Lector diario en la nube (bitácora del 20). La nube lee y llama a Haiku, el PC baja y carga al abrir la agenda
    ✅ Diseño de Diego (dos mitades, actualización obligatoria al abrir, de 6:30 a 8:35)
    ✅ Proyecto Supabase Agendar_Calendario y bucket privado "agendar"
    ✅ Cinco secretos en GitHub (MERCURIO_USER, MERCURIO_PASS, ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_KEY)
    ✅ Código de la nube (servidor\diario.py, servidor\estado.py, .github\workflows\diario.yml) y prueba 18 (pruebas\test_servidor.py)
    ✅ Código del PC (interfaz\nube.py, /api/actualizar, pantalla obligatoria al abrir) y prueba 19 (pruebas\test_nube.py)
-   ⬜ Diego agrega SUPABASE_URL, SUPABASE_KEY y CARGA_REAL_APROBADA a su config.py
+   ✅ SUPABASE_URL, SUPABASE_KEY y CARGA_REAL_APROBADA en config.py (True desde el 21 de Octubre)
    ✅ Sesión con Claude Code. Push 6b3055d y dos ensayos en verde (20 de Octubre con Haiku, 18 de Octubre idéntico al PC en 8 de 8 páginas). Bitácora del 20, puntos 19 a 24
    ✅ cron-job.org con tres trabajos de 6:30 a 8:35 y Test run fuera de la ventana sin efectos (bitácora del 20, puntos 25 a 27)
    ✅ Primera mañana automática, 21 de Octubre, intento 1 de 6:30 a 6:33, cargada en la agenda de prueba (bitácora del 21)
@@ -174,7 +174,7 @@ Reescrito el 21 de Octubre (tarde). Lo de antes está en las bitácoras.
 2. Correr las diecinueve pruebas y verificar TODO OK antes de tocar nada. Repetirlas después de cambiar cualquier base que una prueba use de referencia (interfaz_prueba.db, interfaz_prueba_antes_18oct.db). Ninguna prueba llama a Haiku.
 3. Revisar REPORTE_CC_PUSH_2_2026-10-21.md. Claude Code debía verificar con git ls-remote, lanzar el ensayo del flujo con la fecha 2026-10-21 y completar el reporte. Si quedó parcial, ese ensayo está pendiente.
 4. Revisar en Supabase (proyecto hkxxufbzerkbdpjaowrz, bucket agendar) que la nube siga leyendo cada mañana (marcas/AAAA-MM-DD.json). Desde Claude se ve con mcp__Supabase__execute_sql sobre storage.objects (nombres, horas y tamaños, no el contenido).
-5. LO QUE SIGUE. Primera carga en la base real agendar_remates.db (hoy vacía, 0 ediciones). DECISIÓN de Diego del 21 de Octubre. No se carga el pasado. La base real parte con lo que la nube lee desde el 21 de Octubre y se nutre sola cada día. Las capturas viejas del PC (1 de Septiembre al 18 de Octubre) no entran. Pasos. Respaldar la base vacía, Diego pone CARGA_REAL_APROBADA = True en config.py, abre "Abrir Agenda.bat" y la agenda real baja el 21 de Octubre y lo que siga. Verificar en la base real lo cargado. Decidir con Diego si antes va la sesión de Claude Code acordada el 17 de Octubre.
+5. HECHO el 21 de Octubre (bitácora del 21, puntos 13 a 15). Lo que sigue es revisar el 22 de Octubre que la base real sume la edición del día al abrir la agenda (ediciones 2, sin franja negra). Respaldo de la base vacía en agendar_remates_vacia_antes_carga_21oct.db. Plazo de 30 días hacia atrás de interfaz\nube.py puesto por Claude, sigue a confirmar con Diego. Texto anterior del punto. Primera carga en la base real agendar_remates.db (hoy vacía, 0 ediciones). DECISIÓN de Diego del 21 de Octubre. No se carga el pasado. La base real parte con lo que la nube lee desde el 21 de Octubre y se nutre sola cada día. Las capturas viejas del PC (1 de Septiembre al 18 de Octubre) no entran. Pasos. Respaldar la base vacía, Diego pone CARGA_REAL_APROBADA = True en config.py, abre "Abrir Agenda.bat" y la agenda real baja el 21 de Octubre y lo que siga. Verificar en la base real lo cargado. Decidir con Diego si antes va la sesión de Claude Code acordada el 17 de Octubre.
 6. Otros pendientes, ninguno urgente. Feriados 2027 oficiales (provisorios por ley). Preguntas al abogado (PREGUNTAS_ABOGADO.md, la 9 es el "desde" del vale vista). Diseño de las visitas al tribunal. Ejemplo 9 de las instrucciones del vale vista de Haiku (cambiarlo obliga a leer todo de nuevo). Aviso de GitHub de Node 20 en actions/checkout@v4 y setup-python@v5. Vencimiento de la llave de GitHub "cron-job Agendar" (Diego anotó la fecha). Avisos que terminan con "EXTRACTO DE". Decidir si el Mercurio también descarta los tribunales no civiles (BITACORA_TRASPASO_MERCURIO.md). Los archivos temporales CARGAR_ENSAYO_18_OCT.bat y LEER_MERCURIO_18_OCT.bat ya no se usan. Google Calendar o celular, a futuro.
 7. Ediciones del 19 y 20 de Octubre. No están en la base de prueba ni como marca real en la nube (el 20 solo en pruebas/ensayo). Se pueden leer a mano con el flujo en modo real si Diego lo pide.
 
