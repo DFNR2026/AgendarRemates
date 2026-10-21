@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle San Pablo",
+     "numero": "4050",
+     "unidad": "departamento 1514",
+     "comuna": "Quinta Normal",
+     "frase_direccion": "ubicado en calle San Pablo N° 4050, Comuna de Quinta Normal",
+     "frase_unidad": "el departamento N° 1514",
+     "frase_comuna": "Comuna de Quinta Normal"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle San Pablo",
+     "numero": "4050",
+     "unidad": "departamento 1514",
+     "comuna": "Quinta Normal",
+     "frase_direccion": "ubicado en calle San Pablo N° 4050, Comuna de Quinta Normal",
+     "frase_unidad": "el departamento N° 1514",
+     "frase_comuna": "Comuna de Quinta Normal"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 635,
+   "salida": 145,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 635,
+   "salida": 145,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

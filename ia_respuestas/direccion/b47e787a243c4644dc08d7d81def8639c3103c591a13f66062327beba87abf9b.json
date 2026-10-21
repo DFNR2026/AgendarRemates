@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Conde de Manso",
+     "numero": "1150",
+     "unidad": "departamento 401",
+     "comuna": "Melipilla",
+     "frase_direccion": "que tiene su acceso por Avenida Conde de Manso N° 1150, de la comuna de Melipilla",
+     "frase_unidad": "departamento N° 401 del piso cuarto",
+     "frase_comuna": "de la comuna de Melipilla"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Conde de Manso",
+     "numero": "1150",
+     "unidad": "departamento 401",
+     "comuna": "Melipilla",
+     "frase_direccion": "que tiene su acceso por Avenida Conde de Manso N° 1150, de la comuna de Melipilla",
+     "frase_unidad": "departamento N° 401 del piso cuarto",
+     "frase_comuna": "de la comuna de Melipilla"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1296,
+   "salida": 158,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1296,
+   "salida": 158,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

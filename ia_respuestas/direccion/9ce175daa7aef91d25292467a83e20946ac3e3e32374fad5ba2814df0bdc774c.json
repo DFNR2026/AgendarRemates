@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Javiera Carrera",
+     "numero": "0760",
+     "unidad": "departamento I-302",
+     "comuna": "Temuco",
+     "frase_direccion": "con acceso principal por Avenida Javiera Carrera número 0760 de la comuna de Temuco",
+     "frase_unidad": "el departamento Número I-302 de la Torre I del tercer piso del Condominio Doña Javiera",
+     "frase_comuna": "de la comuna de Temuco"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Javiera Carrera",
+     "numero": "0760",
+     "unidad": "departamento I-302",
+     "comuna": "Temuco",
+     "frase_direccion": "con acceso principal por Avenida Javiera Carrera número 0760 de la comuna de Temuco",
+     "frase_unidad": "el departamento Número I-302 de la Torre I del tercer piso del Condominio Doña Javiera",
+     "frase_comuna": "de la comuna de Temuco"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1707,
+   "salida": 174,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1707,
+   "salida": 174,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

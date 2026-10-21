@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Dorsal",
+     "numero": "1301",
+     "unidad": "departamento 43",
+     "comuna": "Conchalí",
+     "frase_direccion": "ubicado en Avenida Dorsal número mil trescientos uno",
+     "frase_unidad": "departamento número cuarenta y tres",
+     "frase_comuna": "Comuna de Conchalí"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Dorsal",
+     "numero": "1301",
+     "unidad": "departamento 43",
+     "comuna": "Conchalí",
+     "frase_direccion": "ubicado en Avenida Dorsal número mil trescientos uno, Comuna de Conchalí",
+     "frase_unidad": "departamento número cuarenta y tres del Edificio número quince",
+     "frase_comuna": "Comuna de Conchalí"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 908,
+   "salida": 138,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 908,
+   "salida": 157,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

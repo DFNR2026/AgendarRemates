@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle El Quillay",
+     "numero": "928",
+     "unidad": null,
+     "comuna": "Colina",
+     "frase_direccion": "calle El Quillay N° 928",
+     "frase_unidad": null,
+     "frase_comuna": "Comuna Colina"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle El Quillay",
+     "numero": "928",
+     "unidad": null,
+     "comuna": "Colina",
+     "frase_direccion": "calle El Quillay N° 928",
+     "frase_unidad": null,
+     "frase_comuna": "Comuna Colina"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 702,
+   "salida": 103,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 702,
+   "salida": 103,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

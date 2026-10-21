@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle La Herradura Oriente",
+     "numero": "18.934",
+     "unidad": "unidad 57",
+     "comuna": "San Bernardo",
+     "frase_direccion": "calle La Herradura Oriente N° 18.934",
+     "frase_unidad": "la unidad N° 57",
+     "frase_comuna": "comuna de San Bernardo"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle La Herradura Oriente",
+     "numero": "18.934",
+     "unidad": "unidad 57",
+     "comuna": "San Bernardo",
+     "frase_direccion": "ubicada en calle La Herradura Oriente N° 18.934",
+     "frase_unidad": "la unidad N° 57",
+     "frase_comuna": "comuna de San Bernardo"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 908,
+   "salida": 132,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 908,
+   "salida": 137,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

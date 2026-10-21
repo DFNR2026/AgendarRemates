@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Catedral",
+     "numero": "1757",
+     "unidad": "departamento A 311",
+     "comuna": "Santiago",
+     "frase_direccion": "con acceso por calle Catedral 1757, Santiago",
+     "frase_unidad": "departamento A 311 del piso 3 Torre A",
+     "frase_comuna": "con acceso por calle Catedral 1757, Santiago"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Catedral",
+     "numero": "1757",
+     "unidad": "departamento A 311",
+     "comuna": "Santiago",
+     "frase_direccion": "con acceso por calle Catedral 1757, Santiago",
+     "frase_unidad": "departamento A 311 del piso 3 Torre A",
+     "frase_comuna": "con acceso por calle Catedral 1757, Santiago"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 467,
+   "salida": 145,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 467,
+   "salida": 145,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

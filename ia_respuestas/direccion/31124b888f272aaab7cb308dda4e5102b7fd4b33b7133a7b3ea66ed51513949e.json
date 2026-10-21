@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Hanga Roa",
+     "numero": "505",
+     "unidad": "departamento 3702",
+     "comuna": null,
+     "frase_direccion": "ubicado en Avenida Hanga Roa N° 505",
+     "frase_unidad": "Departamento número 3702",
+     "frase_comuna": null
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Hanga Roa",
+     "numero": "505",
+     "unidad": "departamento 3702",
+     "comuna": null,
+     "frase_direccion": "ubicado en Avenida Hanga Roa N° 505",
+     "frase_unidad": "Departamento número 3702",
+     "frase_comuna": null
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 787,
+   "salida": 118,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 787,
+   "salida": 118,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

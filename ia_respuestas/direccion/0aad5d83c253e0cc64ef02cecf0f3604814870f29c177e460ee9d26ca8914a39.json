@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida del Valle",
+     "numero": "10.730-27",
+     "unidad": "casa 27",
+     "comuna": "Colina",
+     "frase_direccion": "Avenida del Valle N° 10.730-27, unidad o casa N° 27 del ‘Condominio Los Abedules’",
+     "frase_unidad": "unidad o casa N° 27 del ‘Condominio Los Abedules’",
+     "frase_comuna": "comuna de Colina, Provincia de Chacabuco"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida del Valle",
+     "numero": "10.730-27",
+     "unidad": "casa 27",
+     "comuna": "Colina",
+     "frase_direccion": "Avenida del Valle N° 10.730-27",
+     "frase_unidad": "unidad o casa N° 27 del ‘Condominio Los Abedules’",
+     "frase_comuna": "comuna de Colina"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1327,
+   "salida": 180,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1327,
+   "salida": 141,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

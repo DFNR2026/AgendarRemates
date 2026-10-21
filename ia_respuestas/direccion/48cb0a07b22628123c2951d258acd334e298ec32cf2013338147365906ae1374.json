@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Fermín Vivaceta",
+     "numero": "3750",
+     "unidad": "departamento 512-B",
+     "comuna": "Conchalí",
+     "frase_direccion": "con acceso por Avenida Fermín Vivaceta número tres mil setecientos cincuenta",
+     "frase_unidad": "departamento número quinientos doce-B del quinto piso",
+     "frase_comuna": "Comuna de Conchalí"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Fermín Vivaceta",
+     "numero": "3750",
+     "unidad": "departamento 512-B",
+     "comuna": "Conchalí",
+     "frase_direccion": "con acceso por Avenida Fermín Vivaceta número tres mil setecientos cincuenta",
+     "frase_unidad": "departamento número quinientos doce-B del quinto piso",
+     "frase_comuna": "Comuna de Conchalí"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1452,
+   "salida": 161,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1452,
+   "salida": 161,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

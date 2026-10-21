@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Maisonave",
+     "numero": "948",
+     "unidad": null,
+     "comuna": "Lampa",
+     "frase_direccion": "la propiedad ubicada en Avenida Maisonave número novecientos cuarenta y ocho",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de Lampa"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Maisonave",
+     "numero": "948",
+     "unidad": null,
+     "comuna": "Lampa",
+     "frase_direccion": "Avenida Maisonave número novecientos cuarenta y ocho",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de Lampa"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 522,
+   "salida": 129,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 522,
+   "salida": 119,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

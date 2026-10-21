@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle San Roberto",
+     "numero": "1508",
+     "unidad": null,
+     "comuna": "Quilicura",
+     "frase_direccion": "ubicado en calle San Roberto número mil quinientos ocho",
+     "frase_unidad": null,
+     "frase_comuna": "comuna Quilicura"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle San Roberto",
+     "numero": "1508",
+     "unidad": null,
+     "comuna": "Quilicura",
+     "frase_direccion": "ubicado en calle San Roberto número mil quinientos ocho",
+     "frase_unidad": null,
+     "frase_comuna": "comuna Quilicura"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1340,
+   "salida": 118,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1340,
+   "salida": 118,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

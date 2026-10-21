@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "pasaje San Vicente De Paul",
+     "numero": "1728",
+     "unidad": null,
+     "comuna": "San Bernardo",
+     "frase_direccion": "pasaje San Vicente De Paul numero mil setecientos veintiocho",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de San Bernardo"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "pasaje San Vicente De Paul",
+     "numero": "1728",
+     "unidad": null,
+     "comuna": "San Bernardo",
+     "frase_direccion": "pasaje San Vicente De Paul numero mil setecientos veintiocho",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de San Bernardo"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 540,
+   "salida": 131,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 540,
+   "salida": 131,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

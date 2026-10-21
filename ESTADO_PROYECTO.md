@@ -155,8 +155,8 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
    ⬜ Diego agrega SUPABASE_URL, SUPABASE_KEY y CARGA_REAL_APROBADA a su config.py
    ✅ Sesión con Claude Code. Push 6b3055d y dos ensayos en verde (20 de Octubre con Haiku, 18 de Octubre idéntico al PC en 8 de 8 páginas). Bitácora del 20, puntos 19 a 24
    ✅ cron-job.org con tres trabajos de 6:30 a 8:35 y Test run fuera de la ventana sin efectos (bitácora del 20, puntos 25 a 27)
-   ⬜ Primera mañana automática, 21 de Octubre (punto 28)
-⬜ Traspaso del motor al Mercurio (guía en BITACORA_TRASPASO_MERCURIO.md)
+   ✅ Primera mañana automática, 21 de Octubre, intento 1 de 6:30 a 6:33, cargada en la agenda de prueba (bitácora del 21)
+✅ Traspaso del motor al Mercurio (hecho el 17 de Octubre, D:\Mercurio\MD_Vivos\REPORTE_PUSH_TRASPASO_2026-10-17.md, dado por realizado por Diego el 21 de Octubre). Lecciones nuevas para el Mercurio siguen en BITACORA_TRASPASO_MERCURIO.md
 ⬜ (Futuro) Google Calendar o celular
 
 ## Cómo se corre

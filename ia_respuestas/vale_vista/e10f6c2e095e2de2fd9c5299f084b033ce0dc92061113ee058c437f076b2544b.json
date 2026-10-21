@@ -1,0 +1,50 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "sin_dato",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": null,
+   "frases_extra": [
+    "Interesados deberán presentar garantía del 10% del mínimo mediante vale vista bancario a la orden del tribunal, vale vista deberá entregarse al Ministro de Fe del Tribunal.",
+    "Deberán enviar correo jcsantiago18 @pjud.cl comprobante legible de garantía, individualización, rol causa, con al menos 3 días de anticipación a la fecha de remate, señalar correo electrónico y numero de teléfono."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "sin_dato",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": null,
+   "frases_extra": [
+    "Deberán enviar correo jcsantiago18 @pjud.cl comprobante legible de garantía, individualización, rol causa, con al menos 3 días de anticipación a la fecha de remate, señalar correo electrónico y numero de teléfono."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 509,
+   "salida": 231,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 509,
+   "salida": 161,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

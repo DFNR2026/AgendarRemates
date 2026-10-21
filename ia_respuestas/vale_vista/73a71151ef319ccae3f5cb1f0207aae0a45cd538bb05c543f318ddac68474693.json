@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "entregado en Secretaría del Tribunal, el lunes o miércoles anterior al día del remate, en horario de 08:00 a 12.00 horas y de 13.00 a 14:00 horas",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "martes_o_jueves_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "entregado en Secretaría del Tribunal, el lunes o miércoles anterior al día del remate, en horario de 08:00 a 12.00 horas y de 13.00 a 14:00 horas",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 868,
+   "salida": 147,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 868,
+   "salida": 153,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

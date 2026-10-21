@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Calle A- Los Fresnos",
+     "numero": "1303-36",
+     "unidad": null,
+     "comuna": "Huechuraba",
+     "frase_direccion": "Propiedad ubicada en Calle A- Los Fresnos N° 1.303-36 del Condominio El Carmen de Huechuraba",
+     "frase_unidad": null,
+     "frase_comuna": "Comuna de Huechuraba"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Calle A- Los Fresnos",
+     "numero": "1303-36",
+     "unidad": null,
+     "comuna": "Huechuraba",
+     "frase_direccion": "Propiedad ubicada en Calle A- Los Fresnos N° 1.303-36 del Condominio El Carmen de Huechuraba",
+     "frase_unidad": null,
+     "frase_comuna": "Comuna de Huechuraba"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 706,
+   "salida": 155,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 706,
+   "salida": 155,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

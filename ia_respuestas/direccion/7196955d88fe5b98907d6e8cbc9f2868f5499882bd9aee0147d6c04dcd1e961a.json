@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Mateo de Toro y Zambrano",
+     "numero": "1331",
+     "unidad": "departamento 104",
+     "comuna": "La Reina",
+     "frase_direccion": "ubicado en calle Mateo de Toro y Zambrano número mil trescientos treinta y uno, comuna de La Reina",
+     "frase_unidad": "el inmueble consistente en el departamento Número ciento cuatro y la bodega número quince",
+     "frase_comuna": "comuna de La Reina"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Mateo de Toro y Zambrano",
+     "numero": "1331",
+     "unidad": "departamento 104",
+     "comuna": "La Reina",
+     "frase_direccion": "ubicado en calle Mateo de Toro y Zambrano número mil trescientos treinta y uno, comuna de La Reina",
+     "frase_unidad": "el inmueble consistente en el departamento Número ciento cuatro",
+     "frase_comuna": "comuna de La Reina"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 909,
+   "salida": 180,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 909,
+   "salida": 172,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

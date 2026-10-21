@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "en_el_remate",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "deberá presentarse en la Secretaría del tribunal al momento de efectuarse el llamado a remate",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "en_el_remate",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "deberá presentarse en la Secretaría del tribunal al momento de efectuarse el llamado a remate",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 629,
+   "salida": 112,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 629,
+   "salida": 112,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

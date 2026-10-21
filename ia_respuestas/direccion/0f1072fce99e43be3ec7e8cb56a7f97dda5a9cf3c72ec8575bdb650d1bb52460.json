@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida María Rozas Velásquez",
+     "numero": "61",
+     "unidad": "departamento 1417",
+     "comuna": "Estación Central",
+     "frase_direccion": "Avenida María Rozas Velásquez N° 61",
+     "frase_unidad": "el departamento N° 1.417",
+     "frase_comuna": "comuna de Estación Central"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida María Rozas Velásquez",
+     "numero": "61",
+     "unidad": "departamento 1417",
+     "comuna": "Estación Central",
+     "frase_direccion": "Avenida María Rozas Velásquez N° 61",
+     "frase_unidad": "el departamento N° 1.417",
+     "frase_comuna": "comuna de Estación Central"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 977,
+   "salida": 135,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 977,
+   "salida": 135,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

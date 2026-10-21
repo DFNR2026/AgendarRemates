@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Pasaje Ailla",
+     "numero": "6390",
+     "unidad": "departamento 32",
+     "comuna": "Pudahuel",
+     "frase_direccion": "departamento 32 del block de Pasaje Ailla 6.390 de la 9° Etapa del Conjunto Habitacional ’Villa del Sol’, Pudahuel",
+     "frase_unidad": "departamento 32 del block",
+     "frase_comuna": "Pudahuel"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Pasaje Ailla",
+     "numero": "6390",
+     "unidad": "departamento 32",
+     "comuna": "Pudahuel",
+     "frase_direccion": "departamento 32 del block de Pasaje Ailla 6.390",
+     "frase_unidad": "departamento 32",
+     "frase_comuna": "Pudahuel"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 763,
+   "salida": 168,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 763,
+   "salida": 127,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

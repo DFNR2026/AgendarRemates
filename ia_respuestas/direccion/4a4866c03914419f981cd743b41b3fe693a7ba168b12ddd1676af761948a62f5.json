@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Llanquihue",
+     "numero": "4138",
+     "unidad": "departamento 506",
+     "comuna": "Antofagasta",
+     "frase_direccion": "cuyo ingreso es por calle Llanquihue número 4.138",
+     "frase_unidad": "departamento número 506",
+     "frase_comuna": "ubicado en la comuna y región de Antofagasta"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Llanquihue",
+     "numero": "4138",
+     "unidad": "departamento 506",
+     "comuna": "Antofagasta",
+     "frase_direccion": "cuyo ingreso es por calle Llanquihue número 4.138",
+     "frase_unidad": "departamento número 506",
+     "frase_comuna": "ubicado en la comuna y región de Antofagasta"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 837,
+   "salida": 140,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 837,
+   "salida": 140,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Marchant Pereira",
+     "numero": "3361",
+     "unidad": "departamento 1508",
+     "comuna": "Ñuñoa",
+     "frase_direccion": "con acceso peatonal y vehicular por calle Marchant Pereira número tres mil trescientos sesenta y uno",
+     "frase_unidad": "Departamento número mil quinientos ocho",
+     "frase_comuna": "Comuna de Ñuñoa"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Marchant Pereira",
+     "numero": "3361",
+     "unidad": "departamento 1508",
+     "comuna": "Ñuñoa",
+     "frase_direccion": "con acceso peatonal y vehicular por calle Marchant Pereira número tres mil trescientos sesenta y uno",
+     "frase_unidad": "Departamento número mil quinientos ocho",
+     "frase_comuna": "Comuna de Ñuñoa"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 934,
+   "salida": 163,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 934,
+   "salida": 163,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Combarbalita",
+     "numero": "10565",
+     "unidad": null,
+     "comuna": "Colina",
+     "frase_direccion": "calle Combarbalita número diez mil quinientos sesenta y cinco",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de Colina"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Combarbalita",
+     "numero": "10565",
+     "unidad": null,
+     "comuna": "Colina",
+     "frase_direccion": "calle Combarbalita número diez mil quinientos sesenta y cinco",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de Colina"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 869,
+   "salida": 119,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 869,
+   "salida": 119,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

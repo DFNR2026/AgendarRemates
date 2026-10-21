@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Av. Vicuña Mackenna",
+     "numero": "881",
+     "unidad": "departamento 2.201 A",
+     "comuna": "Santiago",
+     "frase_direccion": "con acceso principal por Av. Vicuña Mackenna N° 881",
+     "frase_unidad": "el departamento N° 2.201 A del vigésimo segundo piso",
+     "frase_comuna": "comuna de Santiago"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Av. Vicuña Mackenna",
+     "numero": "881",
+     "unidad": "departamento 2.201 A",
+     "comuna": "Santiago",
+     "frase_direccion": "con acceso principal por Av. Vicuña Mackenna N° 881",
+     "frase_unidad": "el departamento N° 2.201 A",
+     "frase_comuna": "comuna de Santiago"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 964,
+   "salida": 154,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 964,
+   "salida": 143,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

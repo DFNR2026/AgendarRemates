@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "pasaje Río Backer",
+     "numero": "1316",
+     "unidad": null,
+     "comuna": "San Bernardo",
+     "frase_direccion": "pasaje Río Backer número mil trescientos dieciséis",
+     "frase_unidad": null,
+     "frase_comuna": "comuna San Bernardo"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "pasaje Río Backer",
+     "numero": "1316",
+     "unidad": null,
+     "comuna": "San Bernardo",
+     "frase_direccion": "pasaje Río Backer número mil trescientos dieciséis",
+     "frase_unidad": null,
+     "frase_comuna": "comuna San Bernardo"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 451,
+   "salida": 121,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 451,
+   "salida": 121,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

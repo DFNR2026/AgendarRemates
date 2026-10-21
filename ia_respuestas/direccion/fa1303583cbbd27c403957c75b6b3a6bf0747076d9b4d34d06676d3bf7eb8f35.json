@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Salesianos",
+     "numero": "870",
+     "unidad": "departamento 911",
+     "comuna": "San Miguel",
+     "frase_direccion": "cuya entrada es por calle Salesianos número ochocientos setenta y calle Berlín Número ochocientos cuarenta y tres",
+     "frase_unidad": "departamento Número novecientos once del noveno piso",
+     "frase_comuna": "de la comuna de San Miguel"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Salesianos",
+     "numero": "870 y 843",
+     "unidad": "departamento 911",
+     "comuna": "San Miguel",
+     "frase_direccion": "cuya entrada es por calle Salesianos número ochocientos setenta y calle Berlín Número ochocientos cuarenta y tres",
+     "frase_unidad": "departamento Número novecientos once del noveno piso",
+     "frase_comuna": "de la comuna de San Miguel"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 969,
+   "salida": 163,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 969,
+   "salida": 167,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Santa Isabel",
+     "numero": "517",
+     "unidad": "departamento 1501",
+     "comuna": "Santiago",
+     "frase_direccion": "Edificio con acceso por calle Santa Isabel número quinientos diecisiete",
+     "frase_unidad": "departamento número mil quinientos uno del piso quince",
+     "frase_comuna": "Comuna de Santiago"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Santa Isabel",
+     "numero": "517",
+     "unidad": "departamento 1501",
+     "comuna": "Santiago",
+     "frase_direccion": "Edificio con acceso por calle Santa Isabel número quinientos diecisiete",
+     "frase_unidad": "departamento número mil quinientos uno del piso quince",
+     "frase_comuna": "Comuna de Santiago"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1182,
+   "salida": 146,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1182,
+   "salida": 146,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

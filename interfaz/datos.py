@@ -300,6 +300,17 @@ def _edicion_de(con, remate_id):
                        (remate_id,)).fetchone()[0]
 
 
+def pub_remate(con, remate_id):
+    """El aviso de un remate con su link (y el de la página siguiente si va partido). Para las tablas de cambios (Diego,
+    21 de Octubre, para llegar al aviso físico de cada lado)."""
+    f = con.execute("SELECT edicion, ruta_inicio, ruta_fin FROM v_buscador WHERE remate_id = ? LIMIT 1", (remate_id,)).fetchone()
+    if not f:
+        return None
+    ed, ri, rf = f
+    return {"edicion": ed, "texto": dia_mes(ed), "href": BASE_URL + ri if ri else None,
+            "href_fin": BASE_URL + rf if rf else None, "ant": False}
+
+
 def avisos_grandes(con):
     """Cambios sin ver de las causas agendadas. Uno por par de publicaciones. El nuevo llamado va aparte (decisión de Diego)."""
     filas = con.execute("SELECT k.bien_id, k.remate_anterior, k.remate_nuevo, k.campo, k.valor_anterior, k.valor_nuevo FROM cambios k "
@@ -316,10 +327,12 @@ def avisos_grandes(con):
                                        {"campo": "Hora", "a": a["hora"] or "vacío", "b": n["hora"] or "vacío"},
                                        {"campo": "Mínimo", "a": a["minimo"], "b": n["minimo"]},
                                        {"campo": "Monto del vale vista", "a": a["monto"], "b": n["monto"]}],
-                             "nota": "Son dos remates distintos, no un error del aviso. Vale vista entregado y remate asistido volvieron a cero."})
+                             "nota": "Son dos remates distintos, no un error del aviso. Vale vista entregado y remate asistido volvieron a cero.",
+                             "pub_a": pub_remate(con, ra), "pub_b": pub_remate(con, rn)})
             continue
         g = cambios.setdefault((bien, ra, rn), {"bien_id": bien, "titulo": titulo, "caratula": car, "antes": f"Aviso del {dia_mes(ea)}",
-                                                 "despues": f"Aviso del {dia_mes(en)}", "filas": [], "fecha": False})
+                                                 "despues": f"Aviso del {dia_mes(en)}", "filas": [], "fecha": False,
+                                                 "pub_a": pub_remate(con, ra), "pub_b": pub_remate(con, rn)})
         g["filas"].append({"campo": _ETIQUETA.get(campo, campo), "a": valor_cambio(campo, va), "b": valor_cambio(campo, vn)})
         g["fecha"] = g["fecha"] or campo in ("fecha_remate", "hora_remate")
     grupos = list(cambios.values())

@@ -83,6 +83,12 @@ revisar("agenda. las dos causas agendadas, ordenadas por fecha del remate", [a["
 revisar("aviso de fechas cambiadas con su tabla (lote 1 del 12° Civil)", e["titulo_cambios"] == "FECHAS DE REMATES HAN SIDO CAMBIADAS EN DIFERENTES AVISOS"
         and e["cambios"][0]["filas"] == [{"campo": "Fecha del remate", "a": "Lunes 20 de Octubre de 2025", "b": "Martes 20 de Octubre de 2026"}]
         and e["cambios"][0]["titulo"].endswith("· lote 1"), json.dumps(e["cambios"], ensure_ascii=False)[:300])
+pa, pb = e["cambios"][0].get("pub_a") or {}, e["cambios"][0].get("pub_b") or {}
+revisar("aviso de fechas cambiadas con el link al aviso de cada lado (pedido de Diego, 21 de Octubre)",
+        e["cambios"][0]["antes"] == f"Aviso del {pa.get('texto')}" and e["cambios"][0]["despues"] == f"Aviso del {pb.get('texto')}"
+        and f"/{pa.get('edicion', 'x').replace('-', '/')}/" in (pa.get("href") or "") and f"/{pb.get('edicion', 'x').replace('-', '/')}/" in (pb.get("href") or "")
+        and pa.get("edicion") != pb.get("edicion"), json.dumps([pa, pb], ensure_ascii=False))
+revisar("nuevo llamado con el link al aviso de cada lado", all((x.get("pub_a") or {}).get("href") and (x.get("pub_b") or {}).get("href") for x in e["llamados"]) and e["llamados"] != [])
 ll = e["llamados"]
 revisar("aviso de nuevo llamado aparte, con fecha, mínimo y monto del vale vista", len(ll) == 1 and ll[0]["filas"][0]["b"] == "Viernes 23 de Octubre de 2026"
         and ll[0]["filas"][3] == {"campo": "Monto del vale vista", "a": "$8.418.561", "b": "$8.654.282"}, json.dumps(ll, ensure_ascii=False)[:300])

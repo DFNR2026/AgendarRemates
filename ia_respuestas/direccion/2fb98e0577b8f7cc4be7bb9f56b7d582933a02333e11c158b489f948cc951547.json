@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "pasaje El Consulado",
+     "numero": "11003",
+     "unidad": null,
+     "comuna": "La Pintana",
+     "frase_direccion": "pasaje El Consulado N° 11003",
+     "frase_unidad": null,
+     "frase_comuna": "Comuna de La Pintana"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "pasaje El Consulado",
+     "numero": "11003",
+     "unidad": null,
+     "comuna": "La Pintana",
+     "frase_direccion": "pasaje El Consulado N° 11003",
+     "frase_unidad": null,
+     "frase_comuna": "Comuna de La Pintana"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 717,
+   "salida": 114,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 717,
+   "salida": 114,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

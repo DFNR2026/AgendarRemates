@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Américo Vespucio",
+     "numero": "1350",
+     "unidad": "departamento 603",
+     "comuna": "Maipú",
+     "frase_direccion": "Avenida Américo Vespucio N° 1.350, comuna Maipú",
+     "frase_unidad": "departamento N° 603, sexto piso",
+     "frase_comuna": "comuna Maipú"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Américo Vespucio",
+     "numero": "1350",
+     "unidad": "departamento 603",
+     "comuna": "Maipú",
+     "frase_direccion": "Avenida Américo Vespucio N° 1.350, comuna Maipú",
+     "frase_unidad": "departamento N° 603",
+     "frase_comuna": "comuna Maipú"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 730,
+   "salida": 141,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 730,
+   "salida": 135,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Circunvalación",
+     "numero": "960",
+     "unidad": "departamento H-103",
+     "comuna": "Ovalle",
+     "frase_direccion": "el cual tiene su acceso por Avenida Circunvalación N° 960",
+     "frase_unidad": "el departamento N° H-103",
+     "frase_comuna": "comuna de Ovalle"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Circunvalación",
+     "numero": "960",
+     "unidad": "departamento H-103",
+     "comuna": "Ovalle",
+     "frase_direccion": "tiene su acceso por Avenida Circunvalación N° 960",
+     "frase_unidad": "el departamento N° H-103, ubicado en el piso uno, de la Torre H",
+     "frase_comuna": "comuna de Ovalle"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 977,
+   "salida": 137,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 977,
+   "salida": 152,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

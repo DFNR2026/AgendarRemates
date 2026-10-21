@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Toro Mazotte",
+     "numero": "110",
+     "unidad": "departamento 1911",
+     "comuna": "Estación Central",
+     "frase_direccion": "con ingreso por calle Toro Mazotte número ciento diez",
+     "frase_unidad": "departamento número mil novecientos once",
+     "frase_comuna": "comuna de Estación Central"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Toro Mazotte",
+     "numero": "110",
+     "unidad": "departamento 1911",
+     "comuna": "Estación Central",
+     "frase_direccion": "con ingreso por calle Toro Mazotte número ciento diez",
+     "frase_unidad": "departamento número mil novecientos once",
+     "frase_comuna": "comuna de Estación Central"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1509,
+   "salida": 136,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1509,
+   "salida": 136,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

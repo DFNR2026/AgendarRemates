@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Obispo Salas",
+     "numero": "445",
+     "unidad": "departamento 304",
+     "comuna": "Concepción",
+     "frase_direccion": "con acceso principal por calle Obispo Salas número cuatrocientos cuarenta y cinco, de la ciudad y comuna de Concepción",
+     "frase_unidad": "departamento trescientos cuatro del tercer piso",
+     "frase_comuna": "de la ciudad y comuna de Concepción"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Obispo Salas",
+     "numero": "445",
+     "unidad": "departamento 304",
+     "comuna": "Concepción",
+     "frase_direccion": "con acceso principal por calle Obispo Salas número cuatrocientos cuarenta y cinco, de la ciudad y comuna de Concepción",
+     "frase_unidad": "departamento trescientos cuatro del tercer piso",
+     "frase_comuna": "de la ciudad y comuna de Concepción"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 849,
+   "salida": 172,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 849,
+   "salida": 172,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

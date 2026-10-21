@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Calle Actor Fernando Gallardo",
+     "numero": "4292",
+     "unidad": null,
+     "comuna": "Maipú",
+     "frase_direccion": "Calle Actor Fernando Gallardo N° 4292",
+     "frase_unidad": null,
+     "frase_comuna": "Comunade Maipú"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Calle Actor Fernando Gallardo",
+     "numero": "4292",
+     "unidad": null,
+     "comuna": "Maipú",
+     "frase_direccion": "Calle Actor Fernando Gallardo N° 4292",
+     "frase_unidad": null,
+     "frase_comuna": "Comunade Maipú"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 642,
+   "salida": 123,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 642,
+   "salida": 123,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

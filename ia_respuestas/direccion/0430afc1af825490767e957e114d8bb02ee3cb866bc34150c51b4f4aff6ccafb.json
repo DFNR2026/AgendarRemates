@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Pasaje Diez - Ester Hunneus de Claro",
+     "numero": "2163",
+     "unidad": null,
+     "comuna": "colina",
+     "frase_direccion": "Pasaje Diez - Ester Hunneus de Claro número dos mil ciento sesenta y tres",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de colina"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Pasaje Diez - Ester Hunneus de Claro",
+     "numero": "2163",
+     "unidad": null,
+     "comuna": "colina",
+     "frase_direccion": "Pasaje Diez - Ester Hunneus de Claro número dos mil ciento sesenta y tres",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de colina"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 972,
+   "salida": 141,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 972,
+   "salida": 141,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

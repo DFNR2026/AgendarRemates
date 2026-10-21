@@ -1,0 +1,45 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior_sabado_a_habil",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "deberá ser presentado en la secretaría del tribunal, el día lunes precedente a la fecha fijada para la realización de la subasta y si este fuere feriado, el día martes inmediatamente siguiente al feriado, entre las 12:00 y 14:00 horas",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior_sabado_a_habil",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "12:00",
+   "hora_hasta": "14:00",
+   "frase_regla": "El vale vista o en su caso el cupón de pago, deberá ser presentado en la secretaría del tribunal, el día lunes precedente a la fecha fijada para la realización de la subasta y si este fuere feriado, el día martes inmediatamente siguiente al feriado, entre las 12:00 y 14:00 horas.",
+   "frases_extra": [],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1694,
+   "salida": 180,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1694,
+   "salida": 199,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

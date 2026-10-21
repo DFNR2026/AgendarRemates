@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 1,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "deberá ser entregado materialmente en secretaría del tribunal al menos una hora antes de subasta",
+   "frases_extra": [
+    "excepcionalmente podrán, si así lo prefieren, remplazar garantía referida precedentemente por depósito en cuenta corriente del tribunal por misma suma, debiendo ser efectuado al menos 72 horas antes de subasta"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "horas_antes",
+   "dias": null,
+   "horas": 1,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "deberá ser entregado materialmente en secretaría del tribunal al menos una hora antes de subasta",
+   "frases_extra": [
+    "excepcionalmente podrán, si así lo prefieren, remplazar garantía referida precedentemente por depósito en cuenta corriente del tribunal por misma suma, debiendo ser efectuado al menos 72 horas antes de subasta"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 886,
+   "salida": 192,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 886,
+   "salida": 192,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}
