@@ -73,8 +73,13 @@ revisar("vale vista, dirección y fecha iguales aviso por aviso a la carga con H
 QA = ("SELECT a.orden, al.tipo, al.texto FROM alertas al JOIN avisos a ON a.id = al.aviso_id JOIN ediciones e ON e.id = a.edicion_id "
       "WHERE e.fecha = '2026-10-18' ORDER BY 1, 2, 3")
 revisar("alertas del 18 iguales a la carga con Haiku", c.execute(QA).fetchall() == ref.execute(QA).fetchall())
-QC = "SELECT COUNT(*) FROM cambios"
-revisar("cambios entre publicaciones iguales a la carga con Haiku", c.execute(QC).fetchone() == ref.execute(QC).fetchone())
+# CORRECCIÓN del 21 de Octubre. Antes se comparaba el total de cambios de las dos bases, y eso dependía de lo cargado antes del 18
+# en interfaz_prueba.db (que se rehízo con el descarte de tribunales no civiles y pasó de 8 a 7). Ahora se comparan solo los
+# cambios que nacen con la edición del 18 de Octubre, que es lo que esta prueba carga.
+QC = ("SELECT k.campo, k.valor_anterior, k.valor_nuevo FROM cambios k JOIN remates r ON r.id = k.remate_nuevo JOIN avisos a ON a.id = r.aviso_id "
+      "JOIN ediciones e ON e.id = a.edicion_id WHERE e.fecha = '2026-10-18' ORDER BY 1, 2, 3")
+revisar("cambios que nacen con el 18 de Octubre iguales a la carga con Haiku", c.execute(QC).fetchall() == ref.execute(QC).fetchall(),
+        f"{c.execute(QC).fetchall()} {ref.execute(QC).fetchall()}")
 ref.close()
 
 r = N.actualizar(base, "2026-10-19", S, raiz=tmp, base_real=BASE_REAL, conf=CONF)
