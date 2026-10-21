@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida General Bustamante",
+     "numero": "1015",
+     "unidad": "departamento 183",
+     "comuna": "Ñuñoa",
+     "frase_direccion": "con acceso por Avenida General Bustamante mil quince, Comuna de Ñuñoa",
+     "frase_unidad": "el departamento número ciento ochenta y tres",
+     "frase_comuna": "Comuna de Ñuñoa"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida General Bustamante",
+     "numero": "1015",
+     "unidad": "departamento 183",
+     "comuna": "Ñuñoa",
+     "frase_direccion": "con acceso por Avenida General Bustamante mil quince",
+     "frase_unidad": "el departamento número ciento ochenta y tres",
+     "frase_comuna": "Comuna de Ñuñoa"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 797,
+   "salida": 155,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 797,
+   "salida": 142,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

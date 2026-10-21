@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:30",
+   "hora_hasta": "12:30",
+   "frase_regla": "La entrega del vale vista a la orden del Tribunal, deberá efectuarse en forma presencial ante la Sra. Secretaria del Tribunal el día hábil anterior a la fecha fijada para el remate, entre las 8:30 y las 12:30 horas",
+   "frases_extra": [
+    "Los cupones de pago deberán ser acompañados a la causa, para calificar su suficiencia, a más tardar el día hábil anterior a la subasta, hasta las 12:30 hrs, por medio de la respectiva presentación a través de la OJV."
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": "08:30",
+   "hora_hasta": "12:30",
+   "frase_regla": "La entrega del vale vista a la orden del Tribunal, deberá efectuarse en forma presencial ante la Sra. Secretaria del Tribunal el día hábil anterior a la fecha fijada para el remate, entre las 8:30 y las 12:30 horas",
+   "frases_extra": [
+    "Los cupones de pago deberán ser acompañados a la causa, para calificar su suficiencia, a más tardar el día hábil anterior a la subasta, hasta las 12:30 hrs, por medio de la respectiva presentación a través de la OJV."
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 973,
+   "salida": 259,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 973,
+   "salida": 259,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

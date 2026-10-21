@@ -1,0 +1,47 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "14:00",
+   "frase_regla": "todo hasta las 14:00 horas del día anterior a la fecha fijada para el remate",
+   "frases_extra": [],
+   "contradiccion": null
+  },
+  {
+   "regla": "dia_anterior",
+   "dias": null,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "14:00",
+   "frase_regla": "todo hasta las 14:00 horas del día anterior a la fecha fijada para el remate",
+   "frases_extra": [
+    "no se aceptará otro modo de consignación o comprobante de garantía a la ya indicada, tales como transferencia electrónica, vale vista, entre otros"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1160,
+   "salida": 109,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1160,
+   "salida": 162,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

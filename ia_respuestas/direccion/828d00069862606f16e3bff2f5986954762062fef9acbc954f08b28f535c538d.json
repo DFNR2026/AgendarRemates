@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Pasaje Salvador Sanfuentes",
+     "numero": "10735",
+     "unidad": null,
+     "comuna": "La Pintana",
+     "frase_direccion": "Pasaje Salvador Sanfuentes número diez mil setecientos treinta y cinco",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de La Pintana"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Pasaje Salvador Sanfuentes",
+     "numero": "10735",
+     "unidad": null,
+     "comuna": "La Pintana",
+     "frase_direccion": "Pasaje Salvador Sanfuentes número diez mil setecientos treinta y cinco",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de La Pintana"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 969,
+   "salida": 138,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 969,
+   "salida": 138,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

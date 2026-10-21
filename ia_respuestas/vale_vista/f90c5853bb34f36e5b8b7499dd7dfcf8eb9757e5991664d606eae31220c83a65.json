@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "14:00",
+   "frase_regla": "el que deberá ser presentado materialmente el día hábil inmediatamente anterior al día del remate hasta las 14:00 horas",
+   "frases_extra": [
+    "hasta las 14:00 horas del día hábil anterior a la fecha fijada para el remate, a fin de coordinar su participación"
+   ],
+   "contradiccion": "hasta las 14:00 horas del día hábil anterior a la fecha fijada para el remate, a fin de coordinar su participación"
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 1,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": "14:00",
+   "frase_regla": "el que deberá ser presentado materialmente el día hábil inmediatamente anterior al día del remate hasta las 14:00 horas",
+   "frases_extra": [
+    "hasta las 14:00 horas del día hábil anterior a la fecha fijada para el remate, a fin de coordinar su participación"
+   ],
+   "contradiccion": "hasta las 14:00 horas del día hábil anterior a la fecha fijada para el remate, a fin de coordinar su participación"
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1188,
+   "salida": 214,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1188,
+   "salida": 214,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Serena",
+     "numero": "930",
+     "unidad": "departamento",
+     "comuna": "Quilpué",
+     "frase_direccion": "Departamento en calle Serena N° 930, Quilpué",
+     "frase_unidad": "Departamento en calle Serena N° 930, Quilpué",
+     "frase_comuna": "Departamento en calle Serena N° 930, Quilpué"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Casa de José Tomás Ramos",
+     "numero": "254 al 266",
+     "unidad": null,
+     "comuna": "Valparaíso",
+     "frase_direccion": "Casa de José Tomás Ramos N° 254 al 266, Valparaíso",
+     "frase_unidad": null,
+     "frase_comuna": "Casa de José Tomás Ramos N° 254 al 266, Valparaíso"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 766,
+   "salida": 144,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 766,
+   "salida": 154,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Domingo Santa Cruz",
+     "numero": "3758",
+     "unidad": null,
+     "comuna": "Puente Alto",
+     "frase_direccion": "calle Domingo Santa Cruz N° 3758",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de Puente Alto"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Domingo Santa Cruz",
+     "numero": "3758",
+     "unidad": null,
+     "comuna": "Puente Alto",
+     "frase_direccion": "calle Domingo Santa Cruz N° 3758",
+     "frase_unidad": null,
+     "frase_comuna": "comuna de Puente Alto"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 890,
+   "salida": 123,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 890,
+   "salida": 123,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

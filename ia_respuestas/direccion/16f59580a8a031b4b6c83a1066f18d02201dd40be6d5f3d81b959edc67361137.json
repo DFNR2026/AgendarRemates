@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Rodrigo de Araya",
+     "numero": "4507",
+     "unidad": "departamento 206",
+     "comuna": "Macul",
+     "frase_direccion": "con acceso por calle Rodrigo de Araya N° 4507",
+     "frase_unidad": "propiedad consistente en el departamento N° 206 del segundo piso",
+     "frase_comuna": "comuna de Macul"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Rodrigo de Araya",
+     "numero": "4507",
+     "unidad": "departamento 206",
+     "comuna": "Macul",
+     "frase_direccion": "con acceso por calle Rodrigo de Araya N° 4507, comuna de Macul",
+     "frase_unidad": "propiedad consistente en el departamento N° 206 del segundo piso",
+     "frase_comuna": "comuna de Macul"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1156,
+   "salida": 146,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1156,
+   "salida": 154,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

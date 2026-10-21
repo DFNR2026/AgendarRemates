@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Carmen Sylva",
+     "numero": "2326",
+     "unidad": "departamento 605",
+     "comuna": "Providencia",
+     "frase_direccion": "Carmen Sylva 2326, Providencia",
+     "frase_unidad": "departamento 605",
+     "frase_comuna": "Providencia"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Carmen Sylva",
+     "numero": "2326",
+     "unidad": "departamento 605",
+     "comuna": "Providencia",
+     "frase_direccion": "Carmen Sylva 2326, Providencia",
+     "frase_unidad": "departamento 605",
+     "frase_comuna": "Providencia"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 706,
+   "salida": 116,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 706,
+   "salida": 116,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

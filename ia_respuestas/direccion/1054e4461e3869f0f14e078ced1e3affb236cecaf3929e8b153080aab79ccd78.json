@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Pedro León Ugalde",
+     "numero": "864",
+     "unidad": "departamento 409",
+     "comuna": "Quinta Normal",
+     "frase_direccion": "cuyo acceso principal corresponde a calle Pedro León Ugalde número ochocientos sesenta y cuatro",
+     "frase_unidad": "la propiedad que corresponde al departamento número cuatrocientos nueve",
+     "frase_comuna": "Comuna de Quinta Normal"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "calle Pedro León Ugalde",
+     "numero": "864",
+     "unidad": "departamento 409",
+     "comuna": "Quinta Normal",
+     "frase_direccion": "cuyo acceso principal corresponde a calle Pedro León Ugalde número ochocientos sesenta y cuatro",
+     "frase_unidad": "la propiedad que corresponde al departamento número cuatrocientos nueve",
+     "frase_comuna": "Comuna de Quinta Normal"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1365,
+   "salida": 175,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1365,
+   "salida": 175,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

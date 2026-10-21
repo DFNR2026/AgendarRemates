@@ -1,0 +1,49 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "vv-2",
+ "lecturas": [
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 3,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Debiendo cada postor entregar dicho documento materialmente en el mesón del tribunal con a lo menos 3 días hábiles de anticipación a la fecha del remate",
+   "frases_extra": [
+    "Cada postor deber remitir al correo electrónico del Tribunal jcsantiago18 @pjud.cl, comprobante legible de haber rendido la garantía, su individualización e indicando el número de rol de la causa en cuyo remate participará, con a lo menos 3 días hábiles de anticipación a la fecha del remate"
+   ],
+   "contradiccion": null
+  },
+  {
+   "regla": "dias_habiles_antes",
+   "dias": 3,
+   "horas": null,
+   "fecha": null,
+   "hora_desde": null,
+   "hora_hasta": null,
+   "frase_regla": "Debiendo cada postor entregar dicho documento materialmente en el mesón del tribunal con a lo menos 3 días hábiles de anticipación a la fecha del remate",
+   "frases_extra": [
+    "Cada postor deber remitir al correo electrónico del Tribunal jcsantiago18 @pjud.cl, comprobante legible de haber rendido la garantía, su individualización e indicando el número de rol de la causa en cuyo remate participará, con a lo menos 3 días hábiles de anticipación a la fecha del remate"
+   ],
+   "contradiccion": null
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 1231,
+   "salida": 249,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 1231,
+   "salida": 249,
+   "cache_lectura": 2561,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

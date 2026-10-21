@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "sin_calle",
+     "calle": null,
+     "numero": null,
+     "unidad": null,
+     "comuna": "Freire",
+     "frase_direccion": "retazo de una superficie de veinticinco coma cinco hectáreas aproximadamente, que corresponde al lote letra a, de la división de la parcela número seis del proyecto de parcelación el roble, ubicado en la comuna de Freire, departamento de Temuco",
+     "frase_unidad": null,
+     "frase_comuna": "ubicado en la comuna de Freire"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "sin_calle",
+     "calle": null,
+     "numero": null,
+     "unidad": null,
+     "comuna": "Freire",
+     "frase_direccion": "retazo de una superficie de veinticinco coma cinco hectáreas aproximadamente, que corresponde al lote letra a, de la división de la parcela número seis del proyecto de parcelación el roble, ubicado en la comuna de Freire, departamento de Temuco",
+     "frase_unidad": null,
+     "frase_comuna": "ubicado en la comuna de Freire"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 653,
+   "salida": 185,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 653,
+   "salida": 185,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}

@@ -1,0 +1,52 @@
+{
+ "modelo": "claude-haiku-5-5",
+ "version": "dir-2",
+ "n_remates": 1,
+ "lecturas": [
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Isabel Riquelme Sur",
+     "numero": "1535",
+     "unidad": "departamento J-55",
+     "comuna": "Maipú",
+     "frase_direccion": "el edificio que tiene su entrada por Avenida Isabel Riquelme Sur N° 1535",
+     "frase_unidad": "departamento J-55 del quinto piso",
+     "frase_comuna": "comuna de Maipú"
+    }
+   ]
+  },
+  {
+   "inmuebles": [
+    {
+     "tipo": "calle",
+     "calle": "Avenida Isabel Riquelme Sur",
+     "numero": "1535",
+     "unidad": "departamento J-55",
+     "comuna": "Maipú",
+     "frase_direccion": "el edificio que tiene su entrada por Avenida Isabel Riquelme Sur N° 1535",
+     "frase_unidad": "departamento J-55 del quinto piso",
+     "frase_comuna": "comuna de Maipú"
+    }
+   ]
+  }
+ ],
+ "uso": [
+  {
+   "entrada": 986,
+   "salida": 155,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  },
+  {
+   "entrada": 986,
+   "salida": 155,
+   "cache_lectura": 2388,
+   "cache_escritura": 0,
+   "stop": "end_turn"
+  }
+ ],
+ "errores": []
+}
