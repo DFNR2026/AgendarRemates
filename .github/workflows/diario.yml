@@ -1,0 +1,116 @@
+# Lectura diaria de Agendar_Remates (20 de Octubre de 2026). Ver servidor/diario.py y la bitácora del 20.
+# Intenta cada 20 minutos desde las 6:30 hasta las 8:35 de Chile (decisión de Diego, hora y media después del Mercurio).
+# El primero que sale bien deja una marca en Supabase y los siguientes no hacen nada.
+# Despertador principal cron-job.org (llama a la API de GitHub con origen=automatico y modo=real), igual que el Mercurio,
+# porque desde fines de Agosto de 2026 GitHub atrasa o no dispara los horarios. El horario de GitHub queda de respaldo.
+# GitHub usa hora universal y Chile cambia de hora (UTC-3 en verano, UTC-4 en invierno). Los horarios cubren las dos
+# y el primer paso se salta cualquier intento fuera de 6:25 a 8:40 de Chile.
+# A mano (Run workflow) corre por defecto en modo ensayo, que guarda en pruebas/ensayo/ y no toca marcas/.
+name: Lectura diaria de remates
+
+on:
+  schedule:
+    # Verano 6:30 6:50 7:10 7:30 7:50 8:10 8:35. Invierno lo mismo una hora UTC más tarde.
+    - cron: "30,50 9,10,11 * * *"
+    - cron: "10 10,11,12 * * *"
+    - cron: "35 11,12 * * *"
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "ensayo (guarda en pruebas/ensayo) o real (marcas/ y capturas/)"
+        required: true
+        default: "ensayo"
+        type: choice
+        options: [ensayo, real]
+      fecha:
+        description: "Edición AAAA-MM-DD (vacío es hoy)"
+        required: false
+        default: ""
+      origen:
+        description: "manual (botón) o automatico (lo usa cron-job.org)"
+        required: false
+        default: "manual"
+        type: choice
+        options: [manual, automatico]
+
+concurrency:
+  group: lectura-diaria
+  cancel-in-progress: false
+
+jobs:
+  diario:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      TZ: America/Santiago
+      MODO: ${{ github.event_name == 'schedule' && 'real' || inputs.modo }}
+      FECHA: ${{ inputs.fecha }}
+      AUTOMATICO: ${{ (github.event_name == 'schedule' || inputs.origen == 'automatico') && 'si' || 'no' }}
+      INTENTO_FINAL: ${{ (github.event_name == 'schedule' || inputs.origen == 'automatico') && '' || '1' }}
+    steps:
+      - name: Revisar la hora de Chile (fuera de 6:25 a 8:40 no se intenta)
+        id: hora
+        run: |
+          hm=$(date +%H%M)
+          echo "Hora de Chile $(date '+%H:%M')"
+          echo "Origen ${{ github.event_name }} / ${{ inputs.origen }}. Automático $AUTOMATICO. Modo $MODO"
+          if [ "$AUTOMATICO" = "si" ] && [ "$MODO" = "real" ] && { [ "$hm" -lt 0625 ] || [ "$hm" -gt 0840 ]; }; then
+            echo "Fuera de la ventana. Este intento no hace nada."
+            echo "seguir=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "seguir=si" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Mirar si la edición ya quedó hecha (sin instalar nada)
+        id: marca
+        if: steps.hora.outputs.seguir == 'si'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          f="${FECHA:-$(date +%F)}"
+          if [ "$MODO" != "real" ]; then echo "seguir=si" >> "$GITHUB_OUTPUT"; exit 0; fi
+          code=$(curl -sS -o /dev/null -w "%{http_code}" -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
+            "${SUPABASE_URL%/}/storage/v1/object/agendar/marcas/$f.json")
+          echo "Marca de $f. Respuesta $code"
+          if [ "$code" = "200" ]; then echo "Ya está hecha. No se hace nada."; echo "seguir=no" >> "$GITHUB_OUTPUT"
+          else echo "seguir=si" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Bajar el código
+        if: steps.hora.outputs.seguir == 'si' && steps.marca.outputs.seguir == 'si'
+        uses: actions/checkout@v4
+
+      - name: Instalar Python 3.14
+        if: steps.hora.outputs.seguir == 'si' && steps.marca.outputs.seguir == 'si'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Instalar librerías y el navegador Chromium
+        if: steps.hora.outputs.seguir == 'si' && steps.marca.outputs.seguir == 'si'
+        run: |
+          python -m pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Armar config.py desde la plantilla (las claves se leen de los secretos al correr)
+        if: steps.hora.outputs.seguir == 'si' && steps.marca.outputs.seguir == 'si'
+        run: |
+          cp config_template.py config.py
+          cat >> config.py <<'PY'
+
+          # Agregado por el servidor de GitHub. Los valores vienen de los secretos del repositorio.
+          import os
+          MERCURIO_USER = os.environ.get("MERCURIO_USER", "")
+          MERCURIO_PASS = os.environ.get("MERCURIO_PASS", "")
+          ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+          PY
+
+      - name: Lectura del día
+        if: steps.hora.outputs.seguir == 'si' && steps.marca.outputs.seguir == 'si'
+        env:
+          MERCURIO_USER: ${{ secrets.MERCURIO_USER }}
+          MERCURIO_PASS: ${{ secrets.MERCURIO_PASS }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python -m servidor.diario
