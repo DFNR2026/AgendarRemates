@@ -11,7 +11,7 @@ import datetime as dt, importlib.util, json, os, shutil, tempfile, threading, zi
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
-DIAS_ATRAS = 30          # cuántos días hacia atrás se buscan ediciones en la nube. Puesto por Claude, a confirmar con Diego.
+DIAS_ATRAS = 30          # cuántos días hacia atrás se buscan ediciones en la nube. Confirmado por Diego el 22 de Octubre.
 CANDADO = threading.Lock()
 
 
