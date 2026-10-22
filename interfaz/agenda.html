@@ -6,72 +6,74 @@
 <title>Agenda de remates</title>
 <script>/* Tema guardado en este PC. Sin dato, oscuro. */function TEMA(){return document.documentElement.dataset.tema||'oscuro'}function PONER_TEMA(t){if(t==='claro')document.documentElement.dataset.tema='claro';else delete document.documentElement.dataset.tema}try{PONER_TEMA(localStorage.getItem('tema'))}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
 /* Diseño de la variante B elegida por Diego el 18 de Octubre (crema y café), con modo oscuro desde el 21 de Octubre. Si no hay internet, usa las letras del PC. */
-/* Modo oscuro predeterminado (Diego, 21 de Octubre). El claro es el original de la variante B y se elige con el botón Modo claro. */
-:root{--fondo:#17120E;--papel:#211A14;--blanco:#2A221B;--borde:#3D3127;--tinta:#EDE3D3;--suave:#B6A48E;--cafe:#D89A66;--vv:#6A5440;--rojo:#E8846D;--negro:#050403;--hoy:#F3EBDD;--sobre:#1C140E;--sel:#3A2C20;--lk-tx:#F0C79C;--lk-borde:#7A5E44;--lk-ant:#6A5642;--mano:#4A3A26;--mano-tx:#F1D9A8;--asu:#5A4318;--err:#4A2019;--err-tx:#F6B8AA;--amb:#4A3816;--amb-tx:#EBC98A;--info:#2E251D;--tinta2:#CDBEA9;--linea:#342A21;--campo:#4A3B2E;--verde:#22341C;--verde-tx:#A9D49A;--ok:#8CC27A;--amb2:#3F3110;--amb2-tx:#F0CF85;--famb-tx:#F0CF85;--famb-borde:#8A6A26;--cita:#E0D3C0;--finde:#8E7D69;--sombra:rgba(0,0,0,.55);--velo:rgba(0,0,0,.78);--fn-borde:#5A4838;color-scheme:dark}
-:root[data-tema="claro"]{--fondo:#F3EBDD;--papel:#FBF6EC;--blanco:#FFFFFF;--borde:#DCCBB0;--tinta:#3B2A1E;--suave:#7A6450;--cafe:#6B3F22;--vv:#D9B98C;--rojo:#A3301F;--negro:#1A1410;--hoy:#1A1410;--sobre:#FFFFFF;--sel:#F2E2C6;--lk-tx:#4A2A15;--lk-borde:#C8A878;--lk-ant:#B79A74;--mano:#E8D5B5;--mano-tx:#4A2A10;--asu:#E9C98F;--err:#F6DDD7;--err-tx:#7E2214;--amb:#F2E0BC;--amb-tx:#5A3A0E;--info:#EFE5D3;--tinta2:#5C4A39;--linea:#E8DCC8;--campo:#C8B08C;--verde:#E3EDD9;--verde-tx:#2F5424;--ok:#3E6B2F;--amb2:#F6E3B4;--amb2-tx:#6A4300;--famb-tx:#4A3000;--famb-borde:#DDBB6C;--cita:#4A3A2C;--finde:#9C8670;--sombra:rgba(59,42,30,.18);--velo:rgba(26,20,16,.82);--fn-borde:transparent;color-scheme:light}
+/* Modo oscuro predeterminado, tema Grafito y cian (Diego, 22 de Octubre, antes café oscuro desde el 21). El claro es el original de la variante B y se elige con el botón Modo claro. Letra y esquinas van en variables (--letra, --mono, --r) para que el claro no cambie. */
+:root{--fondo:#111315;--papel:#191C20;--blanco:#20242A;--borde:#2E333B;--tinta:#E7E9EC;--suave:#9AA3AE;--cafe:#5CC8DB;--vv:#1F4650;--rojo:#F07A6A;--negro:#050607;--hoy:#F7F8FA;--sobre:#071A1E;--sel:#16303A;--lk-tx:#8FDCEA;--lk-borde:#2E6672;--lk-ant:#4A505A;--mano:#2C3440;--mano-tx:#C9D4E2;--asu:#262B31;--err:#24191C;--err-tx:#F6B3AA;--amb:#1F2328;--amb-tx:#F2CF7E;--info:#23272D;--tinta2:#BCC3CC;--linea:#262A31;--campo:#3A4049;--verde:#1B2A27;--verde-tx:#9FDDB3;--ok:#86D19E;--amb2:#1F2328;--amb2-tx:#F2CF7E;--famb-tx:#F2CF7E;--famb-borde:#A8863A;--cita:#D5D9DE;--finde:#6F7781;--sombra:rgba(0,0,0,.6);--velo:rgba(0,0,0,.78);--fn-borde:#3A4049;--fn-nota:#B8C0CA;--letra:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;--mono:'IBM Plex Mono',Consolas,monospace;--r:.45;--verde-borde:#3F7A5A;color-scheme:dark}
+:root[data-tema="claro"]{--fondo:#F3EBDD;--papel:#FBF6EC;--blanco:#FFFFFF;--borde:#DCCBB0;--tinta:#3B2A1E;--suave:#7A6450;--cafe:#6B3F22;--vv:#D9B98C;--rojo:#A3301F;--negro:#1A1410;--hoy:#1A1410;--sobre:#FFFFFF;--sel:#F2E2C6;--lk-tx:#4A2A15;--lk-borde:#C8A878;--lk-ant:#B79A74;--mano:#E8D5B5;--mano-tx:#4A2A10;--asu:#E9C98F;--err:#F6DDD7;--err-tx:#7E2214;--amb:#F2E0BC;--amb-tx:#5A3A0E;--info:#EFE5D3;--tinta2:#5C4A39;--linea:#E8DCC8;--campo:#C8B08C;--verde:#E3EDD9;--verde-tx:#2F5424;--ok:#3E6B2F;--amb2:#F6E3B4;--amb2-tx:#6A4300;--famb-tx:#4A3000;--famb-borde:#DDBB6C;--cita:#4A3A2C;--finde:#9C8670;--sombra:rgba(59,42,30,.18);--velo:rgba(26,20,16,.82);--fn-borde:transparent;--fn-nota:#E8D5B5;--letra:'Archivo','Segoe UI',system-ui,sans-serif;--mono:'JetBrains Mono',Consolas,monospace;--r:1;--verde-borde:transparent;color-scheme:light}
 *{box-sizing:border-box}
-body{margin:0;background:var(--fondo);color:var(--tinta);font-family:'Archivo','Segoe UI',system-ui,sans-serif}
+body{margin:0;background:var(--fondo);color:var(--tinta);font-family:var(--letra)}
 a{color:var(--cafe)}a:hover{color:var(--lk-tx)}
 button{font-family:inherit}
 .raiz{position:relative;min-height:100vh;display:flex;flex-wrap:wrap}
 .izq{flex:0 0 340px;max-width:100%;background:var(--papel);border-right:1px solid var(--borde);padding:26px 20px;display:flex;flex-direction:column;gap:12px}
 .centro{flex:999 1 560px;min-width:0;padding:26px 28px 48px;display:flex;flex-direction:column;gap:16px}
 .riel{width:84px;padding-top:22px;display:flex;justify-content:center}
-.lupa{width:60px;height:60px;border-radius:18px;border:0;background:var(--cafe);color:var(--sobre);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lupa{width:60px;height:60px;border-radius:calc(18px*var(--r));border:0;background:var(--cafe);color:var(--sobre);cursor:pointer;display:flex;align-items:center;justify-content:center}
 .panel{position:absolute;top:0;right:0;min-height:100%;width:440px;max-width:100%;background:var(--papel);border-left:1px solid var(--borde);box-shadow:-12px 0 32px var(--sombra);padding:26px 22px;display:flex;flex-direction:column;gap:12px}
 .oculto{display:none}
 h2.tit{margin:0;font-size:17px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .cuenta{background:var(--cafe);color:var(--sobre);border-radius:999px;padding:2px 9px;font-size:13px;font-weight:700}
-.tarjeta{background:var(--blanco);border:1px solid var(--borde);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;scroll-margin-top:16px}
+.tarjeta{background:var(--blanco);border:1px solid var(--borde);border-radius:calc(12px*var(--r));padding:12px 14px;display:flex;flex-direction:column;gap:5px;scroll-margin-top:16px}
 .tarjeta.sel{background:var(--sel);border:2px solid var(--cafe)}
 .fila{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
-.rol{font-family:'JetBrains Mono',Consolas,monospace;font-size:13px;font-weight:600}
+.rol{font-family:var(--mono);font-size:13px;font-weight:600}
 .car{font-weight:600;font-size:14px;line-height:1.3}
 .peq{font-size:13px}.gris{color:var(--suave)}
-.x{width:32px;height:32px;border:1px solid var(--borde);background:var(--papel);color:var(--suave);border-radius:8px;cursor:pointer;flex:0 0 auto}
-.x44{width:44px;height:44px;border:1px solid var(--borde);background:var(--fondo);color:var(--tinta);border-radius:10px;cursor:pointer;font-size:18px}
-.etq{align-self:flex-start;font-size:11px;font-weight:800;padding:2px 7px;border-radius:4px;letter-spacing:.04em}
+.x{width:32px;height:32px;border:1px solid var(--borde);background:var(--papel);color:var(--suave);border-radius:calc(8px*var(--r));cursor:pointer;flex:0 0 auto}
+.x44{width:44px;height:44px;border:1px solid var(--borde);background:var(--fondo);color:var(--tinta);border-radius:calc(10px*var(--r));cursor:pointer;font-size:18px}
+.etq{align-self:flex-start;font-size:11px;font-weight:800;padding:2px 7px;border-radius:calc(4px*var(--r));letter-spacing:.04em}
 .etq.mano{background:var(--mano);color:var(--mano-tx)}.etq.llamado{background:var(--cafe);color:var(--sobre)}
-.tag{font-size:11px;font-weight:800;padding:2px 6px;border-radius:4px}
+.tag{font-size:11px;font-weight:800;padding:2px 6px;border-radius:calc(4px*var(--r))}
 .tag.asu{background:var(--asu);color:var(--mano-tx)}.tag.pct{background:var(--rojo);color:var(--sobre)}
-.al{font-size:12px;padding:6px 8px;border-radius:8px}
+.al{font-size:12px;padding:6px 8px;border-radius:calc(8px*var(--r))}
 .al.rojo{background:var(--err);color:var(--err-tx);font-weight:700}.al.ambar{background:var(--amb);color:var(--amb-tx)}.al.info{background:var(--info);color:var(--tinta2)}
 .links{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .lk{display:inline-flex;align-items:center;min-height:30px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;text-decoration:none;background:var(--sel);color:var(--lk-tx);border:1px solid var(--lk-borde)}
 .lk.ant{background:var(--papel);color:var(--suave);border:1px dashed var(--lk-ant)}
-.btn{background:var(--cafe);color:var(--sobre);border:0;border-radius:10px;padding:10px 16px;min-height:44px;font-size:14px;font-weight:700;cursor:pointer}
-.btn2{background:var(--papel);color:var(--cafe);border:1px solid var(--cafe);border-radius:8px;padding:6px 12px;min-height:36px;font-size:13px;font-weight:700;cursor:pointer}
+.btn{background:var(--cafe);color:var(--sobre);border:0;border-radius:calc(10px*var(--r));padding:10px 16px;min-height:44px;font-size:14px;font-weight:700;cursor:pointer}
+.btn2{background:var(--papel);color:var(--cafe);border:1px solid var(--cafe);border-radius:calc(8px*var(--r));padding:6px 12px;min-height:36px;font-size:13px;font-weight:700;cursor:pointer}
 .chk{display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}.chk input{width:18px;height:18px;accent-color:var(--cafe)}
-.aviso-pub{background:var(--mano);border-radius:8px;padding:8px 10px;font-size:12px;display:flex;flex-direction:column;gap:6px}
+.aviso-pub{background:var(--mano);border-radius:calc(8px*var(--r));padding:8px 10px;font-size:12px;display:flex;flex-direction:column;gap:6px}
 header.cab{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.velo{position:fixed;inset:0;background:var(--velo);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}.velo[hidden]{display:none}.velo .caja{background:var(--papel);color:var(--tinta);border-radius:18px;padding:28px 30px;max-width:560px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+.velo{position:fixed;inset:0;background:var(--velo);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}.velo[hidden]{display:none}.velo .caja{background:var(--papel);color:var(--tinta);border-radius:calc(18px*var(--r));padding:28px 30px;max-width:560px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
 .ley{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--suave)}
 .ley span{display:flex;gap:6px;align-items:center}
-.franja{border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;gap:10px}
+.franja{border-radius:calc(14px*var(--r));padding:18px 22px;display:flex;flex-direction:column;gap:10px}
 .franja.negra{background:var(--negro);color:#FFFFFF;box-shadow:inset 0 0 0 1px var(--fn-borde)}.franja.ambar{background:var(--amb2);color:var(--famb-tx);border:1px solid var(--famb-borde);padding:14px 20px;gap:4px}
 .franja.rojo{background:var(--rojo);color:var(--sobre)}.franja.llam{background:var(--mano);border:1px solid var(--lk-borde)}
-.detalle{background:var(--papel);color:var(--tinta);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:16px}
+.detalle{background:var(--papel);color:var(--tinta);border-radius:calc(10px*var(--r));padding:16px 18px;display:flex;flex-direction:column;gap:16px}
 table.cmp{border-collapse:collapse;width:100%;font-size:14px}
 table.cmp th,table.cmp td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--linea)}
 table.cmp thead th{border-bottom:2px solid var(--borde);color:var(--suave);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
-.mes{background:var(--papel);border:1px solid var(--borde);border-radius:14px;display:flex;flex-direction:column;gap:6px}
+.mes{background:var(--papel);border:1px solid var(--borde);border-radius:calc(14px*var(--r));display:flex;flex-direction:column;gap:6px}
 .grilla{display:grid;border-bottom:1px solid var(--linea)}
 .carril{font-size:12px;padding:0 8px 0 0;display:flex;flex-direction:column;justify-content:center;min-width:0;text-align:left;background:none;border:0;cursor:pointer;color:var(--tinta)}
 .carril b,.carril span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ico{display:flex;align-items:center;justify-content:center;border-radius:7px;cursor:pointer;padding:0;background:var(--papel);color:var(--cafe);border:2px solid var(--cafe)}
+.ico{display:flex;align-items:center;justify-content:center;border-radius:calc(7px*var(--r));cursor:pointer;padding:0;background:var(--papel);color:var(--cafe);border:2px solid var(--cafe)}
 .nav{display:flex;gap:8px;align-items:center}
-input.campo,select.campo{height:40px;border:1px solid var(--campo);border-radius:10px;padding:0 10px;font-family:inherit;font-size:14px;background:var(--blanco);color:var(--tinta);min-width:0;width:100%}
+input.campo,select.campo{height:40px;border:1px solid var(--campo);border-radius:calc(10px*var(--r));padding:0 10px;font-family:inherit;font-size:14px;background:var(--blanco);color:var(--tinta);min-width:0;width:100%}
 label.lab{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--suave)}
-.caja{background:var(--blanco);border:1px solid var(--borde);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.caja{background:var(--blanco);border:1px solid var(--borde);border-radius:calc(12px*var(--r));padding:12px 14px;display:flex;flex-direction:column;gap:6px}
 .caja h3{margin:0;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)}
 .chip{font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px}
 .chip.verde{background:var(--verde);color:var(--verde-tx)}.chip.ambar{background:var(--amb2);color:var(--amb2-tx)}.chip.rojo{background:var(--err);color:var(--err-tx)}
-.ufbox{background:var(--fondo);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
-blockquote{margin:0;padding:8px 12px;background:var(--fondo);border-radius:8px;font-size:13px;line-height:1.45;color:var(--cita);font-style:italic}
-#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--rojo);color:var(--sobre);padding:12px 18px;border-radius:10px;font-weight:700;z-index:9;max-width:90vw}
+.ufbox{background:var(--fondo);border-radius:calc(10px*var(--r));padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+blockquote{margin:0;padding:8px 12px;background:var(--fondo);border-radius:calc(8px*var(--r));font-size:13px;line-height:1.45;color:var(--cita);font-style:italic}
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--rojo);color:var(--sobre);padding:12px 18px;border-radius:calc(10px*var(--r));font-weight:700;z-index:9;max-width:90vw}
+/* Solo en el tema Grafito (oscuro). Las alertas llevan el color en el borde y la letra, nunca de relleno. */
+:root:not([data-tema="claro"]) h2{letter-spacing:-.01em}:root:not([data-tema="claro"]) .btn,:root:not([data-tema="claro"]) .btn2{text-transform:uppercase;letter-spacing:.06em;font-size:12px}:root:not([data-tema="claro"]) .franja.rojo{background:var(--err);color:var(--tinta);border:2px solid var(--rojo)}:root:not([data-tema="claro"]) .franja.ambar,:root:not([data-tema="claro"]) .al.ambar,:root:not([data-tema="claro"]) .chip.ambar{border:1px solid var(--famb-borde)}:root:not([data-tema="claro"]) .al.rojo,:root:not([data-tema="claro"]) .chip.rojo{border:1px solid var(--rojo)}:root:not([data-tema="claro"]) .chip.verde{border:1px solid var(--verde-borde)}:root:not([data-tema="claro"]) .tag.asu{color:var(--amb-tx);border:1px solid var(--famb-borde)}
 </style>
 </head>
 <body>
@@ -154,15 +156,15 @@ function mes(y,m,tam,ags){
   let h=`<section class="mes" style="padding:${g?'20px 20px 16px':'14px 18px'}"><div class="fila"><h2 style="margin:0;font-weight:800;font-size:${g?'30px':'18px'};color:${g?'var(--tinta)':'var(--suave)'}">${MES[m]} ${y}</h2><span class="gris" style="font-size:12px">${nR?(nR===1?'1 remate':nR+' remates'):''}</span></div>`;
   h+=`<div class="grilla" style="${cols}"><div class="gris" style="font-size:11px;align-self:end;padding:4px 0">Causa</div>`;
   for(const d of isos){const dw=new Date(d+'T12:00').getDay(),fer=EST.feriados[d],hoy=d===H,fin=dw===0||dw===6;
-    h+=`<div title="${E(fer||'')}" style="display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;padding:4px 0;min-width:0;color:${fer?'var(--rojo)':(fin?'var(--finde)':'var(--suave)')};${hoy?'box-shadow:'+sh+',inset 0 3px 0 '+negro+(lanes.length?';border-radius:6px 6px 0 0':',inset 0 -3px 0 '+negro+';border-radius:6px'):''}"><span>${INI[dw]}</span><span style="font-size:${g?13:11}px;font-weight:700;color:${fer?'var(--rojo)':'var(--tinta)'}">${+d.slice(8)}</span></div>`;}
+    h+=`<div title="${E(fer||'')}" style="display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;padding:4px 0;min-width:0;color:${fer?'var(--rojo)':(fin?'var(--finde)':'var(--suave)')};${hoy?'box-shadow:'+sh+',inset 0 3px 0 '+negro+(lanes.length?';border-radius:calc(6px*var(--r)) calc(6px*var(--r)) 0 0':',inset 0 -3px 0 '+negro+';border-radius:calc(6px*var(--r))'):''}"><span>${INI[dw]}</span><span style="font-size:${g?13:11}px;font-weight:700;color:${fer?'var(--rojo)':'var(--tinta)'}">${+d.slice(8)}</span></div>`;}
   h+='</div>';
   lanes.forEach((a,ia)=>{
     const sub=a.remate?(isos.includes(a.remate)?'Remate '+diaCorto(a.remate)+(a.hora?' '+a.hora:''):'Remate el '+diaCorto(a.remate)):'Sin fecha del remate';
     h+=`<div class="grilla" style="${cols}"><button class="carril" data-acc="ficha" data-k="${a.k}"><b>${E(a.tc)} · <span class="rol" style="font-size:12px">${E(a.rol)}</span></b><span class="gris" style="font-size:11px">${a.manual?'A mano · ':''}${E(sub)}</span></button>`;
     for(const d of isos){const enVV=a.vd&&!a.ent&&a.vd<=d&&d<=a.vh,esR=a.remate===d,hoy=d===H;const ini=enVV&&(d===a.vd||d===isos[0]),fin=enVV&&(d===a.vh||d===isos[dim-1]);
       let st=`height:${ALTO[tam]}px;min-width:0;display:flex;align-items:center;justify-content:center;`;
-      if(enVV)st+='background:var(--vv);'+(ini?'border-top-left-radius:6px;border-bottom-left-radius:6px;':'')+(fin?'border-top-right-radius:6px;border-bottom-right-radius:6px;':'');
-      if(hoy)st+='box-shadow:'+sh+(ia===lanes.length-1?',inset 0 -3px 0 '+negro+';border-bottom-left-radius:6px;border-bottom-right-radius:6px;':';');
+      if(enVV)st+='background:var(--vv);'+(ini?'border-top-left-radius:calc(6px*var(--r));border-bottom-left-radius:calc(6px*var(--r));':'')+(fin?'border-top-right-radius:calc(6px*var(--r));border-bottom-right-radius:calc(6px*var(--r));':'');
+      if(hoy)st+='box-shadow:'+sh+(ia===lanes.length-1?',inset 0 -3px 0 '+negro+';border-bottom-left-radius:calc(6px*var(--r));border-bottom-right-radius:calc(6px*var(--r));':';');
       let c='';if(esR){const s=g?28:24,mar=UI.sel===a.k;
         c=`<button class="ico" data-acc="ficha" data-k="${a.k}" aria-label="Remate ${E(a.rol)} ${E(a.hora||'')}" style="width:${s}px;height:${s}px;${mar?'background:var(--cafe);color:var(--sobre);':''}${a.rojo?'border-color:var(--rojo);'+(mar?'':'color:var(--rojo);'):''}${a.manual?'border-style:dashed;':''}">${SVG[a.mod](17)}</button>`;}
       h+=`<div style="${st}">${c}</div>`;}
@@ -176,11 +178,11 @@ function renderCentro(){
   let h=`<header class="cab"><div style="font-size:26px;font-weight:800">Agendar Remates</div><div class="ley">
     <span style="color:var(--cafe)">${SVG.pres(16)}<span class="gris">Presencial</span></span><span style="color:var(--cafe)">${SVG.virt(16)}<span class="gris">Virtual</span></span>
     <span><span style="width:16px;height:16px;border:2px solid var(--cafe);color:var(--cafe);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">?</span>Sin modalidad</span>
-    <span><span style="width:18px;height:18px;border:2px solid var(--rojo);border-radius:6px"></span>Fecha cambiada</span>
-    <span><span style="width:26px;height:10px;background:var(--vv);border-radius:3px"></span>Ventana del vale vista</span>
-    <span><span style="width:14px;height:18px;border:3px solid var(--hoy);border-radius:4px"></span>Hoy</span>
+    <span><span style="width:18px;height:18px;border:2px solid var(--rojo);border-radius:calc(6px*var(--r))"></span>Fecha cambiada</span>
+    <span><span style="width:26px;height:10px;background:var(--vv);border-radius:calc(3px*var(--r))"></span>Ventana del vale vista</span>
+    <span><span style="width:14px;height:18px;border:3px solid var(--hoy);border-radius:calc(4px*var(--r))"></span>Hoy</span>
     <span style="color:var(--tinta);font-weight:600">Hoy, ${E(EST.hoy_txt.toLowerCase())}</span><button class="btn2" data-acc="tema">${TEMA()==='claro'?'Modo oscuro':'Modo claro'}</button><button class="btn2" data-acc="nubeAct">Actualizar ahora</button></div></header>`;
-  if(EST.franja_negra.length){const [t,...r]=EST.franja_negra;h+=`<section class="franja negra" role="alert"><div style="font-size:22px;font-weight:800">SIN SINCRONIZAR</div>${[t.replace('SIN SINCRONIZAR. ',''),...r].map(x=>`<div style="font-size:14px">${E(x)}</div>`).join('')}<div style="font-size:13px;color:#E8D5B5">El calendario puede no estar al día. Aprieta Actualizar ahora. Si siguen faltando, la nube todavía no ha leído esas ediciones. Este aviso no se puede cerrar mientras falten.</div></section>`;}
+  if(EST.franja_negra.length){const [t,...r]=EST.franja_negra;h+=`<section class="franja negra" role="alert"><div style="font-size:22px;font-weight:800">SIN SINCRONIZAR</div>${[t.replace('SIN SINCRONIZAR. ',''),...r].map(x=>`<div style="font-size:14px">${E(x)}</div>`).join('')}<div style="font-size:13px;color:var(--fn-nota)">El calendario puede no estar al día. Aprieta Actualizar ahora. Si siguen faltando, la nube todavía no ha leído esas ediciones. Este aviso no se puede cerrar mientras falten.</div></section>`;}
   if(EST.franja_ambar.length)h+=`<section class="franja ambar" role="status"><div style="font-size:15px;font-weight:800">EDICIONES CARGADAS PERO INCOMPLETAS</div>${EST.franja_ambar.map(x=>`<div style="font-size:13px">${E(x)}</div>`).join('')}</section>`;
   if(EST.cambios.length)h+=`<section class="franja rojo" role="alert"><div class="fila"><div style="flex:1 1 400px;font-size:22px;font-weight:800">${E(EST.titulo_cambios)}</div><button class="btn" style="background:var(--papel);color:var(--rojo)" data-acc="detC">${UI.detC?'Ocultar detalles':'Revisar detalles'}</button></div>${UI.detC?`<div class="detalle">${EST.cambios.map(c=>tablaCmp(c,true)).join('')}<button class="btn" style="align-self:flex-start" data-acc="vistoC">Marcar como visto</button></div>`:''}</section>`;
   if(EST.llamados.length)h+=`<section class="franja llam" role="status"><div class="fila"><div style="flex:1 1 400px"><div style="font-size:19px;font-weight:800">NUEVO LLAMADO EN UNA CAUSA AGENDADA</div><div class="peq" style="color:var(--tinta2)">Un remate que no se hizo vuelve a publicarse. Es un remate nuevo, con sus propias bases.</div></div><button class="btn" data-acc="detL">${UI.detL?'Ocultar detalles':'Revisar detalles'}</button></div>${UI.detL?`<div class="detalle">${EST.llamados.map(c=>tablaCmp(c,false)).join('')}<button class="btn" style="align-self:flex-start" data-acc="vistoL">Marcar como visto</button></div>`:''}</section>`;
