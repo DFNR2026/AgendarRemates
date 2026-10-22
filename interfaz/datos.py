@@ -102,6 +102,15 @@ def texto_vv(desde, hasta, origen=None, regla=None):
     return txt + (" (el desde es estimado)" if origen == "estimado_dia_siguiente_edicion" else "")
 
 
+def tipo_vv(desde, hasta, regla=None):
+    """Tipo de entrega del vale vista para la ficha (Diego, 22 de Octubre). remate, dia, rango o None si no hay fecha."""
+    if not hasta:
+        return None
+    if regla == "en_el_remate":
+        return "remate"
+    return "dia" if (desde or hasta)[:10] == hasta[:10] else "rango"
+
+
 def color_vv(estado, hasta):
     if estado == "calculado" and hasta:
         return "verde"
@@ -196,7 +205,7 @@ def armar(con, remate_id, extra=None):
         "mod": modo(f["modalidad"]), "mod_txt": modalidad_texto(f["modalidad"], f["plataforma"]),
         "direccion": ", ".join(x for x in (f["direccion"], f["comuna"]) if x) or "El programa todavía no lee la dirección de este aviso.",
         **din, "asumido": any("ASUMIDO" in a["texto"] for a in al),
-        "vv_desde": f["vv_desde"], "vv_hasta": f["vv_hasta"], "vv_txt": texto_vv(f["vv_desde"], f["vv_hasta"], f["vv_desde_origen"], f["vv_regla"]),
+        "vv_desde": f["vv_desde"], "vv_hasta": f["vv_hasta"], "vv_txt": texto_vv(f["vv_desde"], f["vv_hasta"], f["vv_desde_origen"], f["vv_regla"]), "vv_tipo": tipo_vv(f["vv_desde"], f["vv_hasta"], f["vv_regla"]),
         "vv_color": color_vv(f["vv_estado"], f["vv_hasta"]), "vv_regla": f["vv_regla_texto"],
         "vv_de_publicacion": f.get("vv_de_publicacion"), "alertas": al,
         "pubs": pubs, "pub_txt": "Publicado en El Mercurio los días " + ", ".join(p["texto"] for p in vigentes) if vigentes else "",
@@ -259,7 +268,7 @@ def manuales(con):
             "remate_corto": corta(m["fecha_remate"]) + (f" a las {m['hora_remate']}" if m["hora_remate"] else ""),
             "mod": modo(m["modalidad"]), "mod_txt": modalidad_texto(m["modalidad"]), "direccion": "Agregada a mano, sin dirección.",
             "minimo": "Sin dato", "garantia": "Sin dato", "monto": m["monto_vv"] or "Sin dato", "uf": None, "uf_txt": None,
-            "otro_porcentaje": None, "asumido": False, "vv_desde": vd, "vv_hasta": vh, "vv_txt": texto_vv(vd, vh),
+            "otro_porcentaje": None, "asumido": False, "vv_desde": vd, "vv_hasta": vh, "vv_txt": texto_vv(vd, vh), "vv_tipo": tipo_vv(vd, vh),
             "vv_color": "verde" if vh else "rojo", "vv_regla": None, "alertas": al, "pubs": [], "pub_txt": "Agregada a mano. No viene de El Mercurio.",
             "vv_entregado": bool(m["vv_entregado"]), "cambio_fecha": False, "cambios_sin_ver": False, "nuevo_llamado": False,
             "publicado": pub})

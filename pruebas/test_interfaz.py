@@ -51,6 +51,10 @@ din = {"CLP": D.dinero({"minimo_monto": 93895646, "minimo_moneda": "CLP", "garan
        "20": D.dinero({"minimo_monto": 5119.97, "minimo_moneda": "UF", "garantia_porcentaje": 20, "garantia_base": "minimo"}),
        "tas": D.dinero({"minimo_monto": 1000, "minimo_moneda": "CLP", "garantia_porcentaje": 10, "garantia_base": "tasacion"}),
        "nada": D.dinero({"minimo_monto": 1000, "minimo_moneda": "CLP"})}
+revisar("tipo de entrega del vale vista (22 de Octubre). en el remate, un día, rango y sin fecha",
+        [D.tipo_vv("2026-10-29 13:00", "2026-10-29 13:00", "en_el_remate"), D.tipo_vv("2026-10-29 12:00", "2026-10-29 14:00", "fecha_fija"),
+         D.tipo_vv(None, "2026-10-29 14:00", "dia_anterior"), D.tipo_vv("2026-10-19", "2026-11-05 14:00", "dias_habiles_antes"), D.tipo_vv(None, None)]
+        == ["remate", "dia", "dia", "rango", None])
 revisar("monto del vale vista en pesos", (din["CLP"]["minimo"], din["CLP"]["monto"], din["CLP"]["uf"]) == ("$93.895.646", "$9.389.565", None), str(din["CLP"]))
 revisar("monto del vale vista en UF, con el número para el cálculo por UF", (din["UF"]["monto"], din["UF"]["uf"]) == ("98,3809 UF", 98.3809), str(din["UF"]))
 revisar("garantía del 20% destacada", (din["20"]["monto"], din["20"]["otro_porcentaje"]) == ("1.023,994 UF", "20%"), str(din["20"]))
