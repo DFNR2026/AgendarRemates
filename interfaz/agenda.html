@@ -72,6 +72,26 @@ label.lab{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:
 .ufbox{background:var(--fondo);border-radius:calc(10px*var(--r));padding:10px 12px;display:flex;flex-direction:column;gap:6px}
 blockquote{margin:0;padding:8px 12px;background:var(--fondo);border-radius:calc(8px*var(--r));font-size:13px;line-height:1.45;color:var(--cita);font-style:italic}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--rojo);color:var(--sobre);padding:12px 18px;border-radius:calc(10px*var(--r));font-weight:700;z-index:9;max-width:90vw}
+/* Ficha bajo el calendario (Diego, 22 de Octubre). Antes era el panel derecho. */
+.ficha{background:var(--papel);border:2px solid var(--cafe);border-radius:calc(18px*var(--r));padding:24px 28px;display:flex;flex-direction:column;gap:20px;scroll-margin-top:16px}
+.ficha .tres{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.ficha .dos{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.ficha .caja{padding:18px 20px;gap:10px}.ficha .caja h3{font-size:13px}.ficha blockquote{font-size:15px}
+.caja.dinero{align-items:center;justify-content:center;text-align:center}
+.tipos{display:flex;gap:8px}
+.tipo{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:calc(10px*var(--r));border:1px dashed var(--borde);color:var(--suave);font-size:12px;font-weight:700;text-align:center}
+.tipo.on{border:2px solid var(--cafe);background:var(--cafe);color:var(--sobre);font-weight:800}
+.alertas{display:flex;flex-direction:column;gap:10px;background:var(--amb);border:2px solid var(--famb-borde);border-radius:calc(14px*var(--r));padding:16px 18px;color:var(--amb-tx)}
+.alertas.grave{background:var(--err);border-color:var(--rojo);color:var(--err-tx)}
+.alertas .cab-al{display:flex;align-items:center;gap:10px}
+.alertas h3{margin:0;font-size:16px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:inherit}
+.alertas .n{background:var(--amb-tx);color:var(--amb);border-radius:999px;padding:2px 10px;font-size:13px;font-weight:800}.alertas.grave .n{background:var(--err-tx);color:var(--err)}
+.alerta{display:flex;gap:10px;align-items:flex-start;background:var(--papel);border-radius:calc(10px*var(--r));padding:12px 14px}
+.alerta .bang{flex:0 0 auto;width:24px;height:24px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;background:var(--amb-tx);color:var(--amb)}
+.alerta.rojo .bang{background:var(--rojo);color:var(--sobre)}.alerta.info .bang{background:var(--suave);color:var(--papel)}
+.alerta .tx{font-size:17px;font-weight:700;line-height:1.35;color:var(--tinta)}
+@media (max-width:600px){.ficha{padding:16px}.ficha h2{font-size:24px !important}.alerta .tx{font-size:15px}}
+
 /* Solo en el tema Grafito (oscuro). Las alertas llevan el color en el borde y la letra, nunca de relleno. */
 :root:not([data-tema="claro"]) h2{letter-spacing:-.01em}:root:not([data-tema="claro"]) .btn,:root:not([data-tema="claro"]) .btn2{text-transform:uppercase;letter-spacing:.06em;font-size:12px}:root:not([data-tema="claro"]) .franja.rojo{background:var(--err);color:var(--tinta);border:2px solid var(--rojo)}:root:not([data-tema="claro"]) .franja.ambar,:root:not([data-tema="claro"]) .al.ambar,:root:not([data-tema="claro"]) .chip.ambar{border:1px solid var(--famb-borde)}:root:not([data-tema="claro"]) .al.rojo,:root:not([data-tema="claro"]) .chip.rojo{border:1px solid var(--rojo)}:root:not([data-tema="claro"]) .chip.verde{border:1px solid var(--verde-borde)}:root:not([data-tema="claro"]) .tag.asu{color:var(--amb-tx);border:1px solid var(--famb-borde)}
 </style>
@@ -96,7 +116,7 @@ const SVG={
  nose:s=>`<span style="font-size:${s-3}px;font-weight:800;line-height:1" aria-hidden="true">?</span>`};
 let EST=null;
 const FORM0=()=>({trib:'',rol:'',anio:'',car:'',fecha:'',hora:'',mod:'pres',vd:'',vh:'',monto:''});
-const UI={panel:null,ficha:null,sel:null,off:0,detC:false,detL:false,uf:'',f:{trib:'',rol:'',anio:'',edicion:'',pasados:false},res:null,form:FORM0(),err:'',ftrib:''};
+const UI={panel:null,ficha:null,verFicha:false,sel:null,off:0,detC:false,detL:false,uf:'',f:{trib:'',rol:'',anio:'',edicion:'',pasados:false},res:null,form:FORM0(),err:'',ftrib:''};
 const clave=it=>it.tipo==='manual'?'m'+it.manual_id:'b'+it.bien_id;
 const item=k=>(EST&&EST.agenda||[]).find(x=>clave(x)===k);
 
@@ -189,7 +209,37 @@ function renderCentro(){
   h+=`<div class="nav">${UI.off>0?'<button class="btn2" data-acc="mesAnt">◀ Mes anterior</button>':''}<button class="btn2" data-acc="mesHoy">Volver a hoy</button><button class="btn2" data-acc="mesSig">Mes siguiente ▶</button></div>`;
   const hoy=new Date(EST.hoy+'T12:00'),ags=itemsCal();
   [0,1].forEach((d,i)=>{const t=new Date(hoy.getFullYear(),hoy.getMonth()+UI.off+d,1);h+=mes(t.getFullYear(),t.getMonth(),i===0?'grande':'medio',ags);});   // mes actual y siguiente (Diego, 18 de Octubre)
+  if(UI.verFicha){const it=item(UI.ficha);if(it)h+=fichaHTML(it);else UI.verFicha=false;}   // ficha bajo el calendario (Diego, 22 de Octubre)
   document.getElementById('centro').innerHTML=h;}
+
+// --- Ficha de la causa, bajo el calendario (Diego, 22 de Octubre) ----------------------------------------------------
+const ICO_VV={rango:'<path d="M7 14h10"></path><path d="M7 14l2-2"></path><path d="M17 14l-2 2"></path>',dia:'<rect x="10" y="12.5" width="4" height="4" rx="0.5"></rect>'};
+function icoVV(t){const cal='<rect x="3" y="4.5" width="18" height="16" rx="2"></rect><path d="M3 9.5h18"></path><path d="M8 2.5v4"></path><path d="M16 2.5v4"></path>';
+  const d=t==='remate'?'<path d="M13 2.5l8.5 8.5-3.2 3.2-8.5-8.5z"></path><path d="M14.1 9.9L4.5 19.5"></path><path d="M3 21.5h9"></path>':cal+ICO_VV[t];
+  return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;}
+const NOM_VV={rango:'Rango de días',dia:'Un día fijo',remate:'En el remate'},TIT_VV={rango:'Rango de días',dia:'Un día fijo',remate:'En el mismo remate'};
+function fichaHTML(it){const k=clave(it),al=it.alertas||[],grave=al.some(a=>a.clase==='rojo');
+  const tipos=['rango','dia','remate'].map(t=>`<div class="tipo${it.vv_tipo===t?' on':''}"${it.vv_tipo===t?' aria-current="true"':''}>${icoVV(t)}<span>${NOM_VV[t]}</span></div>`).join('');
+  const alertas=al.length?`<section class="alertas${grave?' grave':''}" aria-label="Alertas del aviso"><div class="cab-al"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L1.8 18.6A2 2 0 0 0 3.5 21.6h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9.5v4.5"></path><path d="M12 17.6h.01"></path></svg><h3>Alertas del aviso</h3><span class="n">${al.length}</span></div>${al.map(a=>`<div class="alerta ${a.clase}"><span class="bang" aria-hidden="true">!</span><div class="tx">${E(a.texto)}</div></div>`).join('')}</section>`
+    :'<section style="display:flex;flex-direction:column;gap:8px"><h3 style="margin:0;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)">Alertas del aviso</h3><div class="peq" style="color:var(--ok);font-weight:700">Sin alertas.</div></section>';
+  return `<section class="ficha" id="ficha" aria-label="Ficha de la causa">
+  <div class="fila" style="align-items:flex-start;gap:16px"><div style="display:flex;flex-direction:column;gap:6px;min-width:0;flex:1 1 300px">
+    <div style="display:flex;gap:10px;align-items:center;color:var(--cafe)">${SVG[it.mod](24)}<span class="rol" style="font-size:22px">${E(it.rol)}</span><span style="font-size:13px;font-weight:700;color:var(--suave)">· Ficha de la causa</span></div>
+    <h2 style="margin:0;font-size:30px;font-weight:800;line-height:1.15">${E(it.caratula)}</h2><div class="gris" style="font-size:17px">${E(it.tribunal)}</div>
+    <div style="display:flex;gap:6px">${it.tipo==='manual'?'<span class="etq mano">AGREGADA A MANO</span>':''}${it.nuevo_llamado?'<span class="etq llamado">NUEVO LLAMADO</span>':''}</div></div>
+    <button class="btn2" style="min-height:44px" data-acc="cerrarFicha" aria-label="Cerrar ficha">✕ Cerrar ficha</button></div>
+  <div class="tres">
+    <section class="caja"><h3>Remate</h3><div style="font-size:22px;font-weight:800;line-height:1.2">${E(it.remate_txt)}</div><div style="font-size:15px">${E(it.mod_txt)}</div><div style="font-size:15px;color:var(--tinta2)">${E(it.direccion)}</div></section>
+    <section class="caja dinero"><h3>Dinero</h3><div style="font-size:15px"><span class="gris">Mínimo</span> ${E(it.minimo)}</div><div style="font-size:15px"><span class="gris">Garantía</span> ${E(it.garantia)}${etiquetas(it)}</div><div style="font-size:13px;font-weight:700;color:var(--suave);margin-top:6px">VALE VISTA POR</div><div style="font-size:32px;font-weight:800;color:var(--cafe);line-height:1.1">${E(it.monto)}</div>${ufHTML(it)}</section>
+    <section class="caja"><div class="fila"><h3>Entrega del vale vista</h3><span class="chip ${it.vv_color}">${{verde:'Calculado',ambar:'Revisar',rojo:'Sin fecha'}[it.vv_color]}</span></div>
+      <div class="tipos" role="group" aria-label="Tipo de entrega">${tipos}</div>
+      <div style="font-size:22px;font-weight:800;line-height:1.2">${it.vv_tipo?TIT_VV[it.vv_tipo]:'Sin fecha'}</div><div style="font-size:16px;font-weight:700;line-height:1.35">${E(it.vv_txt)}</div>
+      <label class="chk" style="font-size:15px;margin-top:auto"><input type="checkbox" data-acc="entregado" data-k="${k}" ${it.vv_entregado?'checked':''}>Vale vista entregado</label></section>
+  </div>
+  ${it.vv_regla?`<blockquote>“${E(it.vv_regla)}”</blockquote>`:''}
+  <div class="dos">${alertas}<section style="display:flex;flex-direction:column;gap:8px"><h3 style="margin:0;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)">Avisos en El Mercurio</h3><div class="gris" style="font-size:14px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Cada aviso publicado')}</section></div>
+  <div class="fila" style="justify-content:flex-start"><button class="btn2" style="color:var(--rojo);border-color:var(--rojo);min-height:44px" data-acc="quitar" data-k="${k}">Quitar del calendario</button></div></section>`;}
+function irAFicha(){const f=document.getElementById('ficha');if(f)f.scrollIntoView({block:'start',behavior:'smooth'});}
 
 // --- Panel derecho (buscador, causa a mano y ficha) -----------------------------------------------------------------
 function tarjetaRes(it){return `<article class="tarjeta"><div class="rol" style="color:var(--cafe)">${E(it.rol)}${it.inmueble?` · ${E(it.inmueble)}`:""}</div><div class="car">${E(it.caratula)}</div><div class="peq gris">${E(it.tribunal)}</div>
@@ -201,6 +251,7 @@ function renderRes(){const c=document.getElementById('res');if(!c)return;if(!UI.
 async function buscar(){const f=UI.f;const q=new URLSearchParams({trib:f.trib,rol:f.rol,anio:f.anio,edicion:f.edicion,pasados:f.pasados?'1':'0'});
   try{UI.res=await api('/api/buscar?'+q);renderRes();}catch(e){aviso(e.message);}}
 function renderPanel(){
+  if(UI.panel==='ficha')UI.panel=null;   // la ficha ya no va en el panel (22 de Octubre)
   const p=document.getElementById('panel');if(!UI.panel){p.classList.add('oculto');p.innerHTML='';return;}p.classList.remove('oculto');let h='';
   if(UI.panel==='buscar'){const f=UI.f;
     h=`<div class="fila"><h2 class="tit">Buscar remates</h2><button class="x44" data-acc="cerrar" aria-label="Cerrar buscador">✕</button></div>
@@ -217,17 +268,6 @@ function renderPanel(){
     <label class="lab">Modalidad<select class="campo" data-form="mod">${[['pres','Presencial'],['virt','Virtual (Zoom o en línea)'],['nose','No lo sé']].map(([v,t])=>`<option value="${v}" ${F.mod===v?'selected':''}>${t}</option>`).join('')}</select></label>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${c('vd','date','Vale vista desde')}${c('vh','date','Vale vista hasta')}</div>${c('monto','text','Monto del vale vista (opcional)','Ej. $7.500.000 o 98,5 UF')}
     ${UI.err?`<div class="al rojo" style="font-size:13px">${E(UI.err)}</div>`:''}<button class="btn" style="align-self:flex-start" data-acc="guardarManual">Agregar al calendario</button>`;}
-  else if(UI.panel==='ficha'){const it=item(UI.ficha);if(!it){UI.panel=null;return renderPanel();}const k=clave(it);
-    h=`<div class="fila"><div style="display:flex;gap:10px;align-items:center;color:var(--cafe)">${SVG[it.mod](22)}<span class="rol" style="font-size:16px">${E(it.rol)}</span></div><button class="x44" data-acc="cerrar" aria-label="Cerrar ficha">✕</button></div>
-    <div><h2 style="margin:0;font-size:21px;font-weight:800;line-height:1.25">${E(it.caratula)}</h2><div class="gris" style="font-size:14px">${E(it.tribunal)}</div>
-    <div style="display:flex;gap:6px;margin-top:4px">${it.tipo==='manual'?'<span class="etq mano">AGREGADA A MANO</span>':''}${it.nuevo_llamado?'<span class="etq llamado">NUEVO LLAMADO</span>':''}</div></div>
-    <section class="caja"><h3>Remate</h3><div style="font-size:15px;font-weight:700">${E(it.remate_txt)}</div><div style="font-size:14px">${E(it.mod_txt)}</div><div style="font-size:14px;color:var(--tinta2)">${E(it.direccion)}</div></section>
-    <section class="caja"><h3>Dinero</h3><div style="font-size:14px"><span class="gris">Mínimo</span> ${E(it.minimo)}</div><div style="font-size:14px"><span class="gris">Garantía</span> ${E(it.garantia)}${etiquetas(it)}</div><div style="font-size:16px;font-weight:800">Vale vista por ${E(it.monto)}</div>${ufHTML(it)}</section>
-    <section class="caja"><div class="fila"><h3>Vale vista</h3><span class="chip ${it.vv_color}">${{verde:'Calculado',ambar:'Revisar',rojo:'Sin fecha'}[it.vv_color]}</span></div><div style="font-size:15px;font-weight:700">${E(it.vv_txt)}</div>${it.vv_regla?`<blockquote>“${E(it.vv_regla)}”</blockquote>`:''}
-    <label class="chk" style="font-size:14px"><input type="checkbox" data-acc="entregado" data-k="${k}" ${it.vv_entregado?'checked':''}>Vale vista entregado</label></section>
-    <section style="display:flex;flex-direction:column;gap:6px"><h3 style="margin:0;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)">Alertas del aviso</h3>${it.alertas.length?it.alertas.map(a=>`<div class="al ${a.clase}">${E(a.texto)}</div>`).join(''):'<div class="peq" style="color:var(--ok);font-weight:700">Sin alertas.</div>'}</section>
-    <div class="gris" style="font-size:12px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Cada aviso publicado')}
-    <div class="fila" style="justify-content:flex-start"><button class="btn2" style="color:var(--rojo);border-color:var(--rojo);min-height:44px" data-acc="quitar" data-k="${k}">Quitar del calendario</button></div>`;}
   p.innerHTML=h;if(UI.panel==='buscar')renderRes();}
 function render(){renderIzq();renderCentro();renderPanel();}
 
@@ -239,8 +279,9 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-acc]
   else if(a==='buscar'){UI.panel='buscar';renderPanel();if(!UI.res)await buscar();}
   else if(a==='cerrar'){UI.panel=null;renderPanel();}
   else if(a==='manual'){UI.panel='manual';UI.err='';renderPanel();}
-  else if(a==='ficha'){UI.ficha=k;UI.sel=k;UI.panel='ficha';render();const c=document.getElementById('causa-'+k);if(c)c.scrollIntoView({block:'nearest',behavior:'smooth'});}
-  else if(a==='quitar'){const it=item(k);if(!it)return;if(UI.ficha===k)UI.panel=null;await hacer('/api/quitar',it.tipo==='manual'?{manual_id:it.manual_id}:{bien_id:it.bien_id});}
+  else if(a==='ficha'){UI.ficha=k;UI.sel=k;UI.verFicha=true;render();irAFicha();}
+  else if(a==='cerrarFicha'){UI.verFicha=false;render();}
+  else if(a==='quitar'){const it=item(k);if(!it)return;if(UI.ficha===k)UI.verFicha=false;await hacer('/api/quitar',it.tipo==='manual'?{manual_id:it.manual_id}:{bien_id:it.bien_id});}
   else if(a==='agendar'||a==='reagendar'){await hacer('/api/agendar',{remate_id:+b.dataset.rid});}
   else if(a==='ignorarq'){await hacer('/api/ignorar_quitado',{bien_id:+b.dataset.bien});}
   else if(a==='reemplazar'){await hacer('/api/reemplazar_manual',{manual_id:+b.dataset.man,remate_id:+b.dataset.rid});}
@@ -249,7 +290,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-acc]
   else if(a==='vistoC'){UI.detC=false;await hacer('/api/visto',{tipo:'cambios',bienes:EST.cambios.map(c=>c.bien_id)});}
   else if(a==='vistoL'){UI.detL=false;await hacer('/api/visto',{tipo:'llamado',bienes:EST.llamados.map(c=>c.bien_id)});}
   else if(a==='mesAnt'){UI.off=Math.max(0,UI.off-1);renderCentro();}/* nunca antes del mes actual (Diego, 18 de Octubre) */else if(a==='mesSig'){UI.off++;renderCentro();}else if(a==='mesHoy'){UI.off=0;renderCentro();}
-  else if(a==='guardarManual'){try{const r=await api('/api/manual',UI.form);UI.form=FORM0();UI.err='';UI.ficha='m'+r.manual_id;UI.sel=UI.ficha;UI.panel='ficha';await cargar();}catch(er){UI.err=er.message;renderPanel();}}
+  else if(a==='guardarManual'){try{const r=await api('/api/manual',UI.form);UI.form=FORM0();UI.err='';UI.ficha='m'+r.manual_id;UI.sel=UI.ficha;UI.panel=null;UI.verFicha=true;await cargar();irAFicha();}catch(er){UI.err=er.message;renderPanel();}}
 });
 document.addEventListener('change',async e=>{const t=e.target;
   if(t.dataset.acc==='entregado'){const it=item(t.dataset.k);if(it)await hacer('/api/marcar',{campo:'vv_entregado',valor:t.checked,...(it.tipo==='manual'?{manual_id:it.manual_id}:{bien_id:it.bien_id})});}
