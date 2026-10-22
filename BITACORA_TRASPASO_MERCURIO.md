@@ -124,3 +124,6 @@ Regla de las dos fechas. El Mercurio la quitó. Agendar_Remates la mantiene con 
 ## Agregado el 21 de Octubre
 - Agendar_Remates descarta desde el 21 de Octubre los avisos de Juzgados de Familia, Cobranza Laboral y Previsional, Letras del Trabajo y Policía Local (decisión de Diego, solo civiles y Juzgados de Letras). Regla NO_CIVIL en db\carga.py de Agendar. Queda para que Diego decida si el Mercurio debe hacer lo mismo. En 12 ediciones fueron 20 avisos.
 
+
+## 22 de Octubre de 2026. Node 24 en GitHub Actions
+El Mercurio usa las mismas piezas que daban el aviso de Node 20 (actions/checkout@v4 y actions/setup-python@v5, según la bitácora del 20 de Octubre, punto 10). En Agendar_Remates se cambiaron por checkout@v5 y setup-python@v6, que declaran node24 en sus action.yml oficiales. Aplicarlo en el Mercurio solo después de que el ensayo de Agendar_Remates quede verde. D:\Mercurio no se tocó.
