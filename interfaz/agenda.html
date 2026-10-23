@@ -4,7 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Agenda de remates</title>
-<script>/* Tema guardado en este PC. Sin dato, oscuro. */function TEMA(){return document.documentElement.dataset.tema||'oscuro'}function PONER_TEMA(t){if(t==='claro')document.documentElement.dataset.tema='claro';else delete document.documentElement.dataset.tema}try{PONER_TEMA(localStorage.getItem('tema'))}catch(e){}</script>
+<script>/* Tema guardado en este PC. Sin dato, oscuro. */function TEMA(){return document.documentElement.dataset.tema||'oscuro'}function PONER_TEMA(t){if(t==='claro')document.documentElement.dataset.tema='claro';else delete document.documentElement.dataset.tema}try{PONER_TEMA(localStorage.getItem('tema'))}catch(e){}
+/* Tamaño de la letra elegido por Diego (22 de Octubre). Agranda toda la página, de 80% a 200% en pasos de 10%. Sin dato, 100%. */
+let LETRA=1;function PONER_LETRA(z){LETRA=Math.min(2,Math.max(0.8,Math.round((+z||1)*10)/10));document.documentElement.style.zoom=LETRA===1?'':String(LETRA);}try{PONER_LETRA(localStorage.getItem('letra'))}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -43,6 +45,7 @@ h2.tit{margin:0;font-size:17px;font-weight:800;letter-spacing:.06em;text-transfo
 .lk{display:inline-flex;align-items:center;min-height:30px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;text-decoration:none;background:var(--sel);color:var(--lk-tx);border:1px solid var(--lk-borde)}
 .lk.ant{background:var(--papel);color:var(--suave);border:1px dashed var(--lk-ant)}
 .btn{background:var(--cafe);color:var(--sobre);border:0;border-radius:calc(10px*var(--r));padding:10px 16px;min-height:44px;font-size:14px;font-weight:700;cursor:pointer}
+.btn2:disabled{opacity:.4;cursor:default}
 .btn2{background:var(--papel);color:var(--cafe);border:1px solid var(--cafe);border-radius:calc(8px*var(--r));padding:6px 12px;min-height:36px;font-size:13px;font-weight:700;cursor:pointer}
 .chk{display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}.chk input{width:18px;height:18px;accent-color:var(--cafe)}
 .aviso-pub{background:var(--mano);border-radius:calc(8px*var(--r));padding:8px 10px;font-size:12px;display:flex;flex-direction:column;gap:6px}
@@ -201,7 +204,7 @@ function renderCentro(){
     <span><span style="width:18px;height:18px;border:2px solid var(--rojo);border-radius:calc(6px*var(--r))"></span>Fecha cambiada</span>
     <span><span style="width:26px;height:10px;background:var(--vv);border-radius:calc(3px*var(--r))"></span>Ventana del vale vista</span>
     <span><span style="width:14px;height:18px;border:3px solid var(--hoy);border-radius:calc(4px*var(--r))"></span>Hoy</span>
-    <span style="color:var(--tinta);font-weight:600">Hoy, ${E(EST.hoy_txt.toLowerCase())}</span><button class="btn2" data-acc="tema">${TEMA()==='claro'?'Modo oscuro':'Modo claro'}</button><button class="btn2" data-acc="nubeAct">Actualizar ahora</button></div></header>`;
+    <span style="color:var(--tinta);font-weight:600">Hoy, ${E(EST.hoy_txt.toLowerCase())}</span><span style="display:inline-flex;gap:4px;align-items:center" role="group" aria-label="Tamaño de la letra"><button class="btn2" data-acc="letraMenos" aria-label="Achicar la letra" ${LETRA<=0.8?'disabled':''}>A−</button><button class="btn2" data-acc="letraBase" aria-label="Volver al tamaño normal" title="Volver al 100%">${Math.round(LETRA*100)}%</button><button class="btn2" data-acc="letraMas" aria-label="Agrandar la letra" ${LETRA>=2?'disabled':''}>A+</button></span><button class="btn2" data-acc="tema">${TEMA()==='claro'?'Modo oscuro':'Modo claro'}</button><button class="btn2" data-acc="nubeAct">Actualizar ahora</button></div></header>`;
   if(EST.franja_negra.length){const [t,...r]=EST.franja_negra;h+=`<section class="franja negra" role="alert"><div style="font-size:22px;font-weight:800">SIN SINCRONIZAR</div>${[t.replace('SIN SINCRONIZAR. ',''),...r].map(x=>`<div style="font-size:14px">${E(x)}</div>`).join('')}<div style="font-size:13px;color:var(--fn-nota)">El calendario puede no estar al día. Aprieta Actualizar ahora. Si siguen faltando, la nube todavía no ha leído esas ediciones. Este aviso no se puede cerrar mientras falten.</div></section>`;}
   if(EST.franja_ambar.length)h+=`<section class="franja ambar" role="status"><div style="font-size:15px;font-weight:800">EDICIONES CARGADAS PERO INCOMPLETAS</div>${EST.franja_ambar.map(x=>`<div style="font-size:13px">${E(x)}</div>`).join('')}</section>`;
   if(EST.cambios.length)h+=`<section class="franja rojo" role="alert"><div class="fila"><div style="flex:1 1 400px;font-size:22px;font-weight:800">${E(EST.titulo_cambios)}</div><button class="btn" style="background:var(--papel);color:var(--rojo)" data-acc="detC">${UI.detC?'Ocultar detalles':'Revisar detalles'}</button></div>${UI.detC?`<div class="detalle">${EST.cambios.map(c=>tablaCmp(c,true)).join('')}<button class="btn" style="align-self:flex-start" data-acc="vistoC">Marcar como visto</button></div>`:''}</section>`;
@@ -273,7 +276,8 @@ function render(){renderIzq();renderCentro();renderPanel();}
 
 // --- Acciones ------------------------------------------------------------------------------------------------------
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-acc]');if(!b||b.type==='checkbox')return;const a=b.dataset.acc,k=b.dataset.k;
-  if(a==='tema'){const t=TEMA()==='claro'?'oscuro':'claro';PONER_TEMA(t);try{localStorage.setItem('tema',t)}catch(e){}renderCentro();}
+  if(a==='letraMas'||a==='letraMenos'||a==='letraBase'){PONER_LETRA(a==='letraBase'?1:LETRA+(a==='letraMas'?0.1:-0.1));try{localStorage.setItem('letra',LETRA)}catch(e){}renderCentro();}
+  else if(a==='tema'){const t=TEMA()==='claro'?'oscuro':'claro';PONER_TEMA(t);try{localStorage.setItem('tema',t)}catch(e){}renderCentro();}
   else if(a==='nubeAct'||a==='nubeReintentar'){await actualizarNube();}
   else if(a==='nubeSeguir'||a==='nubeOk'){NUBE.estado='oculto';renderVelo();}
   else if(a==='buscar'){UI.panel='buscar';renderPanel();if(!UI.res)await buscar();}
