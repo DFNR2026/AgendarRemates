@@ -73,6 +73,11 @@ fechas = [r["fecha_remate"] for r in b["resultados"]]
 revisar("buscador. los que tienen fecha van primero y en orden, los sin fecha al final",
         any(f is None for f in fechas) and fechas == sorted([f for f in fechas if f]) + [None] * fechas.count(None),
         str(fechas[:3]))
+# Dirección o comuna (pedido de Diego, 22 de Octubre). Sin tildes ni mayúsculas, y solo trae lo que la contiene.
+_com = next(r["direccion"].split(",")[-1].strip() for r in b["resultados"] if r["direccion"] and not r["direccion"].startswith("El programa") and "," in r["direccion"])
+_bd = D.buscar(con, HOY, limite=10000, direccion=_com.upper())
+revisar("buscador. dirección o comuna, en mayúsculas igual encuentra y solo trae lo que la contiene",
+        0 < _bd["total"] < b["total"] and all(D.normalizar(_com) in D.normalizar(r["direccion"]) for r in _bd["resultados"]), f"{_com} {_bd['total']} de {b['total']}")
 revisar("buscador. con pasados trae más", D.buscar(con, HOY, pasados=True)["total"] > b["total"])
 r9 = D.buscar(con, HOY, rol="9854")["resultados"]
 revisar("buscador. rol 9854 es la publicación del 10-10 y trae los 3 avisos, el del 1 Sep. como llamado anterior",

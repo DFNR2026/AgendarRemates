@@ -66,7 +66,7 @@ class Manejador(BaseHTTPRequestHandler):
                     return self._json(D.estado(con, hoy))
                 if u.path == "/api/buscar":
                     return self._json(D.buscar(con, hoy, q.get("trib", ""), q.get("rol", ""), q.get("anio", ""),
-                                               q.get("edicion", ""), q.get("pasados") == "1"))
+                                               q.get("edicion", ""), q.get("pasados") == "1", direccion=q.get("dir", "")))
             finally:
                 con.close()
             self._json({"ok": False, "error": "No existe esa dirección."}, 404)

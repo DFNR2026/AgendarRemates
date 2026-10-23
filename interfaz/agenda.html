@@ -46,6 +46,8 @@ h2.tit{margin:0;font-size:17px;font-weight:800;letter-spacing:.06em;text-transfo
 .lk.ant{background:var(--papel);color:var(--suave);border:1px dashed var(--lk-ant)}
 .btn{background:var(--cafe);color:var(--sobre);border:0;border-radius:calc(10px*var(--r));padding:10px 16px;min-height:44px;font-size:14px;font-weight:700;cursor:pointer}
 .btn2:disabled{opacity:.4;cursor:default}
+.limpiable{position:relative;display:block}.limpiable .campo{padding-right:40px}
+.borrar{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;border-radius:999px;background:var(--borde);color:var(--tinta);cursor:pointer;font-size:14px;line-height:1}.borrar[hidden]{display:none}.borrar:hover{background:var(--suave);color:var(--papel)}
 .btn2{background:var(--papel);color:var(--cafe);border:1px solid var(--cafe);border-radius:calc(8px*var(--r));padding:6px 12px;min-height:36px;font-size:13px;font-weight:700;cursor:pointer}
 .chk{display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}.chk input{width:18px;height:18px;accent-color:var(--cafe)}
 .aviso-pub{background:var(--mano);border-radius:calc(8px*var(--r));padding:8px 10px;font-size:12px;display:flex;flex-direction:column;gap:6px}
@@ -119,7 +121,7 @@ const SVG={
  nose:s=>`<span style="font-size:${s-3}px;font-weight:800;line-height:1" aria-hidden="true">?</span>`};
 let EST=null;
 const FORM0=()=>({trib:'',rol:'',anio:'',car:'',fecha:'',hora:'',mod:'pres',vd:'',vh:'',monto:''});
-const UI={panel:null,ficha:null,verFicha:false,sel:null,off:0,detC:false,detL:false,uf:'',f:{trib:'',rol:'',anio:'',edicion:'',pasados:false},res:null,form:FORM0(),err:'',ftrib:''};
+const UI={panel:null,ficha:null,verFicha:false,sel:null,off:0,detC:false,detL:false,uf:'',f:{trib:'',rol:'',anio:'',dir:'',edicion:'',pasados:false},res:null,form:FORM0(),err:'',ftrib:''};
 const clave=it=>it.tipo==='manual'?'m'+it.manual_id:'b'+it.bien_id;
 const item=k=>(EST&&EST.agenda||[]).find(x=>clave(x)===k);
 
@@ -251,15 +253,18 @@ function tarjetaRes(it){return `<article class="tarjeta"><div class="rol" style=
   ${it.en_calendario?'<div class="peq" style="font-weight:700;color:var(--ok);padding:8px 0">Ya está en tu calendario</div>':`<button class="btn" style="align-self:flex-start" data-acc="agendar" data-rid="${it.remate_id}">Agregar al calendario</button>`}</article>`;}
 function renderRes(){const c=document.getElementById('res');if(!c)return;if(!UI.res){c.innerHTML='<p class="peq gris">Buscando...</p>';return;}
   const r=UI.res;c.innerHTML=`<div class="gris" style="font-size:12px">${r.total} resultados${r.total>r.mostrados?`, se muestran los primeros ${r.mostrados}. Usa los filtros para acotar.`:''}</div>`+r.resultados.map(tarjetaRes).join('');}
-async function buscar(){const f=UI.f;const q=new URLSearchParams({trib:f.trib,rol:f.rol,anio:f.anio,edicion:f.edicion,pasados:f.pasados?'1':'0'});
+async function buscar(){const f=UI.f;const q=new URLSearchParams({trib:f.trib,rol:f.rol,anio:f.anio,dir:f.dir,edicion:f.edicion,pasados:f.pasados?'1':'0'});
   try{UI.res=await api('/api/buscar?'+q);renderRes();}catch(e){aviso(e.message);}}
+/* Campo del buscador con su X para limpiarlo (Diego, 22 de Octubre). La X aparece solo cuando hay algo escrito. */
+function campoF(n,lab){const v=UI.f[n]||'';return `<label class="lab">${lab}<span class="limpiable"><input class="campo" data-filtro="${n}" value="${E(v)}"><button type="button" class="borrar" data-acc="limpiar" data-campo="${n}" aria-label="Borrar ${lab.toLowerCase()}" ${v?'':'hidden'}>✕</button></span></label>`;}
 function renderPanel(){
   if(UI.panel==='ficha')UI.panel=null;   // la ficha ya no va en el panel (22 de Octubre)
   const p=document.getElementById('panel');if(!UI.panel){p.classList.add('oculto');p.innerHTML='';return;}p.classList.remove('oculto');let h='';
   if(UI.panel==='buscar'){const f=UI.f;
     h=`<div class="fila"><h2 class="tit">Buscar remates</h2><button class="x44" data-acc="cerrar" aria-label="Cerrar buscador">✕</button></div>
     <label class="lab">Corte<input class="campo" value="CA de Santiago" disabled style="background:var(--fondo);color:var(--suave)"></label>
-    <div style="display:grid;grid-template-columns:1.6fr 1fr .8fr;gap:8px"><label class="lab">Tribunal<input class="campo" data-filtro="trib" value="${E(f.trib)}"></label><label class="lab">Rol<input class="campo" data-filtro="rol" value="${E(f.rol)}"></label><label class="lab">Año<input class="campo" data-filtro="anio" value="${E(f.anio)}"></label></div>
+    <div style="display:grid;grid-template-columns:1.6fr 1fr .8fr;gap:8px">${campoF('trib','Tribunal')}${campoF('rol','Rol')}${campoF('anio','Año')}</div>
+    ${campoF('dir','Dirección o comuna')}
     <label class="lab">Edición<select class="campo" data-filtro="edicion"><option value="">Todas las ediciones</option>${EST.ediciones.map(e=>`<option value="${e}" ${f.edicion===e?'selected':''}>${E(EST.ediciones_txt[e])}</option>`).join('')}</select></label>
     <label class="chk"><input type="checkbox" data-filtro="pasados" ${f.pasados?'checked':''}>Incluir remates que ya pasaron</label>
     <button class="btn2" style="border-style:dashed;min-height:44px" data-acc="manual">+ Agregar una causa a mano</button><div id="res" style="display:flex;flex-direction:column;gap:12px"></div>`;}
@@ -282,6 +287,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-acc]
   else if(a==='nubeSeguir'||a==='nubeOk'){NUBE.estado='oculto';renderVelo();}
   else if(a==='buscar'){UI.panel='buscar';renderPanel();if(!UI.res)await buscar();}
   else if(a==='cerrar'){UI.panel=null;renderPanel();}
+  else if(a==='limpiar'){const n=b.dataset.campo,i=document.querySelector(`input[data-filtro="${n}"]`);UI.f[n]='';if(i){i.value='';i.focus();}b.hidden=true;clearTimeout(espera);await buscar();}
   else if(a==='manual'){UI.panel='manual';UI.err='';renderPanel();}
   else if(a==='ficha'){UI.ficha=k;UI.sel=k;UI.verFicha=true;render();irAFicha();}
   else if(a==='cerrarFicha'){UI.verFicha=false;render();}
@@ -303,7 +309,7 @@ document.addEventListener('change',async e=>{const t=e.target;
   else if('ftrib' in t.dataset){UI.ftrib=t.value;renderIzq();}});
 let espera=null;
 document.addEventListener('input',e=>{const t=e.target;
-  if(t.dataset.filtro&&t.dataset.filtro!=='edicion'&&t.dataset.filtro!=='pasados'){UI.f[t.dataset.filtro]=t.value;clearTimeout(espera);espera=setTimeout(buscar,250);}
+  if(t.dataset.filtro&&t.dataset.filtro!=='edicion'&&t.dataset.filtro!=='pasados'){UI.f[t.dataset.filtro]=t.value;const x=t.parentNode.querySelector('.borrar');if(x)x.hidden=!t.value;clearTimeout(espera);espera=setTimeout(buscar,250);}
   else if('ufIn' in t.dataset){UI.uf=t.value;document.querySelectorAll('[data-uf-in]').forEach(x=>{if(x!==t)x.value=t.value;});document.querySelectorAll('[data-uf]').forEach(x=>{x.textContent=ufCalc(+x.dataset.uf,x.dataset.uftxt);});}
   else if(t.dataset.form){UI.form[t.dataset.form]=t.value;}});
 /* Actualización obligatoria al abrir (decisión de Diego, 20 de Octubre). Tapa la agenda hasta terminar. */

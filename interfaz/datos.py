@@ -378,9 +378,10 @@ def estado(con, hoy):
             "ediciones_txt": {r[0]: dia_mes(r[0]) for r in con.execute("SELECT fecha FROM ediciones")}}
 
 
-def buscar(con, hoy, tribunal="", rol="", anio="", edicion="", pasados=False, limite=300):
+def buscar(con, hoy, tribunal="", rol="", anio="", edicion="", pasados=False, limite=300, direccion=""):
     """Decisión de Diego. Por defecto los remates vigentes (que todavía no pasan) de todas las ediciones, la publicación
-    más nueva de cada propiedad. Con edición, solo lo publicado ese día. Los tres campos filtran solos. Los remates sin fecha
+    más nueva de cada propiedad. Con edición, solo lo publicado ese día. Los cuatro campos filtran solos (la dirección, pedido de
+    Diego del 22 de Octubre, busca en la dirección y la comuna, sin tildes ni mayúsculas). Los remates sin fecha
     van al final, para que arriba queden los más próximos."""
     sql = ("SELECT remate_id FROM (SELECT b.*, ROW_NUMBER() OVER (PARTITION BY COALESCE(b.bien_id, -b.remate_id) "
            "ORDER BY b.edicion DESC, b.remate_id DESC) AS n FROM v_buscador b {w}) WHERE n = 1 {v} ORDER BY fecha_remate IS NULL, fecha_remate, tribunal")
@@ -392,15 +393,17 @@ def buscar(con, hoy, tribunal="", rol="", anio="", edicion="", pasados=False, li
     if not pasados:
         par.append(hoy)
     ids = [r[0] for r in con.execute(sql.format(w=w, v=v), par)]
-    t, r_, a_ = normalizar(tribunal), re.sub(r"\D", "", rol or ""), re.sub(r"\D", "", anio or "")
+    t, r_, a_, d_ = normalizar(tribunal), re.sub(r"\D", "", rol or ""), re.sub(r"\D", "", anio or ""), normalizar(direccion)
     out = []
     for rid in ids:
-        f = con.execute("SELECT a.tribunal, a.rol, a.anio FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE r.id = ?", (rid,)).fetchone()
+        f = con.execute("SELECT a.tribunal, a.rol, a.anio, r.direccion, r.comuna FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE r.id = ?", (rid,)).fetchone()
         if t and t not in normalizar(f[0]):
             continue
         if r_ and r_ not in (f[1] or ""):
             continue
         if a_ and a_ not in (f[2] or ""):
+            continue
+        if d_ and d_ not in normalizar(f"{f[3] or ''} {f[4] or ''}"):
             continue
         out.append(rid)
     total = len(out)
