@@ -248,6 +248,7 @@ function irAFicha(){const f=document.getElementById('ficha');if(f)f.scrollIntoVi
 
 // --- Panel derecho (buscador, causa a mano y ficha) -----------------------------------------------------------------
 function tarjetaRes(it){return `<article class="tarjeta"><div class="rol" style="color:var(--cafe)">${E(it.rol)}${it.inmueble?` · ${E(it.inmueble)}`:""}</div><div class="car">${E(it.caratula)}</div><div class="peq gris">${E(it.tribunal)}</div>
+  <div class="peq"><span class="gris">Dirección</span> ${E(it.direccion)}</div>
   <div class="peq"><span class="gris">Remate</span> ${E(it.remate_corto)} · ${E(it.mod_txt)}</div><div class="peq"><span class="gris">Vale vista</span> ${E(it.vv_txt)}</div>
   <div class="peq"><span class="gris">Monto VV</span> ${E(it.monto)}${etiquetas(it)}</div>${ufHTML(it)}<div class="gris" style="font-size:11px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Ver aviso')}
   ${it.en_calendario?'<div class="peq" style="font-weight:700;color:var(--ok);padding:8px 0">Ya está en tu calendario</div>':`<button class="btn" style="align-self:flex-start" data-acc="agendar" data-rid="${it.remate_id}">Agregar al calendario</button>`}</article>`;}
