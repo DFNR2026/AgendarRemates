@@ -2,12 +2,16 @@
 Uso (lo corre el archivo 'Abrir Agenda.bat', Diego no escribe comandos).
     python -m interfaz.servidor [--base RUTA] [--puerto 8765] [--sin-navegador]
 Escucha solo en este PC (127.0.0.1). Si ya está corriendo, solo abre el navegador.
+Desde el 29 de Octubre (pedido de Diego). Un solo servidor por puerto (en Windows el servidor de Python dejaba abrir varios a la vez),
+corre sin ventana (pythonw) y se apaga solo cuando la página deja de dar señales (Chrome cerrado). Los errores quedan en logs/servidor.log.
 """
 import datetime as dt
 import json
 import sqlite3
 import sys
+import socket
 import threading
+import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -19,6 +23,24 @@ from db.crear_base import crear, BASE
 from interfaz import datos as D
 
 PAGINA = Path(__file__).resolve().parent / "agenda.html"
+APAGAR_SIN_SENAL = 180     # segundos sin señal de la página para apagarse (Chrome cerrado). La página avisa cada 30. Puesto por Claude.
+ULTIMA_SENAL = [time.monotonic()]
+
+
+def debe_apagarse(ultima, ahora, limite=APAGAR_SIN_SENAL):
+    """True cuando la página lleva más de 'limite' segundos sin dar señales."""
+    return ahora - ultima > limite
+
+
+class ServidorUnico(ThreadingHTTPServer):
+    """Un solo servidor por puerto. HTTPServer trae allow_reuse_address, que en Windows deja que un segundo servidor
+    ocupe el mismo puerto (causa de las ventanas repetidas, 29 de Octubre). Sin eso, el segundo falla y solo abre el navegador."""
+    allow_reuse_address = False
+
+    def server_bind(self):
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):          # solo existe en Windows
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
 
 
 def hoy_chile():
@@ -47,7 +69,10 @@ class Manejador(BaseHTTPRequestHandler):
         self.wfile.write(cuerpo)
 
     def do_GET(self):
+        ULTIMA_SENAL[0] = time.monotonic()
         u = urlparse(self.path)
+        if u.path == "/api/latido":                          # la página sigue abierta
+            return self._json({"ok": True})
         q = {k: v[0] for k, v in parse_qs(u.query).items()}
         try:
             if u.path in ("/", "/index.html"):
@@ -76,6 +101,7 @@ class Manejador(BaseHTTPRequestHandler):
             self._json({"ok": False, "error": f"Error del programa. {type(e).__name__}. {e}"}, 500)
 
     def do_POST(self):
+        ULTIMA_SENAL[0] = time.monotonic()
         u = urlparse(self.path)
         try:
             largo = int(self.headers.get("Content-Length") or 0)
@@ -113,10 +139,31 @@ def servidor(ruta_base, puerto=8765):
     """Crea o actualiza la base (agrega las tablas nuevas sin borrar nada) y devuelve el servidor listo, sin arrancarlo."""
     crear(ruta_base).close()
     clase = type("ManejadorBase", (Manejador,), {"ruta_base": Path(ruta_base)})
-    return ThreadingHTTPServer(("127.0.0.1", puerto), clase)
+    return ServidorUnico(("127.0.0.1", puerto), clase)
+
+
+def vigilar(srv, limite=APAGAR_SIN_SENAL):
+    """Apaga el servidor cuando la página deja de dar señales. Mientras una actualización larga trabaja, cada pedido
+    renueva la señal al empezar, y el apagado espera a que termine (shutdown no corta un pedido en curso)."""
+    while True:
+        time.sleep(15)
+        if debe_apagarse(ULTIMA_SENAL[0], time.monotonic(), limite):
+            srv.shutdown()
+            return
+
+
+def _registro():
+    """Con pythonw no hay ventana, así que los errores van a logs/servidor.log."""
+    if sys.stdout is None or sys.stderr is None:
+        (RAIZ / "logs").mkdir(exist_ok=True)
+        f = open(RAIZ / "logs" / "servidor.log", "a", encoding="utf-8", buffering=1)
+        f.write(f"\n--- {dt.datetime.now().isoformat(timespec='seconds')} arranque\n")
+        sys.stdout = sys.stdout or f
+        sys.stderr = sys.stderr or f
 
 
 def main(argv):
+    _registro()
     ruta = Path(argv[argv.index("--base") + 1]) if "--base" in argv else BASE
     if not ruta.is_absolute():
         ruta = RAIZ / ruta
@@ -129,13 +176,19 @@ def main(argv):
         if "--sin-navegador" not in argv:
             webbrowser.open(url)
         return
-    print(f"Agenda de remates en {url}  (base {ruta.name}). Cierra esta ventana para apagarla.")
+    print(f"Agenda de remates en {url}  (base {ruta.name}). Se apaga sola al cerrar el navegador.")
     if "--sin-navegador" not in argv:
         threading.Timer(0.8, lambda: webbrowser.open(url)).start()
+    ULTIMA_SENAL[0] = time.monotonic()
+    if "--sin-apagado" not in argv:
+        limite = int(argv[argv.index("--apagar-en") + 1]) if "--apagar-en" in argv else APAGAR_SIN_SENAL   # solo para probar
+        threading.Thread(target=vigilar, args=(srv, limite), daemon=True).start()
     try:
         srv.serve_forever()
     except KeyboardInterrupt:
         pass
+    finally:
+        srv.server_close()
 
 
 if __name__ == "__main__":

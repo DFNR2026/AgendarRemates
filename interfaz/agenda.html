@@ -46,6 +46,7 @@ h2.tit{margin:0;font-size:17px;font-weight:800;letter-spacing:.06em;text-transfo
 .lk.ant{background:var(--papel);color:var(--suave);border:1px dashed var(--lk-ant)}
 .btn{background:var(--cafe);color:var(--sobre);border:0;border-radius:calc(10px*var(--r));padding:10px 16px;min-height:44px;font-size:14px;font-weight:700;cursor:pointer}
 .btn2:disabled{opacity:.4;cursor:default}
+#toast.bien{background:var(--cafe);color:var(--sobre)}
 .limpiable{position:relative;display:block}.limpiable .campo{padding-right:40px}
 .borrar{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;border-radius:999px;background:var(--borde);color:var(--tinta);cursor:pointer;font-size:14px;line-height:1}.borrar[hidden]{display:none}.borrar:hover{background:var(--suave);color:var(--papel)}
 .btn2{background:var(--papel);color:var(--cafe);border:1px solid var(--cafe);border-radius:calc(8px*var(--r));padding:6px 12px;min-height:36px;font-size:13px;font-weight:700;cursor:pointer}
@@ -128,7 +129,7 @@ const item=k=>(EST&&EST.agenda||[]).find(x=>clave(x)===k);
 async function api(ruta,cuerpo){
   const r=await fetch(ruta,cuerpo?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cuerpo)}:{cache:'no-store'});
   const j=await r.json(); if(j.ok===false) throw new Error(j.error||'Error'); return j;}
-function aviso(t){const d=document.getElementById('toast');d.textContent=t;d.classList.remove('oculto');clearTimeout(aviso.t);aviso.t=setTimeout(()=>d.classList.add('oculto'),7000);}
+function aviso(t,bien){const d=document.getElementById('toast');d.textContent=t;d.classList.toggle('bien',!!bien);d.classList.remove('oculto');clearTimeout(aviso.t);aviso.t=setTimeout(()=>d.classList.add('oculto'),7000);}
 async function cargar(){try{EST=await api('/api/estado');render();}catch(e){aviso('No se pudo leer la agenda. '+e.message);}}
 async function hacer(ruta,cuerpo){try{const r=await api(ruta,cuerpo);await cargar();if(UI.panel==='buscar')await buscar();return r;}catch(e){aviso(e.message);return null;}}
 
@@ -313,7 +314,9 @@ document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.filtro&&t.dataset.filtro!=='edicion'&&t.dataset.filtro!=='pasados'){UI.f[t.dataset.filtro]=t.value;const x=t.parentNode.querySelector('.borrar');if(x)x.hidden=!t.value;clearTimeout(espera);espera=setTimeout(buscar,250);}
   else if('ufIn' in t.dataset){UI.uf=t.value;document.querySelectorAll('[data-uf-in]').forEach(x=>{if(x!==t)x.value=t.value;});document.querySelectorAll('[data-uf]').forEach(x=>{x.textContent=ufCalc(+x.dataset.uf,x.dataset.uftxt);});}
   else if(t.dataset.form){UI.form[t.dataset.form]=t.value;}});
-/* Actualización obligatoria al abrir (decisión de Diego, 20 de Octubre). Tapa la agenda hasta terminar. */
+/* Actualización obligatoria al abrir (decisión de Diego, 20 de Octubre). Tapa la agenda hasta terminar.
+   Desde el 29 de Octubre (pedido de Diego) solo la primera vez del día. Las siguientes van calladas y solo avisan si llegó algo o falló. */
+function actHoy(){try{return localStorage.getItem('act_ok')}catch(e){return null}}
 const NUBE={estado:'oculto',r:null};
 function dmTxt(f){return ((EST&&EST.ediciones_txt&&EST.ediciones_txt[f])||f).replace(/\.$/,'');}   /* sin el punto final, lo pone la frase */
 function renderVelo(){const v=document.getElementById('velo');if(NUBE.estado==='oculto'){v.hidden=true;v.innerHTML='';return;}
@@ -326,12 +329,19 @@ function renderVelo(){const v=document.getElementById('velo');if(NUBE.estado==='
       (r.bloqueo?`<div style="font-weight:700">${E(r.bloqueo)}</div>`:'')+(r.problemas||[]).map(x=>`<div style="color:var(--rojo);font-weight:700">${E(x)}</div>`).join('')+
       `<button class="btn" data-acc="nubeOk">Entendido</button>`;}
   v.hidden=false;v.innerHTML=`<div class="caja" role="alertdialog" aria-live="assertive">${h}</div>`;}
-async function actualizarNube(){if(NUBE.estado==='trabajando')return;NUBE.estado='trabajando';renderVelo();
+async function actualizarNube(callado){if(NUBE.estado==='trabajando'||NUBE.callado)return;if(callado)NUBE.callado=true;else{NUBE.estado='trabajando';renderVelo();}
   try{const r=await fetch('/api/actualizar',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});NUBE.r=await r.json();
     if(NUBE.r.ok===false)NUBE.estado='error';else if((NUBE.r.problemas||[]).length||NUBE.r.bloqueo)NUBE.estado='aviso';else NUBE.estado='oculto';}
-  catch(e){NUBE.r={error:'No se pudo hablar con el programa de la agenda. Cierra la ventana minimizada y ábrela de nuevo.'};NUBE.estado='error';}
-  await cargar();renderVelo();}
-cargar().then(actualizarNube);
+  catch(e){NUBE.r={error:'No se pudo hablar con el programa de la agenda. Cierra el navegador y abre la agenda de nuevo.'};NUBE.estado='error';}
+  await cargar();
+  if(NUBE.estado!=='error'){try{localStorage.setItem('act_ok',EST.hoy)}catch(e){}}
+  if(callado){NUBE.callado=false;
+    if(NUBE.estado==='error'){NUBE.estado='oculto';aviso('No se pudo actualizar con El Mercurio. Aprieta Actualizar ahora para reintentar.');}
+    else if(NUBE.estado==='oculto'&&(NUBE.r.cargadas||[]).length)aviso('Se cargaron las ediciones del '+NUBE.r.cargadas.map(dmTxt).join(', ')+'.',true);}
+  renderVelo();}
+cargar().then(()=>actualizarNube(!!EST&&actHoy()===EST.hoy));
+/* Señal al servidor cada 30 segundos. Si Chrome se cierra, el servidor se apaga solo a los 3 minutos (29 de Octubre). */
+setInterval(()=>{fetch('/api/latido',{cache:'no-store'}).catch(()=>{});},30*1000);
 setInterval(()=>{if(document.visibilityState==='visible'&&!UI.panel)cargar();},5*60*1000);   // por si se cargó una edición con la página abierta
 </script>
 </body>

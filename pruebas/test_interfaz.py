@@ -193,5 +193,17 @@ revisar("descarte encendido. el aviso de Familia C-9854-2025 queda descartado co
         _F.execute("SELECT filtro_estado, filtro_motivos FROM avisos WHERE rol = '9854' AND anio = '2025'").fetchall() == [("descartado", "tribunal no civil")]
         and _F.execute("SELECT COUNT(*) FROM v_buscador WHERE rol = '9854'").fetchone()[0] == 0)
 _F.close(); _tmp_fam.cleanup()
+# Servidor único y apagado solo (pedido de Diego, 29 de Octubre). Un segundo servidor en el mismo puerto no puede arrancar.
+from interfaz import servidor as SV
+revisar("servidor. sin reuso de puerto (en Windows dejaba abrir varios)", SV.ServidorUnico.allow_reuse_address is False)
+revisar("servidor. se apaga solo pasado el plazo sin señal, y no antes", SV.debe_apagarse(0, 181) and not SV.debe_apagarse(0, 179))
+_s1 = SV.servidor(Path(tempfile.mkdtemp()) / "a.db", 0)
+try:
+    SV.servidor(Path(tempfile.mkdtemp()) / "b.db", _s1.server_address[1]).server_close()
+    _segundo = True
+except OSError:
+    _segundo = False
+_s1.server_close()
+revisar("servidor. un segundo servidor en el mismo puerto falla", _segundo is False)
 print("\nRESULTADO.", "TODO OK" if not FALLAS else f"{len(FALLAS)} fallas")
 sys.exit(1 if FALLAS else 0)
