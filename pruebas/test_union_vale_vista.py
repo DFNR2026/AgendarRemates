@@ -232,6 +232,7 @@ CASOS = [  # (motivo técnico tal como lo escribe motor\vale_vista.py, grupo esp
     ("No están cargados los feriados de 2027.", LIMITE, "Faltan los feriados de 2027."),
     ("La fecha de entrega es anterior a la edición. Posible error de escritura del aviso.", AVISO, "El aviso pide el vale vista en una fecha que ya pasó al publicarse."),
     ("La entrega quedaría después del remate.", DUDOSO, "El plazo de entrega quedaría después del remate."),
+    ("La entrega quedaría en un fin de semana o feriado. Posible error del aviso.", AVISO, "El aviso pide el vale vista en un fin de semana o feriado."),
     ("La frase nombra un día de la semana distinto al que da el cálculo.", IA, None),
 ]
 mal = []
@@ -240,11 +241,11 @@ for m, g, simple in CASOS:
         gg, ss = traducir_motivo(pref + m)
         if gg != g or (simple and ss != simple):
             mal.append(f"{pref}{m} -> {gg} | {ss}")
-revisar("decisión 5. los 31 motivos técnicos (y con 'Segunda lectura') se traducen al grupo y texto aprobados", not mal, " || ".join(mal[:3]))
+revisar("decisión 5. los 32 motivos técnicos (y con 'Segunda lectura') se traducen al grupo y texto aprobados", not mal, " || ".join(mal[:3]))
 # Si alguien agrega un motivo nuevo en vale_vista.py, esta cuenta cambia y obliga a traducirlo y sumarlo a CASOS.
 fuente = (RAIZ / "motor" / "vale_vista.py").read_text(encoding="utf-8")
 n_fuente = len(re.findall(r'motivos"\]\.append\(|motivos\.append\(|motivo_rojo"\] = ', fuente))
-revisar("decisión 5. vale_vista.py no tiene motivos nuevos sin traducir (29 lugares que escriben un motivo)", n_fuente == 29, str(n_fuente))
+revisar("decisión 5. vale_vista.py no tiene motivos nuevos sin traducir (30 lugares que escriben un motivo, F1-01 sumó uno el 30 de Octubre)", n_fuente == 30, str(n_fuente))
 revisar("decisión 5. un motivo desconocido queda Dudoso con su texto, sin perderse", traducir_motivo("Algo nuevo.") == (DUDOSO, "Algo nuevo."))
 t = texto_rojo(["La frase no trae las palabras propias de la regla en_el_remate.",
                 "La frase no dice que el vale vista se entregue en el remate (solo cuándo se califica)."])

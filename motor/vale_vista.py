@@ -137,7 +137,20 @@ def calcular(r: dict, fecha_remate: str, hora_remate: str | None, fecha_edicion:
         d = d0 - dt.timedelta(days=1)
         while d.weekday() not in dias: d -= dt.timedelta(days=1)
         if len(dias) > 1: out["preguntas"].append(5)
-        if not habil(d): out["preguntas"].append(2)
+        # F1-01 (30 de Octubre). Si ese viernes, martes o jueves es feriado, la entrega se adelanta. Antes quedaba en el feriado.
+        # Viernes. Al día hábil anterior, como dice en letras el 15° Civil ("En caso de recaer dicho viernes en día feriado, la
+        # entrega deberá efectuarse el día hábil anterior"). Martes y jueves. Al martes o jueves hábil anterior, que es día de
+        # recepción del tribunal y además más temprano que el día hábil anterior (provisorio, pregunta 12 al abogado).
+        if not habil(d):
+            if regla == "viernes_anterior":
+                d = habil_antes(d)
+                avisado = " ".join([r.get("frase_regla") or ""] + list(r.get("frases_extra") or []))
+                if not re.search(r"feriado", avisado, re.I): out["preguntas"].append(12)
+            else:
+                d -= dt.timedelta(days=1)
+                while d.weekday() not in dias or not habil(d): d -= dt.timedelta(days=1)
+                out["preguntas"].append(12)
+            out["corrido_feriado"] = True
     elif regla == "fecha_fija":
         d = dt.date.fromisoformat(r["fecha"])
     else:
@@ -339,11 +352,16 @@ def resolver(lecturas: list, texto: str, fecha_remate: str | None, hora_remate: 
         base["vv_estado"] = "revisar"; return base
     if c["vv_hasta"][:10] > fecha_remate:
         base["motivos"].append("La entrega quedaría después del remate."); base["vv_estado"] = "revisar"; return base
+    # F1-01 (30 de Octubre). Red de seguridad. Ninguna entrega puede quedar en un fin de semana o feriado (salvo en el mismo
+    # remate). Hoy solo la fecha fija puede llegar aquí, cuando el aviso imprime una fecha de entrega que no es hábil.
+    if r["regla"] != "en_el_remate" and not habil(dt.date.fromisoformat(c["vv_hasta"][:10])):
+        base["motivos"].append("La entrega quedaría en un fin de semana o feriado. Posible error del aviso.")
+        base["vv_estado"] = "revisar"; return base
     # La frase nombra un día de la semana y el cálculo cae en otro (6-10 aviso 80, "el día jueves inmediatamente anterior"
     # leído como día anterior dio viernes, un día TARDE). Solo lunes a viernes, porque sábado y domingo aparecen en las
     # excepciones ("si recayere en día sábado", 14-10 aviso 21) y la entrega nunca cae en fin de semana.
     nombrados = {_DIA_SEMANA[w.lower()] for w in re.findall(r"\b(lunes|martes|mi[ée]rcoles|jueves|viernes)\b", base["cita"] or "", re.I)}
-    if nombrados and dt.date.fromisoformat(c["vv_hasta"][:10]).weekday() not in nombrados:
+    if nombrados and not c.get("corrido_feriado") and dt.date.fromisoformat(c["vv_hasta"][:10]).weekday() not in nombrados:
         base["motivos"].append("La frase nombra un día de la semana distinto al que da el cálculo.")
         base["vv_estado"] = "revisar"; return base
     preg = list(c["preguntas"])

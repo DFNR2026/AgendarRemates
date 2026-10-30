@@ -116,6 +116,34 @@ for x in banco:
             fallas.append(f"Una frase de devolución pasó la verificación (aviso {x['n']})")
         break
 
+# F1-01 (30 de Octubre). Viernes, martes o jueves que caen en feriado. La entrega se adelanta y nunca queda en el feriado.
+_F15 = dict(regla="viernes_anterior", dias=None, horas=None, fecha=None, hora_desde="12:00", hora_hasta="13:00",
+            frase_regla="los postores deberán comparecer al Tribunal el día viernes anterior a la fecha de la subasta, de 12:00 a 13:00 horas, a fin de entregar el vale vista",
+            frases_extra=["En caso de recaer dicho viernes en día feriado, la entrega deberá efectuarse el día hábil anterior en el mismo horario."], contradiccion=None)
+_F27 = dict(_F15, hora_desde=None, hora_hasta=None, frases_extra=[],
+            frase_regla="el que deberá ser entregado materialmente en la Secretaría del Tribunal hasta el día viernes de la semana anterior a efectuarse la subasta")
+_F21 = dict(_F15, regla="martes_o_jueves_anterior", hora_desde="10:00", hora_hasta="12:00", frases_extra=[],
+            frase_regla="deberán asistir a las dependencias del Tribunal los días martes y jueves, anterior a la realización de la subasta, según correspondiere, entre las 10:00 y las 12:00 horas")
+def _vv(r, remate):
+    t = "Garantía vale vista. " + r["frase_regla"] + ". " + " ".join(r["frases_extra"])
+    x = V.resolver([r, r], t, remate, "12:00", "2026-11-20")
+    return (x["vv_hasta"], x["color"], x["preguntas"])
+for _r, _rem, _esp in [
+        (_F15, "2026-12-29", ("2026-12-24 13:00", "verde", [])),       # viernes 25 de Diciembre, Navidad. El aviso dice día hábil anterior
+        (_F15, "2027-03-30", ("2027-03-25 13:00", "verde", [])),       # viernes 26 de Marzo de 2027, Viernes Santo
+        (_F15, "2027-01-05", ("2026-12-31 13:00", "verde", [])),       # viernes 1 de Enero, año nuevo
+        (_F27, "2026-12-28", ("2026-12-24", "ambar", [12])),           # 27° Civil, el aviso no dice qué pasa con el feriado
+        (_F21, "2026-12-09", ("2026-12-03 12:00", "ambar", [5, 12])),  # martes 8 de Diciembre, Inmaculada Concepción. Al jueves anterior
+        (_F15, "2026-12-15", ("2026-12-11 13:00", "verde", [])),       # sin feriado, no cambia
+        (_F21, "2026-12-15", ("2026-12-10 12:00", "ambar", [5]))]:     # sin feriado, no cambia
+    if _vv(_r, _rem) != _esp:
+        fallas.append(f"F1-01. remate {_rem} {_r['regla']} dio {_vv(_r, _rem)} y se esperaba {_esp}")
+for _fecha, _color in [("2026-12-25", "rojo"), ("2026-12-26", "rojo"), ("2026-12-24", "verde")]:
+    _r = dict(_F15, regla="fecha_fija", fecha=_fecha, hora_desde=None, hora_hasta="12:00", frases_extra=[],
+              frase_regla=f"deberán acreditarse a más tardar el {int(_fecha[8:])} de diciembre de 2026 hasta las 12:00 horas")
+    _x = V.resolver([_r, _r], "Garantía vale vista. " + _r["frase_regla"], "2026-12-29", "12:00", "2026-11-20")
+    if _x["color"] != _color:
+        fallas.append(f"F1-01. fecha fija {_fecha} dio {_x['color']} y se esperaba {_color}")
 print("\n".join(fallas) if fallas else f"{medidos} avisos del 14 de Octubre y casos en rojo revisados.")
 print("RESULTADO.", "FALLAS" if fallas else "TODO OK")
 sys.exit(1 if fallas else 0)

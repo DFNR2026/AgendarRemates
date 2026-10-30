@@ -68,6 +68,7 @@ _MOTIVOS = [
     (r"^El aviso da dos plazos u horarios distintos", "Error del aviso", "El aviso da dos plazos u horarios distintos para la entrega."),
     (r"^La fecha de entrega es anterior a la edición", "Error del aviso", "El aviso pide el vale vista en una fecha que ya pasó al publicarse."),
     (r"^La fecha del remate es anterior a la edición", "Error del aviso", "La fecha del remate ya pasó al publicarse."),
+    (r"^La entrega quedaría en un fin de semana o feriado", "Error del aviso", "El aviso pide el vale vista en un fin de semana o feriado."),
     (r"^La entrega quedaría después del remate", "Dudoso", "El plazo de entrega quedaría después del remate."),
     (r"^Falta la fecha del remate", "Límite del programa", "El programa no encontró la fecha del remate."),
     (r"^Falta la hora del remate", "Límite del programa", "El programa no encontró la hora del remate."),
