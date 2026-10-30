@@ -180,6 +180,10 @@ def post(p, d):
 html = get("/")
 revisar("servidor. entrega la página", "<title>Agenda de remates</title>" in html)
 revisar("página. no carga programas de internet (funciona sin conexión)", not re.search(r"<script[^>]+src=", html))
+# F3-07 (30 de Octubre). Medido con Chromium aparte. Aquí se revisa que el aviso siga en la página y que el latido no lo calle.
+revisar("F3-07. la página avisa cuando la agenda se cerró (dos latidos fallidos y al volver a la pestaña)",
+        'id="cerrada"' in html and "La agenda se cerró" in html and "LATIDO.fallas>=2" in html
+        and "fetch('/api/latido',{cache:'no-store'}).catch(()=>{})" not in html and "visibilitychange" in html)
 est = json.loads(get(f"/api/estado?hoy={HOY}"))
 revisar("servidor. estado con agenda, franjas y feriados", {"agenda", "franja_negra", "franja_ambar", "cambios", "llamados", "quitados", "feriados"} <= set(est))
 bus = json.loads(get(f"/api/buscar?hoy={HOY}&rol=6443"))

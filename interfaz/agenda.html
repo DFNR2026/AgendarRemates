@@ -111,6 +111,7 @@ blockquote{margin:0;padding:8px 12px;background:var(--fondo);border-radius:calc(
 </div>
 <div id="toast" class="oculto" role="alert"></div>
 <div id="velo" class="velo" hidden></div>
+<div id="cerrada" class="velo" style="z-index:60" hidden><div class="caja" role="alertdialog" aria-live="assertive"><h2 style="margin:0">La agenda se cerró</h2><p style="margin:0">La agenda se apagó sola porque el computador estuvo suspendido o la página estuvo un rato sin dar señales. Lo que ves puede estar desactualizado y lo que marques no se va a guardar.</p><p style="margin:0">Cierra esta pestaña y abre la agenda de nuevo con el ícono del escritorio.</p></div></div>
 <script>
 // Agenda de remates (18 de Octubre). Lee todo de /api/estado y manda las acciones de Diego al servidor local.
 const MES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -341,7 +342,13 @@ async function actualizarNube(callado){if(NUBE.estado==='trabajando'||NUBE.calla
   renderVelo();}
 cargar().then(()=>actualizarNube(!!EST&&actHoy()===EST.hoy));
 /* Señal al servidor cada 30 segundos. Si Chrome se cierra, el servidor se apaga solo a los 3 minutos (29 de Octubre). */
-setInterval(()=>{fetch('/api/latido',{cache:'no-store'}).catch(()=>{});},30*1000);
+/* F3-07 (30 de Octubre). Antes un latido fallido no avisaba nada. Si fallan dos seguidos, el servidor ya se apagó y la página
+   se tapa con "La agenda se cerró". Al volver a la pestaña (por ejemplo después de suspender el PC) se revisa al tiro. */
+const LATIDO={fallas:0};
+function latido(){fetch('/api/latido',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('latido');LATIDO.fallas=0;document.getElementById('cerrada').hidden=true;})
+  .catch(()=>{LATIDO.fallas++;if(LATIDO.fallas>=2)document.getElementById('cerrada').hidden=false;});}
+setInterval(latido,30*1000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){latido();setTimeout(latido,3000);}});
 setInterval(()=>{if(document.visibilityState==='visible'&&!UI.panel)cargar();},5*60*1000);   // por si se cargó una edición con la página abierta
 </script>
 </body>
