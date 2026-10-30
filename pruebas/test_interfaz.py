@@ -152,6 +152,15 @@ revisar("a mano. al cambiarla queda la del diario, con lo que Diego marcó", [(a
 D.ignorar_publicado(con, m1)
 D.quitar(con, manual_id=m1)
 revisar("a mano. la X la borra", not any(a.get("manual_id") == m1 for a in D.estado(con, HOY)["agenda"]))
+# F2-04 (30 de Octubre). El C-20712-2024 del 6 de Octubre imprime el remate el 20 de Octubre de 2025, antes de la edición.
+# Con hoy 6 de Octubre y el filtro de esa edición antes no salía. Ahora sale con su alerta roja. Una fecha pasada de verdad
+# (anterior a hoy y no a su edición) sigue escondida, y la ventana de 60 días deja fuera un aviso errado muy viejo.
+_err = D.buscar(con, "2026-10-06", rol="20712", edicion="2026-10-06")
+revisar("F2-04. fecha anterior a la edición. la propiedad sale en el buscador con la alerta roja", _err["total"] == 4
+        and all(x["fecha_remate"] == "2025-10-20" and any(al["tipo"] == "error_escritura" for al in x["alertas"]) for x in _err["resultados"]), str(_err["total"]))
+revisar("F2-04. un aviso con fecha errada de hace más de 60 días ya no sale", D.buscar(con, "2026-12-10", rol="20712", edicion="2026-10-06")["total"] == 0)
+revisar("F2-04. con hoy el 21 de Octubre un remate del 20 que de verdad pasó no sale", all(
+        x["fecha_remate"] >= "2026-10-21" or x["fecha_remate"] < x["edicion"] for x in D.buscar(con, "2026-10-21", limite=1000)["resultados"] if x["fecha_remate"]))
 con.close()
 
 # 6. Servidor local. Página, datos y una acción, en un puerto libre de este PC.

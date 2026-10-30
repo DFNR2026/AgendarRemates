@@ -378,6 +378,9 @@ def estado(con, hoy):
             "ediciones_txt": {r[0]: dia_mes(r[0]) for r in con.execute("SELECT fecha FROM ediciones")}}
 
 
+DIAS_FECHA_ERRADA = 60     # F2-04. Puesto por Claude.
+
+
 def buscar(con, hoy, tribunal="", rol="", anio="", edicion="", pasados=False, limite=300, direccion=""):
     """Decisión de Diego. Por defecto los remates vigentes (que todavía no pasan) de todas las ediciones, la publicación
     más nueva de cada propiedad. Con edición, solo lo publicado ese día. Los cuatro campos filtran solos (la dirección, pedido de
@@ -389,9 +392,11 @@ def buscar(con, hoy, tribunal="", rol="", anio="", edicion="", pasados=False, li
     w = ""
     if edicion:
         w, par = "WHERE b.edicion = ?", [edicion]
-    v = "" if pasados else "AND (fecha_remate IS NULL OR fecha_remate >= ?)"
+    # F2-04 (30 de Octubre). Una fecha anterior a la propia edición es un error de impresión, no un remate que ya pasó.
+    # Antes escondía la propiedad. Se muestra mientras la edición sea de los últimos DIAS_FECHA_ERRADA días (con su alerta roja).
+    v = "" if pasados else "AND (fecha_remate IS NULL OR fecha_remate >= ? OR (fecha_remate < edicion AND edicion >= ?))"
     if not pasados:
-        par.append(hoy)
+        par += [hoy, (dt.date.fromisoformat(hoy) - dt.timedelta(days=DIAS_FECHA_ERRADA)).isoformat()]
     ids = [r[0] for r in con.execute(sql.format(w=w, v=v), par)]
     t, r_, a_, d_ = normalizar(tribunal), re.sub(r"\D", "", rol or ""), re.sub(r"\D", "", anio or ""), normalizar(direccion)
     out = []
