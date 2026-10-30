@@ -20,6 +20,7 @@ from urllib.parse import urlparse, parse_qs
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 from db.crear_base import crear, BASE
+from db.respaldo import respaldar, pagina_base_danada
 from interfaz import datos as D
 
 PAGINA = Path(__file__).resolve().parent / "agenda.html"
@@ -136,7 +137,9 @@ class Manejador(BaseHTTPRequestHandler):
 
 
 def servidor(ruta_base, puerto=8765):
-    """Crea o actualiza la base (agrega las tablas nuevas sin borrar nada) y devuelve el servidor listo, sin arrancarlo."""
+    """Respalda la base una vez al día, la crea o actualiza (agrega las tablas nuevas sin borrar nada) y devuelve el servidor
+    listo, sin arrancarlo. El respaldo va antes de crear() para guardar la base tal como estaba (F3-01, 30 de Octubre)."""
+    respaldar(ruta_base)
     crear(ruta_base).close()
     clase = type("ManejadorBase", (Manejador,), {"ruta_base": Path(ruta_base)})
     return ServidorUnico(("127.0.0.1", puerto), clase)
@@ -171,6 +174,12 @@ def main(argv):
     url = f"http://127.0.0.1:{puerto}/"
     try:
         srv = servidor(ruta, puerto)
+    except sqlite3.DatabaseError as e:         # base dañada. Antes quedaba mudo (F3-01, 30 de Octubre)
+        print(f"La base {ruta.name} está dañada. {e}")
+        pagina = pagina_base_danada(ruta, e)
+        if "--sin-navegador" not in argv:
+            webbrowser.open(pagina.as_uri())
+        return
     except OSError:
         print("La agenda ya está abierta. Se abre el navegador.")
         if "--sin-navegador" not in argv:

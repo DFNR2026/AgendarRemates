@@ -205,5 +205,39 @@ except OSError:
     _segundo = False
 _s1.server_close()
 revisar("servidor. un segundo servidor en el mismo puerto falla", _segundo is False)
+# Respaldo diario (F3-01, 30 de Octubre). Una copia por día junto a la base, solo las últimas 14, y nunca de una base dañada.
+import sqlite3 as _sq
+from db.respaldo import respaldar, carpeta_de
+_tr = Path(tempfile.mkdtemp())
+_b = _tr / "base.db"
+crear(_b).close()
+_sv = SV.servidor(_b, 0); _sv.server_close()
+_R = carpeta_de(_b)
+revisar("respaldo. al abrir la agenda queda la copia de hoy junto a la base", [p.name for p in _R.glob("*.db")] == [f"base_{SV.hoy_chile()}.db"])
+_sv = SV.servidor(_b, 0); _sv.server_close()
+revisar("respaldo. una segunda apertura el mismo día no hace otra copia", len(list(_R.glob("*.db"))) == 1)
+_c = _sq.connect(next(_R.glob("*.db")))
+revisar("respaldo. la copia es una base sana con sus feriados", _c.execute("PRAGMA quick_check").fetchone()[0] == "ok"
+        and _c.execute("SELECT COUNT(*) FROM feriados").fetchone()[0] > 0)
+_c.close()
+for _d in range(1, 17):
+    respaldar(_b, hoy=f"2026-09-{_d:02d}")
+_quedan = sorted(p.name for p in _R.glob("base_*.db"))
+revisar("respaldo. quedan solo los últimos 14 días", len(_quedan) == 14 and _quedan[0] == "base_2026-09-04.db", str(len(_quedan)))
+_b.write_bytes(_b.read_bytes()[:4096] + b"\x00basura" * 2000)
+try:
+    respaldar(_b, hoy="2026-12-31"); _lanzo = False
+except _sq.DatabaseError:
+    _lanzo = True
+revisar("respaldo. una base dañada no se guarda y no borra los buenos", _lanzo and sorted(p.name for p in _R.glob("base_*.db")) == _quedan
+        and not list(_R.glob("*.tmp")))
+try:
+    SV.main(["--base", str(_b), "--puerto", "0", "--sin-navegador", "--sin-apagado"]); _cayo = False
+except Exception:
+    _cayo = True
+_pag = _R / "BASE_DANADA.html"
+_txt = _pag.read_text(encoding="utf-8") if _pag.exists() else ""
+revisar("respaldo. con la base dañada la agenda no queda muda, deja la página con los respaldos y meses en palabras",
+        not _cayo and "base está dañada" in _txt and "4 de Septiembre de 2026" in _txt and "2026-09" not in _txt)
 print("\nRESULTADO.", "TODO OK" if not FALLAS else f"{len(FALLAS)} fallas")
 sys.exit(1 if FALLAS else 0)
