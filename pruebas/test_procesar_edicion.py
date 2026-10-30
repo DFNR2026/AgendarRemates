@@ -185,6 +185,18 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("incompleta. el vale vista sin leer sale en ámbar y la alarma de la unión de rollos no",
             e["franja_ambar"][0] == "La edición del miércoles 14 de Octubre de 2026 está cargada pero incompleta. Vale vista. 2 de 61 avisos quedaron sin leer por la IA. Se puede retomar sin volver a leer el Mercurio."
             and len(e["franja_ambar"]) == 2, str(e["franja_ambar"]))
+    # F2-06 (30 de Octubre). Página del diario sin leer y roles que no quedaron en ningún aviso encienden la franja ámbar.
+    with Z:
+        Z.execute("UPDATE ediciones SET alarmas = ? WHERE fecha = '2026-10-13'",
+                  ("No se pudo leer B11 (B-20261013-011). TimeoutError: Page.goto: Timeout 30000ms exceeded\n"
+                   "Cuadre. 2 roles del texto no quedaron dentro de ningún aviso (1234-2024, 555-2023). Revisa la página.",))
+    e = estado_sincronizacion(Z, "2026-10-15")
+    _l13 = [x for x in e["franja_ambar"] if "13 de Octubre" in x]
+    revisar("F2-06. página sin leer y cuadre encienden la franja, la página en palabras simples y sin dos puntos",
+            not e["al_dia"] and _l13 == [
+                "La edición del martes 13 de Octubre de 2026 está cargada pero incompleta. No se pudo leer la página B11 del diario. Los remates de esa página pueden faltar.",
+                "La edición del martes 13 de Octubre de 2026 está cargada pero incompleta. Cuadre. 2 roles del texto no quedaron dentro de ningún aviso (1234-2024, 555-2023). Revisa la página."]
+            and not any(":" in x for x in _l13), str(_l13))
     Z.close()
 
 print("\nRESULTADO.", "TODO OK" if not FALLAS else f"{len(FALLAS)} fallas")

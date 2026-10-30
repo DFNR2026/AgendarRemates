@@ -4,12 +4,24 @@ que no se puede cerrar mientras siga el problema. Si una edición reciente qued�
 la IA, o sin la sección de remates), muestra una franja ámbar más suave. Solo lee la base, nunca la cambia.
 """
 import datetime as dt
-from motor.republicaciones import fecha_legible
+import re
+from motor.republicaciones import fecha_legible, CUADRE_ALARMA
 from motor.procesar_edicion import VV_ALARMA, DIR_ALARMA, SIN_REMATES
 
 DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
 VENTANA = 7          # días hacia atrás desde hoy que se revisan (incluido hoy). Puesto por Claude, a confirmar con Diego.
-_INCOMPLETA = (VV_ALARMA, DIR_ALARMA, SIN_REMATES[:12])
+# F2-06 (30 de Octubre). También una página del diario que no se pudo leer y los roles que no quedaron en ningún aviso.
+# Antes la edición salía "al día" y esos remates se perdían sin franja.
+PAGINA_SIN_LEER = "No se pudo leer "
+_INCOMPLETA = (VV_ALARMA, DIR_ALARMA, SIN_REMATES[:12], PAGINA_SIN_LEER, CUADRE_ALARMA)
+
+
+def _linea_simple(x: str) -> str:
+    """La línea del lector trae el error técnico de Python (con dos puntos). Para Diego va en palabras simples."""
+    m = re.match(rf"{PAGINA_SIN_LEER}(\S+)", x)
+    if m:
+        return f"No se pudo leer la página {m.group(1)} del diario. Los remates de esa página pueden faltar."
+    return x
 
 
 def dia_largo(f: str) -> str:
@@ -29,7 +41,7 @@ def estado_sincronizacion(con, hoy: str, ventana: int = VENTANA) -> dict:
     for d in sorted(dias):
         if d in eds:
             estado, alarmas = eds[d]
-            lineas = [x for x in (alarmas or "").splitlines() if x.startswith(_INCOMPLETA)]
+            lineas = [_linea_simple(x) for x in (alarmas or "").splitlines() if x.startswith(_INCOMPLETA)]
             if estado == "fallida" or lineas:
                 incompletas.append({"fecha": d, "lineas": lineas or ["La lectura de esta edición quedó fallida."]})
     ultima = max(eds) if eds else None
