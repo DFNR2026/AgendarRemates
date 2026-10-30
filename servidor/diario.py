@@ -15,7 +15,9 @@ Pasos.
 
 Estados de la marca. listo, incompleta (Haiku o páginas pendientes en el último intento), sin_remates (el diario se leyó
 y no trae la sección) y fallida (en el último intento no se pudo leer la edición). Solo se escribe una marca al terminar
-bien o en el último intento, así que si hay marca no se vuelve a intentar.
+bien o en el último intento. Si hay marca no se vuelve a intentar, salvo que sea fallida (F2-05, 30 de Octubre).
+7. En el último intento, después de la edición de hoy, revisa los 7 días anteriores y lee hasta 2 sin marca o con marca
+   fallida (F2-05). Así un día que la nube no leyó no se pierde para siempre.
 
 Variables de entorno. MODO real o ensayo (ensayo guarda en pruebas/ensayo/ y no mira la marca), FECHA AAAA-MM-DD (por
 defecto hoy en Chile, el flujo fija TZ=America/Santiago), INTENTO_FINAL 1 para forzar el último intento,
@@ -24,7 +26,7 @@ Códigos de salida. 0 terminado, 2 reintentar más tarde, 1 error del programa.
 """
 from __future__ import annotations
 import json, os, shutil, subprocess, sys, tempfile, traceback, zipfile
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -33,6 +35,8 @@ sys.path.insert(0, str(RAIZ))
 ULTIMO_DESDE = (8, 30)     # desde esta hora de Chile el intento es el último (el último va a las 8:35)
 CARPETA_IA = RAIZ / "ia_respuestas"
 CAPTURAS = RAIZ / "capturas"
+RECUPERAR_DIAS = 7     # días hacia atrás que revisa el último intento (F2-05, 30 de Octubre). Puesto por Claude.
+RECUPERAR_MAX = 2      # máximo de días atrasados por corrida, porque el flujo tiene 30 minutos. Puesto por Claude.
 
 
 def log(msg: str) -> None:
@@ -82,6 +86,16 @@ def revisar_captura(fecha: str) -> dict:
     return {"problema": None, "sin_remates": False, "paginas": paginas, "alarmas": alarmas}
 
 
+def estado_marca(E, marca: str) -> str | None:
+    """None si no hay marca. Si la hay, su estado ('?' si no se puede leer, y cuenta como hecha)."""
+    if not E.existe(marca):
+        return None
+    try:
+        return json.loads(E.leer_texto(marca)).get("estado") or "?"
+    except Exception:
+        return "?"
+
+
 def leer_diario(fecha: str) -> int:
     """Corre el lector del PC tal cual. Devuelve su código de salida."""
     return subprocess.run([sys.executable, "-m", "motor.lector_mercurio", "--fecha", fecha], cwd=RAIZ).returncode
@@ -108,9 +122,13 @@ def correr(E, fecha: str, modo: str, final: bool, ahora: datetime, leer=leer_dia
     P = "" if modo == "real" else "pruebas/ensayo/"
     marca = f"{P}marcas/{fecha}.json"
     log(f"Edición {fecha}. Modo {modo}. Hora de Chile {ahora:%H:%M}. Último intento {'sí' if final else 'no'}.")
-    if modo == "real" and E.existe(marca):
-        log("Ya hay marca de esta edición. No se hace nada.")
-        return 0
+    if modo == "real":
+        est = estado_marca(E, marca)
+        if est == "fallida":       # F2-05 (30 de Octubre). Antes una marca fallida bloqueaba para siempre
+            log("La marca de esta edición quedó fallida. Se vuelve a intentar.")
+        elif est:
+            log("Ya hay marca de esta edición. No se hace nada.")
+            return 0
     cont_remoto = f"{P}intentos/{fecha}.txt"
     intentos = (int(E.leer_texto(cont_remoto).strip() or 0) if E.existe(cont_remoto) else 0) + 1
     E.subir_texto(str(intentos), cont_remoto)
@@ -184,6 +202,27 @@ def correr(E, fecha: str, modo: str, final: bool, ahora: datetime, leer=leer_dia
     return 0
 
 
+def pendientes(E, hoy: str, dias: int = RECUPERAR_DIAS) -> list:
+    """Días anteriores a hoy, del más nuevo al más viejo, sin marca o con marca fallida (modo real)."""
+    h = date.fromisoformat(hoy)
+    fechas = [(h - timedelta(days=k)).isoformat() for k in range(1, dias + 1)]
+    return [f for f in fechas if estado_marca(E, f"marcas/{f}.json") in (None, "fallida")]
+
+
+def recuperar(E, hoy: str, ahora: datetime, leer=leer_diario, cargar=cargar_con_haiku, maximo: int = RECUPERAR_MAX) -> list:
+    """F2-05 (30 de Octubre). En el último intento, lee hasta 'maximo' días atrasados. Antes un día que la nube no leía
+    se perdía para siempre. Cada día se lee como último intento, así que termina con marca. Devuelve las fechas intentadas."""
+    hechos = []
+    for f in pendientes(E, hoy)[:maximo]:
+        log(f"Día atrasado {f}. Se intenta leer.")
+        try:
+            correr(E, f, "real", True, ahora, leer, cargar)
+        except Exception:
+            traceback.print_exc()
+        hechos.append(f)
+    return hechos
+
+
 def main() -> int:
     from servidor import estado as E
     modo = (os.environ.get("MODO") or "real").strip()
@@ -191,10 +230,14 @@ def main() -> int:
     ahora = datetime.now()
     final = es_final(ahora, (os.environ.get("INTENTO_FINAL") or "").strip())
     try:
-        return correr(E, fecha, modo, final, ahora)
+        codigo = correr(E, fecha, modo, final, ahora)
     except Exception:
         traceback.print_exc()
-        return 1
+        codigo = 1
+    # Los días atrasados solo en el último intento automático, en modo real y sin fecha a mano (F2-05).
+    if final and modo == "real" and not (os.environ.get("FECHA") or "").strip():
+        recuperar(E, fecha, ahora)
+    return codigo
 
 
 if __name__ == "__main__":

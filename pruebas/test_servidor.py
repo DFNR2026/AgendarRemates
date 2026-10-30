@@ -165,6 +165,45 @@ for nombre, desfase in (("verano", 3), ("invierno", 4)):
     revisar(f"horario de GitHub cubre los 7 intentos en {nombre}", all(x in chile for x in QUIERO), str(sorted(chile)))
 revisar("ventana del flujo de 6:25 a 8:40", '-lt 0625' in yml and '-gt 0840' in yml)
 
+# 14. F2-05 (30 de Octubre). Una marca fallida no bloquea y el último intento recupera días atrasados.
+S = Supa({f"marcas/{F}.json": json.dumps({"estado": "fallida"}).encode()}); L = lector(DEL_DIA, 8)
+r = D.correr(S, F, "real", False, AHORA, L, carga())
+revisar("F2-05. con marca fallida vuelve a leer y deja la marca listo", r == 0 and L.llamado
+        and (S.marca(f"marcas/{F}.json") or {}).get("estado") == "listo")
+S = Supa({f"marcas/{F}.json": json.dumps({"estado": "incompleta"}).encode()}); L = lector(DEL_DIA, 8)
+revisar("F2-05. con marca incompleta o listo sigue sin hacer nada", D.correr(S, F, "real", False, AHORA, L, nada) == 0 and not L.llamado)
+_mk = lambda f, e: (f"marcas/{f}.json", json.dumps({"estado": e}).encode())
+S = Supa(dict([_mk("2026-10-17", "listo"), _mk("2026-10-16", "fallida"), _mk("2026-10-14", "sin_remates"),
+               _mk("2026-10-13", "incompleta"), _mk("2026-10-12", "listo"), _mk("2026-10-11", "listo"), _mk("2026-10-09", "listo")]))
+revisar("F2-05. días pendientes del más nuevo al más viejo, sin marca o fallida, solo 7 días atrás",
+        D.pendientes(S, F) == ["2026-10-16", "2026-10-15"], str(D.pendientes(S, F)))
+_leidos = []
+def _lector_atrasado(fecha):
+    _leidos.append(fecha)
+    return lector({"F": fecha.replace("-", "/") + " n=16"}, 8)(fecha)
+S.a.update(dict([_mk("2026-10-11", "fallida")]))
+hechos = D.recuperar(S, F, datetime(2026, 10, 18, 8, 35), _lector_atrasado, carga(), maximo=2)
+revisar("F2-05. recupera solo los 2 más nuevos y les deja marca listo", hechos == ["2026-10-16", "2026-10-15"] and _leidos == hechos
+        and all((S.marca(f"marcas/{f}.json") or {}).get("estado") == "listo" for f in hechos), str(hechos))
+revisar("F2-05. el siguiente último intento sigue con el que faltaba", D.pendientes(S, F) == ["2026-10-11"], str(D.pendientes(S, F)))
+_llamadas = []
+_correr, _recuperar = D.correr, D.recuperar
+D.correr = lambda *a, **k: 0
+D.recuperar = lambda E, f, ahora, *a, **k: _llamadas.append(f)
+import os as _os, sys as _sys
+_sys.modules["servidor.estado"] = Supa()
+for _final, _modo, _fecha, _espera in [("1", "real", "", 1), ("0", "real", "", 0), ("1", "ensayo", "", 0), ("1", "real", "2026-10-15", 0)]:
+    _llamadas.clear()
+    _os.environ.update(INTENTO_FINAL=_final, MODO=_modo, FECHA=_fecha)
+    D.main()
+    revisar(f"F2-05. main recupera días solo en el último intento real sin fecha a mano (final {_final}, {_modo}, fecha '{_fecha}')",
+            len(_llamadas) == _espera, str(_llamadas))
+D.correr, D.recuperar = _correr, _recuperar
+for _k in ("INTENTO_FINAL", "MODO", "FECHA"): _os.environ.pop(_k, None)
+del _sys.modules["servidor.estado"]
+revisar("F2-05. el flujo no toma una marca fallida como hecha y deja seguir al último intento",
+        "grep -q '\"fallida\"' marca.json" in yml and '-ge 0830' in yml)
+
 shutil.rmtree(tmp, ignore_errors=True)
 revisar("candado. ia_respuestas del proyecto sin cambios (no llamó a Haiku)",
         antes_ia == sorted(p.name for p in (RAIZ / "ia_respuestas").rglob("*.json")))

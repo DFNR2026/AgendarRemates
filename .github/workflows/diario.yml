@@ -70,11 +70,16 @@ jobs:
         run: |
           f="${FECHA:-$(date +%F)}"
           if [ "$MODO" != "real" ]; then echo "seguir=si" >> "$GITHUB_OUTPUT"; exit 0; fi
-          code=$(curl -sS -o /dev/null -w "%{http_code}" -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
+          code=$(curl -sS -o marca.json -w "%{http_code}" -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
             "${SUPABASE_URL%/}/storage/v1/object/agendar/marcas/$f.json")
           echo "Marca de $f. Respuesta $code"
-          if [ "$code" = "200" ]; then echo "Ya está hecha. No se hace nada."; echo "seguir=no" >> "$GITHUB_OUTPUT"
-          else echo "seguir=si" >> "$GITHUB_OUTPUT"; fi
+          # F2-05 (30 de Octubre). Una marca fallida no cuenta como hecha, y el último intento automático (desde las 8:30)
+          # sigue igual para revisar los días atrasados.
+          if [ "$code" != "200" ]; then echo "seguir=si" >> "$GITHUB_OUTPUT"
+          elif grep -q '"fallida"' marca.json; then echo "La marca quedó fallida. Se vuelve a intentar."; echo "seguir=si" >> "$GITHUB_OUTPUT"
+          elif [ "$AUTOMATICO" = "si" ] && [ "$(date +%H%M)" -ge 0830 ]; then echo "Último intento. Se revisan los días atrasados."; echo "seguir=si" >> "$GITHUB_OUTPUT"
+          else echo "Ya está hecha. No se hace nada."; echo "seguir=no" >> "$GITHUB_OUTPUT"; fi
+          rm -f marca.json
 
       - name: Bajar el código
         if: steps.hora.outputs.seguir == 'si' && steps.marca.outputs.seguir == 'si'
