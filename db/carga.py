@@ -204,7 +204,7 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
                                len(CORNISA.findall(p["texto"])), p["texto"], hashlib.sha256(p["texto"].encode("utf-8")).hexdigest()))
             id_pag[p["nombre"]] = cur.lastrowid
 
-        remates_por_causa, pendientes_bien, n_remates = {}, [], 0
+        remates_por_causa, ident_por_causa, pendientes_bien, n_remates = {}, {}, [], 0
         for a in avisos:
             ex = extraido[a.orden]
             tribunal = ex.get("tribunal")
@@ -265,6 +265,7 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
                     pendientes_bien.append((cur.lastrowid, causa_id, aviso_id, k, el.get("inmueble"), tribunal, ex, a.texto))
                     if causa_id:
                         remates_por_causa[causa_id] = remates_por_causa.get(causa_id, 0) + 1
+                        ident_por_causa.setdefault(causa_id, []).append((aviso_id, identidad_inmueble(el.get("inmueble"), ex)))
 
             # Citas. El código comprueba que cada frase esté letra por letra en el texto del aviso.
             for sub, campo, n_cita, valor, cita, metodo_dato in _citas_de(ex, sub_lista):
@@ -292,7 +293,15 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
         for remate_id, causa_id, aviso_id, k, inmueble, tribunal, ex, texto_aviso in pendientes_bien:
             if causa_id:
                 base = con.execute("SELECT clave FROM causas WHERE id = ?", (causa_id,)).fetchone()[0]
-                varios = remates_por_causa[causa_id] > 1
+                # F2-01 (31 de Octubre, regla B aprobada por Diego). Se cuentan las propiedades distintas del día, no los avisos.
+                # El 23 y el 24 de Octubre El Mercurio publicó dos veces el aviso de C-17115-2025 (misma inscripción, "rol" y
+                # "Rol") y la causa quedó partida en tres bienes. Dos avisos DISTINTOS con la misma identidad leída son la misma
+                # propiedad y van a la clave de la causa sola, igual que los días en que sale una vez. Dos remates del MISMO aviso
+                # con la misma identidad, o sin identidad, siguen como antes (alerta y fecha con hora).
+                grupo = ident_por_causa[causa_id]
+                mismo_bien = (len(grupo) > 1 and grupo[0][1] != "" and len({i for _, i in grupo}) == 1
+                              and len({av for av, _ in grupo}) == len(grupo))
+                varios = remates_por_causa[causa_id] > 1 and not mismo_bien
                 clave = f"{base}|{identidad_inmueble(inmueble, ex)}" if varios else base
             else:
                 # Parte 4 (17 de Octubre). Sin rol ni tribunal ni inscripción la clave quedaba "sin_rol||" y juntaba propiedades
@@ -301,7 +310,7 @@ def guardar_edicion(con, edicion: dict, paginas: list[dict], avisos: list, extra
                 # (solo letras y números), así una republicación idéntica sigue unida y avisos distintos quedan separados.
                 ident = identidad_inmueble(None, ex, sin_rol=True) or "texto " + hashlib.sha1(re.sub(r"[\W_]+", "", texto_aviso.lower()).encode("utf-8")).hexdigest()[:12]
                 clave = f"sin_rol|{normalizar(tribunal)}|{ident}"
-            if clave in usadas:   # dos remates de la misma edición que la regla no logra distinguir. No se adivina.
+            if clave in usadas and not (causa_id and mismo_bien):   # dos remates de la misma edición que la regla no logra distinguir. No se adivina.
                 con.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, origen) VALUES (?,?,?,?,?)",
                             (aviso_id, k, "revisar_lectura", f"No se pudo distinguir este remate de otro de la misma causa ({clave})", "codigo"))
                 clave = f"{clave}|{(ex.get('fecha_remate') or {}).get('valor')} {(ex.get('hora_remate') or {}).get('valor')}"

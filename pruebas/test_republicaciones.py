@@ -167,7 +167,22 @@ M.close()
 D = crear(Path(tmp.name) / "desorden.db")
 cargar_edicion(D, "2026-10-11", "x", B / "2026-10-11"); cargar_edicion(D, "2026-10-06", "x", B / "2026-10-06")
 revisar("edición vieja cargada después. los 4 lotes cambian igual de fecha", D.execute("SELECT COUNT(*) FROM cambios WHERE campo = 'fecha_remate'").fetchone()[0] == 4)
-D.close(); tmp.cleanup()
+D.close()
+
+# F2-01 (31 de Octubre, regla B aprobada por Diego). El 23 de Octubre El Mercurio publicó dos veces el aviso de C-17115-2025
+# del 21° Civil (avisos 66 y 69, misma inscripción, fojas 56639 número 81660 de 2018). El 22 salió una vez. Antes quedaba en
+# 3 bienes y el aviso 69 con la alerta "No se pudo distinguir". Capturas copiadas a banco_pruebas el 31 de Octubre.
+P = crear(Path(tmp.name) / "partida.db")
+for f in ("2026-10-22", "2026-10-23"):
+    cargar_edicion(P, f, "x", B / f)
+pb = P.execute("SELECT DISTINCT r.bien_id FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE a.rol = '17115' AND a.anio = '2025'").fetchall()
+revisar("F2-01. el mismo aviso publicado dos veces en un día queda en el mismo bien que el día anterior", len(pb) == 1, str(pb))
+revisar("F2-01. sin la alerta falsa de remate que no se pudo distinguir ni de posible republicación",
+        P.execute("SELECT COUNT(*) FROM alertas WHERE texto LIKE 'No se pudo distinguir%' OR tipo = 'posible_republicacion'").fetchone()[0] == 0)
+dist = P.execute("SELECT COUNT(DISTINCT r.bien_id) FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN ediciones e ON e.id = a.edicion_id "
+                 "WHERE a.rol = '13082' AND a.anio = '2023' AND e.fecha = '2026-10-23'").fetchone()[0]
+revisar("F2-01. dos propiedades distintas de una causa el mismo día siguen en dos bienes (C-13082-2023, 15° Civil)", dist == 2, str(dist))
+P.close(); tmp.cleanup()
 despues = sorted(p.name for p in (RAIZ / "ia_respuestas").rglob("*.json"))
 revisar("candado. la prueba no escribió ninguna respuesta nueva en ia_respuestas (no llamó a Haiku)", antes == despues)
 # Descarte encendido otra vez. El aviso de Familia del C-9854-2025 (9 de Octubre, aviso 24) queda descartado y fuera del buscador.
