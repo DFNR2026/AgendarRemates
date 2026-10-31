@@ -165,7 +165,20 @@ def _registro():
         sys.stderr = sys.stderr or f
 
 
+def _anotar_arranque():
+    """Diagnóstico del 31 de Octubre. La agenda abre una ventana negra aunque el .bat usa pythonw. Anota qué Python la abrió
+    y si tiene consola, para encontrar la causa con evidencia. Nunca detiene el arranque."""
+    try:
+        (RAIZ / "logs").mkdir(exist_ok=True)
+        with open(RAIZ / "logs" / "arranque.txt", "a", encoding="utf-8") as f:
+            f.write(f"{dt.datetime.now().isoformat(timespec='seconds')} | ejecutable {sys.executable} | base {sys.base_prefix} | "
+                    f"sin consola {sys.stdout is None} | argumentos {sys.argv}\n")
+    except Exception:
+        pass
+
+
 def main(argv):
+    _anotar_arranque()
     _registro()
     ruta = Path(argv[argv.index("--base") + 1]) if "--base" in argv else BASE
     if not ruta.is_absolute():
