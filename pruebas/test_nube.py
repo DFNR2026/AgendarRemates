@@ -112,5 +112,29 @@ revisar("candado. ia_respuestas del proyecto sin cambios (no llamó a Haiku)",
         antes_ia == sorted(p.name for p in (RAIZ / "ia_respuestas").rglob("*.json")))
 revisar("capturas del proyecto sin cambios", antes_cap == sorted(p.name for p in (RAIZ / "capturas").iterdir()))
 revisar("agendar_remates.db del proyecto no se tocó", (REAL_DEL_PROYECTO.stat().st_mtime if REAL_DEL_PROYECTO.exists() else None) == real_antes)
+# F2-08 (1 de Noviembre). Una captura a medias (solo navegacion.json, como tras un corte de luz al extraer) se vuelve a bajar,
+# un zip dañado en la nube no bloquea a la edición siguiente y solo un error de red dice "internet". Antes la captura a medias
+# bloqueaba todas las actualizaciones con "No se pudo conectar con Supabase. Revisa que el PC tenga internet."
+t8 = Path(tempfile.mkdtemp())
+b8 = t8 / "p8.db"; shutil.copy(RAIZ / "interfaz_prueba_antes_18oct.db", b8)
+(t8 / "capturas" / "2026-10-18").mkdir(parents=True)
+shutil.copy(RAIZ / "capturas" / "2026-10-18" / "navegacion.json", t8 / "capturas" / "2026-10-18" / "navegacion.json")
+C8 = {"url": "x", "clave": "x", "aprobada": False}
+S8 = Supa({"marcas/2026-10-18.json": b'{"estado": "listo"}', "capturas/2026-10-18.zip": zip_de(RAIZ / "capturas" / "2026-10-18", RAIZ)})
+r8 = N.actualizar(b8, "2026-10-18", S8, raiz=t8, base_real=t8 / "x.db", conf=C8)
+revisar("F2-08. la captura a medias se vuelve a bajar y la edición entra", r8["ok"] and r8["cargadas"] == ["2026-10-18"]
+        and S8.bajadas == ["capturas/2026-10-18.zip"] and N.captura_completa(t8 / "capturas" / "2026-10-18", "2026-10-18"), str(r8))
+b9 = t8 / "p9.db"; shutil.copy(RAIZ / "interfaz_prueba_antes_18oct.db", b9)
+t9 = t8 / "raiz9"; t9.mkdir()
+S9 = Supa({"marcas/2026-10-18.json": b'{"estado": "listo"}', "marcas/2026-10-21.json": b'{"estado": "listo"}',
+           "capturas/2026-10-18.zip": b"esto no es un zip", "capturas/2026-10-21.zip": zip_de(RAIZ / "capturas" / "2026-10-21", RAIZ)})
+r9 = N.actualizar(b9, "2026-10-21", S9, raiz=t9, base_real=t8 / "x.db", conf=C8)
+revisar("F2-08. un zip dañado avisa esa edición sin culpar a internet y la siguiente entra igual",
+        r9["ok"] and r9["cargadas"] == ["2026-10-21"] and len(r9["problemas"]) == 1 and "incompleta o dañada" in r9["problemas"][0]
+        and "internet" not in r9["problemas"][0] and not (t9 / "capturas" / "2026-10-18").exists(), str(r9))
+import urllib.error
+revisar("F2-08. un error de red sí dice internet y un archivo que falta no",
+        "internet" in N.texto_error(urllib.error.URLError("sin red")) and "internet" not in N.texto_error(FileNotFoundError(2, "No such file")))
+shutil.rmtree(t8, ignore_errors=True)
 print("\nRESULTADO.", "TODO OK" if not FALLAS else f"{len(FALLAS)} fallas")
 sys.exit(1 if FALLAS else 0)

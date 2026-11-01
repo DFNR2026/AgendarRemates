@@ -7,7 +7,7 @@ CARGA_REAL_APROBADA = True (la primera carga real espera la aprobación de Diego
 Necesita en config.py SUPABASE_URL y SUPABASE_KEY (las mismas del proyecto Agendar_Calendario).
 """
 from __future__ import annotations
-import datetime as dt, importlib.util, json, os, shutil, tempfile, threading, zipfile
+import datetime as dt, importlib.util, json, os, shutil, socket, tempfile, threading, urllib.error, zipfile
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -42,6 +42,33 @@ def _extraer(zbytes_path: Path, destino: Path, prefijo: str, solo_nuevos: bool) 
     return n
 
 
+class CapturaIncompleta(Exception):
+    pass
+
+
+def captura_completa(carpeta: Path, fecha: str) -> bool:
+    """F2-08 (1 de Noviembre). La captura sirve si se puede armar entera (navegacion.json y todas sus páginas).
+    Se usa la misma función de la carga, así no hay dos listas de archivos que puedan quedar distintas."""
+    from motor.procesar_edicion import desde_captura
+    try:
+        desde_captura(fecha, carpeta)
+        return True
+    except (OSError, KeyError, ValueError, TypeError):
+        return False
+
+
+def texto_error(e: Exception) -> str:
+    """F2-08. Solo un error de red se muestra como falta de internet. Antes cualquier error con "Errno" (por ejemplo un
+    archivo que falta en una captura a medias) decía "Revisa que el PC tenga internet"."""
+    t = str(e)
+    if isinstance(e, (urllib.error.URLError, ConnectionError, TimeoutError, socket.timeout, socket.gaierror)) or \
+            any(x in t for x in ("urlopen", "timed out", "Name or service", "getaddrinfo")):
+        return "No se pudo conectar con Supabase. Revisa que el PC tenga internet."
+    if isinstance(e, (CapturaIncompleta, FileNotFoundError, zipfile.BadZipFile)):
+        return "La captura de esa edición está incompleta o dañada. Se volverá a bajar la próxima vez que se actualice."
+    return f"Error del programa. {type(e).__name__}. {t}"
+
+
 def actualizar(ruta_base, hoy: str, E=None, raiz: Path = RAIZ, base_real: Path | None = None, conf: dict | None = None) -> dict:
     """Devuelve {ok, cargadas, retomadas, problemas, error, bloqueo}. Nunca se cae, el error va en el texto."""
     from db.crear_base import crear, BASE
@@ -62,12 +89,7 @@ def actualizar(ruta_base, hoy: str, E=None, raiz: Path = RAIZ, base_real: Path |
         try:
             return _actualizar(ruta_base, hoy, E, raiz, crear, dia_largo, out)
         except Exception as e:
-            texto = str(e)
-            if "urlopen" in texto or "Errno" in texto or "timed out" in texto or "Name or service" in texto or "getaddrinfo" in texto:
-                texto = "No se pudo conectar con Supabase. Revisa que el PC tenga internet."
-            else:
-                texto = f"Error del programa. {type(e).__name__}. {texto}"
-            return out | {"ok": False, "error": texto}
+            return out | {"ok": False, "error": texto_error(e)}
 
 
 def _actualizar(ruta_base, hoy, E, raiz, crear, dia_largo, out):
@@ -99,11 +121,25 @@ def _actualizar(ruta_base, hoy, E, raiz, crear, dia_largo, out):
                 _extraer(tmp / "ia.zip", raiz, "ia_respuestas/", solo_nuevos=True)
             ahora = dt.datetime.now().isoformat(timespec="seconds")
             for f in cargar:
+                # F2-08 (1 de Noviembre). Una captura completa que ya está en el PC no se pisa. Una a medias (corte de luz
+                # mientras se extraía) se vuelve a bajar. Se extrae en la carpeta temporal y se mueve entera al final, así
+                # nunca queda otra a medias. Si una edición falla se avisa y se sigue con las demás.
                 carpeta = raiz / "capturas" / f
-                if not carpeta.exists():         # una captura que ya está en el PC no se pisa
-                    E.bajar(f"capturas/{f}.zip", tmp / f"{f}.zip")
-                    _extraer(tmp / f"{f}.zip", raiz, f"capturas/{f}/", solo_nuevos=True)
-                cargar_edicion(con, f, ahora, carpeta, cliente=None, usar_ia=True)
+                try:
+                    if not captura_completa(carpeta, f):
+                        E.bajar(f"capturas/{f}.zip", tmp / f"{f}.zip")
+                        _extraer(tmp / f"{f}.zip", tmp / "nueva", f"capturas/{f}/", solo_nuevos=False)
+                        nueva = tmp / "nueva" / "capturas" / f
+                        if not captura_completa(nueva, f):
+                            raise CapturaIncompleta(f)
+                        if carpeta.exists():
+                            shutil.move(str(carpeta), str(tmp / f"a_medias_{f}"))
+                        carpeta.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.move(str(nueva), str(carpeta))
+                    cargar_edicion(con, f, ahora, carpeta, cliente=None, usar_ia=True)
+                except Exception as e:
+                    out["problemas"].append(f"La edición del {dia_largo(f)} no se pudo cargar. {texto_error(e)}")
+                    continue
                 out["cargadas"].append(f)
                 if marcas[f].get("estado") == "incompleta":
                     out["problemas"].append(f"La edición del {dia_largo(f)} llegó incompleta desde la nube. {marcas[f].get('motivo') or ''}".strip())
