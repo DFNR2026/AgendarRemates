@@ -127,3 +127,8 @@ Regla de las dos fechas. El Mercurio la quitó. Agendar_Remates la mantiene con 
 
 ## 22 de Octubre de 2026. Node 24 en GitHub Actions
 El Mercurio usa las mismas piezas que daban el aviso de Node 20 (actions/checkout@v4 y actions/setup-python@v5, según la bitácora del 20 de Octubre, punto 10). En Agendar_Remates se cambiaron por checkout@v5 y setup-python@v6, que declaran node24 en sus action.yml oficiales. Aplicarlo en el Mercurio solo después de que el ensayo de Agendar_Remates quede verde. D:\Mercurio no se tocó.
+
+## 1 de Noviembre de 2026. Auditoría, etapa B (F2-01, F2-02 y F2-03)
+- Clave del bien (F2-01). Si El Mercurio publica dos veces el mismo aviso en un día, la causa no debe partirse en varios bienes. Se cuentan las propiedades distintas del día (misma inscripción en avisos distintos es una sola), no los avisos. Usar siempre causa más inscripción es peor, porque el lector de inscripción no entiende "N.° 358" y la clave cambiaría entre días.
+- Dos fechas (F2-02). Una fecha que va después de "entregado" o "entregar" es la entrega del vale vista, no otro remate. Eran los 5 falsos pegados en 24 ediciones. El Mercurio quitó la regla de las dos fechas, así que solo sirve si se vuelve a poner.
+- Cortador (F2-03). "EXTRACTO. VIGÉSIMO PRIMER Juzgado Civil" (ordinal en palabras y Juzgado sin mayúsculas) no se reconocía como comienzo de aviso y escondió C-18510-2019 dentro de C-15893-2024 el 27 de Octubre. Ojo. Ampliarlo a JUZGADO en mayúsculas mueve "EXTRACTO. " al aviso siguiente en unos 100 avisos y cambia su texto (y la huella con que se guardan las respuestas de la IA).
