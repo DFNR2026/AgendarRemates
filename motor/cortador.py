@@ -98,6 +98,7 @@ INICIO = re.compile(
                                                                             # "pagarse al contado 15° JUZGADO CIVIL SANTIAGO. ... Rematará" sin punto antes (visto el 2026-10-06)
     r"|(?:(?<=\. )|(?<=\.’ )|(?<=\.” )|(?<=\.\) )|^)(?:"                    # o un encabezado de tribunal al comenzar una oración
     rf"(?:ANTE\s+(?:EL\s+)?)?{ORDINAL}\s+(?:JUZGADO|TRIBUNAL|JUZ)"
+    rf"|EXTRACTO\.?\s+{ORDINAL}\s+(?:Juzgado|Tribunal)\b"   # F2-03 (1 de Noviembre). "Toro Barrera’. EXTRACTO. VIGÉSIMO PRIMER Juzgado Civil" escondía C-18510-2019 dentro de C-15893-2024 (27-10 aviso 81). Solo con Juzgado o Tribunal sin mayúsculas, porque con JUZGADO la regla de abajo ya corta después de "EXTRACTO. " y moverlo cambiaba el texto de unos 100 avisos
     r"|JUZGADO\s+(?:DE\s+)?(?:COBRANZA|LETRAS|FAMILIA)"
     r"|EXTRACTO\s+(?:PARTICI|NOTIFICACI)"
     r"|(?:EXTRACTO\.?\s+)?ANTE\s+(?:(?:EL|LA)\s+)?(?:SEÑORA?\s+)?JUEZ"          # EXTRACTO. ANTE EL SEÑOR JUEZ Árbitro (pegado al 30° Civil, visto el 2026-10-06)

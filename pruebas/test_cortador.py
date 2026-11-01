@@ -164,5 +164,18 @@ print(f"\n=== 2026-10-16 completo (B y G unidos) ===\nAvisos {len(a16)} (esperad
 if len(a16) != 100 or not all(c16.values()):
     fallas += 1
 
+# F2-03 (1 de Noviembre). "EXTRACTO. VIGÉSIMO PRIMER Juzgado Civil" escondía C-18510-2019 dentro de C-15893-2024 (27-10 aviso 81).
+# Captura copiada a banco_pruebas el 1 de Noviembre. Antes 102 avisos, ahora 103, y el 15893 queda igual que el 24, 25 y 26.
+a27 = desde_captura("2026-10-27", RAIZ / "banco_pruebas" / "2026-10-27")[2]
+c27 = {
+    "103 avisos": len(a27) == 103,
+    "C-18510-2019 en su propio aviso": any(a.rol == "18510" and a.texto.startswith("EXTRACTO. VIGÉSIMO PRIMER Juzgado") for a in a27),
+    "C-15893-2024 termina en su carátula": any(a.rol == "15893" and a.texto.endswith("Toro Barrera’.") for a in a27),
+    "ningún trozo con dos roles sin partir": not any(a.revisar.startswith("dos roles") for a in a27),
+}
+print(f"\n=== 2026-10-27 (F2-03) ===\n{c27}")
+if not all(c27.values()):
+    fallas += 1
+
 print("\nRESULTADO.", "TODO OK" if not fallas else f"{fallas} ediciones con diferencias")
 sys.exit(1 if fallas else 0)
