@@ -1,0 +1,111 @@
+{
+ "fecha": "2026-10-25",
+ "leida_en": "2026-10-25T06:30:54",
+ "segundos": 119,
+ "union_texto": "salto",
+ "cuerpos": {
+  "A": "2026/10/25 n=28",
+  "B": "2026/10/25 n=24",
+  "C": "2026/10/25 n=16",
+  "E": "2026/10/25 n=6",
+  "F": "2026/10/25 n=16",
+  "R": "2026/10/25 n=10"
+ },
+ "paginas_leidas": 100,
+ "paginas_con_remates": [
+  {
+   "pagina": "F7",
+   "id": "VO4MF1GB",
+   "archivo": "F07_VO4MF1GB.txt",
+   "cornisas": 6,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 35164,
+   "sha256": "9c7435586b204813749c6f095553e3a39a08b80fbb204463ff35f3f6dc0fc268"
+  },
+  {
+   "pagina": "F8",
+   "id": "VO4MF1GC",
+   "archivo": "F08_VO4MF1GC.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 35957,
+   "sha256": "35c0729e5109bded6da5ffe2f128f11d47b84ae9a5fcb63996a1ba4969cbcfaa"
+  },
+  {
+   "pagina": "F9",
+   "id": "VO4MF1GD",
+   "archivo": "F09_VO4MF1GD.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 36105,
+   "sha256": "91e066661597c55cc12ec6ea8ce53076275a194412e0e6f8d67342b027fa15d8"
+  },
+  {
+   "pagina": "F10",
+   "id": "VO4MF1GE",
+   "archivo": "F10_VO4MF1GE.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 36431,
+   "sha256": "11a4adbd75d5e9db65477364416913c240da51fdc6b2c7bbeff5673044c7d094"
+  },
+  {
+   "pagina": "F11",
+   "id": "VO4MF1GF",
+   "archivo": "F11_VO4MF1GF.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 36360,
+   "sha256": "7f92aa59b41459adb5e4418e92d01b8ce94f5d40ebcc76a647588b7a743f0dac"
+  },
+  {
+   "pagina": "F12",
+   "id": "5Q4MIIQV",
+   "archivo": "F12_5Q4MIIQV.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 36463,
+   "sha256": "a1cc7d91809793afc480745c7ea2b9bf7893f264f0936e4e5bc9e09e0b8aadd5"
+  },
+  {
+   "pagina": "F13",
+   "id": "5Q4MIIR0",
+   "archivo": "F13_5Q4MIIR0.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 35963,
+   "sha256": "3506486cee5e2f677d0c3d4d235210e12ef82dbcbe154223f7ba1d32485a11ae"
+  },
+  {
+   "pagina": "F14",
+   "id": "5Q4MIIR1",
+   "archivo": "F14_5Q4MIIR1.txt",
+   "cornisas": 6,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 30071,
+   "sha256": "985ed6074fcd56ca8b5980f089a85a3fc4bfb2c2420a77bb850eab15f652a0cf"
+  }
+ ],
+ "rollos": [
+  [
+   "F7",
+   "F8",
+   "F9",
+   "F10",
+   "F11",
+   "F12",
+   "F13",
+   "F14"
+  ]
+ ],
+ "alarmas": [],
+ "notas": []
+}

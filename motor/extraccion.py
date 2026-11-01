@@ -84,7 +84,11 @@ def fecha_y_hora(texto: str, fecha_edicion: str | None = None) -> dict:
     for v in VERBO.finditer(texto):
         for ini, fin, valor, cita in fechas:
             if v.end() <= ini <= v.end() + 100:
-                if not (fecha_edicion and valor < fecha_edicion):
+                # F2-02 (1 de Noviembre). Una fecha que viene después de "entregado" o "entregar" es la entrega del vale vista,
+                # no otro remate ("del mínimo del remate, el que deberá ser entregado ... el miércoles 09/12/2026", C-5618-2025,
+                # 25 al 28 de Octubre, y "deberá ser entregado ... el día 26 de octubre", C-4265-2021 del 06-10). En 24 ediciones
+                # eran los 5 falsos pegados. En los 6 pegados reales esa palabra no está entre el verbo y la fecha.
+                if not (fecha_edicion and valor < fecha_edicion) and not re.search(r"entreg", texto[v.end():ini], re.I):
                     cercanas.add(valor)
                 break
     resultado = {"fecha_remate": {"valor": None, "cita": None}, "hora_remate": {"valor": None, "cita": None}, "alertas": alertas}

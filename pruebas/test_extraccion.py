@@ -175,6 +175,20 @@ _g2 = garantia("deberán rendir garantía por el 10% del mínimo, mediante vale 
 if not (_g2["garantia"]["porcentaje"] == 10 and not any(t == "error_escritura" for t, _ in _g2["alertas"])):
     fallas.append(f"garantía con signo %. dio {_g2}")
 print("garantía sin signo %", _g["garantia"]["porcentaje"], [t for t, _ in _g["alertas"]])
+# F2-02 (1 de Noviembre). Una fecha que va después de "deberá ser entregado" es la entrega del vale vista y no otro remate.
+# C-5618-2025 del 25 de Octubre (aviso 59) quedaba como pegado, sin fecha ni tribunal. El 22 de Octubre aviso 81 es un pegado
+# real (29° Civil C-11540-2023 con el juicio arbitral Esparza/Torres) y debe seguir marcado. Capturas en banco_pruebas.
+from motor.procesar_edicion import desde_captura
+def _aviso(f, o):
+    return [a for a in desde_captura(f, RAIZ / "banco_pruebas" / f)[2] if a.orden == o][0].texto
+x = extraer(_aviso("2026-10-25", 59), "2026-10-25")
+ok = (not x["pegado"] and x["fecha_remate"]["valor"] == "2026-12-10" and x["hora_remate"]["valor"] == "13:00"
+      and (x["tribunal"]["valor"] or "").startswith("13"))
+print(("OK    " if ok else "FALLA ") + "F2-02. C-5618-2025 ya no es pegado y lee el 10 de Diciembre a las 13 en el 13° Civil")
+if not ok: fallas.append("F2-02 falso pegado")
+ok = extraer(_aviso("2026-10-22", 81), "2026-10-22")["pegado"]
+print(("OK    " if ok else "FALLA ") + "F2-02. el pegado real del 22 de Octubre aviso 81 sigue marcado")
+if not ok: fallas.append("F2-02 pegado real")
 for c, n in aciertos.items():
     print(f"{c:12} aciertos {n} de {len(banco)} (mínimo {MINIMOS[c]})")
     if n < MINIMOS[c]: fallas.append(f"{c} bajó a {n} aciertos")
