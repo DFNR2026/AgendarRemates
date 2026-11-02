@@ -86,10 +86,17 @@ def es_partidor(tribunal: str | None, texto: str) -> bool:
 NO_CIVIL = re.compile(r"juzgado\s+de\s+familia|cobranza\s+laboral|polic[ií]a\s+local|\bdel\s+trabajo\b", re.I)
 
 
+# F2-13 (2 de Noviembre, decisión de Diego). Los tribunales arbitrales se descartan igual que los partidores, aunque el aviso no
+# diga partición ("REMATE TRIBUNAL ARBITRAL Marcelo Chandia Peña", 22 al 25 de Octubre). Se mira el comienzo del aviso.
+ARBITRAL = re.compile(r"\bTRIBUNAL\s+ARBITRAL\b", re.I)
+
+
 def motivo_descarte(tribunal: str | None, texto: str) -> str | None:
-    """'juez partidor', 'tribunal no civil' o None si el aviso se muestra."""
+    """'juez partidor', 'tribunal arbitral', 'tribunal no civil' o None si el aviso se muestra."""
     if es_partidor(tribunal, texto):
         return "juez partidor"
+    if ARBITRAL.search(texto[:300]):
+        return "tribunal arbitral"
     if tribunal and NO_CIVIL.search(tribunal):
         return "tribunal no civil"
     return None

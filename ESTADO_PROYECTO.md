@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 1 de Noviembre de 2026. Agenda real en uso diario desde el 21 de Octubre. Arreglos locales del 29 (una sola agenda, sin ventana, inicio con Windows) y auditoría externa del 30 con 34 hallazgos en REPORTE_AUDITORIA_2026-10-30.md. Etapa A de la auditoría terminada el 30 de Octubre y subida a GitHub (23fcd76). El 31 se confirmó en Windows el respaldo diario y se resolvió la ventana negra (el ícono viejo del escritorio). Etapa B terminada el 1 de Noviembre, aplicada en la base real y subida a GitHub (181072f). Bitácoras hasta BITACORA_2026-11-01.md. Bitácoras en BITACORA_2026-10-14.md a BITACORA_2026-10-30.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 2 de Noviembre de 2026. Agenda real en uso diario desde el 21 de Octubre. Arreglos locales del 29 (una sola agenda, sin ventana, inicio con Windows) y auditoría externa del 30 con 34 hallazgos en REPORTE_AUDITORIA_2026-10-30.md. Etapa A de la auditoría terminada el 30 de Octubre y subida a GitHub (23fcd76). El 31 se confirmó en Windows el respaldo diario y se resolvió la ventana negra (el ícono viejo del escritorio). Etapa B terminada el 1 de Noviembre, aplicada en la base real y subida a GitHub (181072f). Bitácoras hasta BITACORA_2026-11-01.md. Bitácoras en BITACORA_2026-10-14.md a BITACORA_2026-10-30.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -170,6 +170,10 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
 ✅ Etapa B de la auditoría (bitácora del 31, puntos 8 a 15, y del 1 de Noviembre)
    ✅ F2-01. Regla B aprobada por Diego, se cuentan las propiedades distintas del día y no los avisos (db\carga.py). C-17115-2025 unida en el bien 59 en la base real con db\migrar_f2_01.py y respaldo previo. Sin push
    ✅ F2-02, F2-03 y F2-08 (bitácora del 1 de Noviembre). Falsos pegados por la fecha de entrega del vale vista, cortador con "EXTRACTO. VIGÉSIMO PRIMER Juzgado", captura a medias que se vuelve a bajar sin culpar a internet. Ediciones del 25 al 28 de Octubre recargadas en la base real con db\recargar_ediciones.py y respaldo previo. Sin push
+🔄 Etapa C de la auditoría (bitácoras del 1 y 2 de Noviembre)
+   ✅ F1-03 y F1-07. Decisión de Diego, avisos mal redactados, solo advertencia (ya la tienen)
+   ✅ F2-13. Tribunal arbitral descartado (motivo "tribunal arbitral"), aplicado en la base real
+   ✅ F3-08. El PC lee Supabase con la clave publicable (política pc_solo_lectura) y la nube usa una secreta nueva. Diego decidió dejar en config.py la clave de Anthropic y la contraseña del Mercurio
 ⬜ (Futuro) Google Calendar o celular
 
 ## Cómo se corre

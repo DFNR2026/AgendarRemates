@@ -194,5 +194,17 @@ revisar("descarte encendido. el aviso de Familia C-9854-2025 queda descartado co
         _F.execute("SELECT filtro_estado, filtro_motivos FROM avisos WHERE rol = '9854' AND anio = '2025'").fetchall() == [("descartado", "tribunal no civil")]
         and _F.execute("SELECT COUNT(*) FROM v_buscador WHERE rol = '9854'").fetchone()[0] == 0)
 _F.close(); _tmp_fam.cleanup()
+# F2-13 (2 de Noviembre, decisión de Diego). El tribunal arbitral de Marcelo Chandia Peña (23 de Octubre aviso 92) se descarta como
+# los partidores, con su propio motivo, y no sale en el buscador. Un aviso civil sigue pasando.
+_tmp_arb = tempfile.TemporaryDirectory()
+_A = crear(Path(_tmp_arb.name) / "arbitral.db")
+cargar_edicion(_A, "2026-10-23", "x", RAIZ / "banco_pruebas" / "2026-10-23")
+arb = _A.execute("SELECT filtro_estado, filtro_motivos FROM avisos WHERE texto LIKE 'REMATE TRIBUNAL ARBITRAL%'").fetchall()
+revisar("F2-13. el aviso del tribunal arbitral queda descartado con su motivo y fuera del buscador",
+        arb == [("descartado", "tribunal arbitral")] and _A.execute("SELECT COUNT(*) FROM v_buscador WHERE aviso_id IN "
+        "(SELECT id FROM avisos WHERE texto LIKE 'REMATE TRIBUNAL ARBITRAL%')").fetchone()[0] == 0, str(arb))
+revisar("F2-13. un aviso civil del mismo día sigue pasando (C-17115-2025)",
+        _A.execute("SELECT DISTINCT filtro_estado FROM avisos WHERE rol = '17115'").fetchall() == [("pasa",)])
+_A.close(); _tmp_arb.cleanup()
 print("\nRESULTADO.", "TODO OK" if not FALLAS else f"{len(FALLAS)} fallas")
 sys.exit(1 if FALLAS else 0)
