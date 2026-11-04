@@ -12,6 +12,7 @@ import sys
 import socket
 import threading
 import time
+import traceback
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -42,6 +43,17 @@ class ServidorUnico(ThreadingHTTPServer):
         if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):          # solo existe en Windows
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
         super().server_bind()
+
+
+def anotar_error(donde, e):
+    """F3-03 (4 de Noviembre). Deja la hora, dónde pasó y el detalle del error en logs/servidor.log (con pythonw el stderr va
+    a ese archivo, ver _registro). La página solo lo muestra unos segundos. Nunca detiene la respuesta."""
+    try:
+        print(f"--- {dt.datetime.now().isoformat(timespec='seconds')} error en {donde}", file=sys.stderr)
+        traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
+        sys.stderr.flush()
+    except Exception:
+        pass
 
 
 def hoy_chile():
@@ -98,7 +110,8 @@ class Manejador(BaseHTTPRequestHandler):
             self._json({"ok": False, "error": "No existe esa dirección."}, 404)
         except D.ErrorDato as e:
             self._json({"ok": False, "error": str(e)}, 400)
-        except Exception as e:                  # se muestra en la página para poder reportarlo
+        except Exception as e:                  # se muestra en la página y queda en logs/servidor.log (F3-03)
+            anotar_error(f"GET {u.path}", e)
             self._json({"ok": False, "error": f"Error del programa. {type(e).__name__}. {e}"}, 500)
 
     def do_POST(self):
@@ -130,9 +143,11 @@ class Manejador(BaseHTTPRequestHandler):
                 con.close()
         except D.ErrorDato as e:
             self._json({"ok": False, "error": str(e)}, 400)
-        except (KeyError, ValueError, TypeError) as e:
+        except (KeyError, ValueError, TypeError) as e:     # también puede ser un error del programa, por eso se anota (F3-03)
+            anotar_error(f"POST {u.path}", e)
             self._json({"ok": False, "error": f"Pedido incompleto. {e}"}, 400)
         except Exception as e:
+            anotar_error(f"POST {u.path}", e)
             self._json({"ok": False, "error": f"Error del programa. {type(e).__name__}. {e}"}, 500)
 
 

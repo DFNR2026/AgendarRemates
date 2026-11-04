@@ -57,6 +57,16 @@ def captura_completa(carpeta: Path, fecha: str) -> bool:
         return False
 
 
+def _anotar(donde, e):
+    """F3-03 (4 de Noviembre). Los errores de Actualizar también quedan en logs/servidor.log, con la misma función del
+    servidor. Nunca cambia lo que se le responde a la página."""
+    try:
+        from interfaz.servidor import anotar_error
+        anotar_error(donde, e)
+    except Exception:
+        pass
+
+
 def texto_error(e: Exception) -> str:
     """F2-08. Solo un error de red se muestra como falta de internet. Antes cualquier error con "Errno" (por ejemplo un
     archivo que falta en una captura a medias) decía "Revisa que el PC tenga internet"."""
@@ -89,6 +99,7 @@ def actualizar(ruta_base, hoy: str, E=None, raiz: Path = RAIZ, base_real: Path |
         try:
             return _actualizar(ruta_base, hoy, E, raiz, crear, dia_largo, out)
         except Exception as e:
+            _anotar("Actualizar", e)
             return out | {"ok": False, "error": texto_error(e)}
 
 
@@ -138,6 +149,7 @@ def _actualizar(ruta_base, hoy, E, raiz, crear, dia_largo, out):
                         shutil.move(str(nueva), str(carpeta))
                     cargar_edicion(con, f, ahora, carpeta, cliente=None, usar_ia=True)
                 except Exception as e:
+                    _anotar(f"Actualizar, edición del {dia_largo(f)}", e)
                     out["problemas"].append(f"La edición del {dia_largo(f)} no se pudo cargar. {texto_error(e)}")
                     continue
                 out["cargadas"].append(f)

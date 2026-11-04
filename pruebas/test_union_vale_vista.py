@@ -384,8 +384,28 @@ revisar("decisión 8, paso 5. el comando retoma el 09-10 y deja lo mismo que la 
         and alarma_vale_vista(esperado09) in (C8.execute("SELECT alarmas FROM ediciones").fetchone()[0] or "").splitlines(),   # ya no es la última (3.7b)
         (sal.stdout + sal.stderr)[-200:])
 C8.close()
-sal = correr("--retomar", "2026-10-09", str(RAIZ / "agendar_remates.db"), "--solo-guardadas")
-revisar("decisión 8, paso 5. el comando se niega a tocar la base real", "La base real espera la aprobación de Diego" in sal.stdout + sal.stderr)
+# F3-06 (4 de Noviembre). El candado se prueba contra una base real de mentira en la carpeta temporal. Antes se le pasaba
+# RAIZ/agendar_remates.db y, con el candado roto, el comando abría y reescribía la base real (medido en una copia del proyecto).
+# Una base de mentira en otra carpeta no basta, porque el candado compara contra db.crear_base.BASE. Por eso el proceso hijo
+# apunta BASE a la de mentira y recién ahí corre el mismo comando. El comando nunca recibe la ruta de la base real.
+import hashlib
+REAL_DEL_PROYECTO = RAIZ / "agendar_remates.db"
+huella = lambda p: hashlib.md5(p.read_bytes()).hexdigest() if p.exists() else None
+FALSA = Path(tmp.name) / "real_de_mentira" / "agendar_remates.db"
+FALSA.parent.mkdir()
+crear(FALSA).close()
+falsa_antes = huella(FALSA)
+LANZADOR = ("import runpy, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import db.crear_base as CB; "
+            "CB.BASE = Path(sys.argv[2]); sys.argv = ['procesar_edicion'] + sys.argv[3:]; "
+            "runpy.run_module('motor.procesar_edicion', run_name='__main__')")
+real_antes = huella(REAL_DEL_PROYECTO)
+sal = subprocess.run([sys.executable, "-B", "-c", LANZADOR, str(RAIZ), str(FALSA), "--retomar", "2026-10-09", str(FALSA), "--solo-guardadas"],
+                     cwd=RAIZ, capture_output=True, encoding="utf-8", errors="replace", env=ENV_UTF8, timeout=170)
+real_despues = huella(REAL_DEL_PROYECTO)
+revisar("decisión 8, paso 5. el comando se niega a tocar la base real", "La base real espera la aprobación de Diego" in sal.stdout + sal.stderr,
+        (sal.stdout + sal.stderr)[-200:])
+revisar("F3-06. la base real de mentira quedó igual (el comando no la abrió)", huella(FALSA) == falsa_antes)
+revisar("F3-06. agendar_remates.db del proyecto no se tocó durante el comando", real_despues == real_antes)
 sal = correr("--retomar", "2026-10-09", str(Path(tmp.name) / "no_existe.db"), "--solo-guardadas")
 revisar("decisión 8, paso 5. base que no existe da error claro y no crea el archivo",
         "No existe la base" in sal.stdout + sal.stderr and not (Path(tmp.name) / "no_existe.db").exists())

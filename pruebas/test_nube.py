@@ -116,6 +116,25 @@ class Caida(Supa):
     def listar(self, pref): raise OSError("[Errno 11001] getaddrinfo failed")
 r = N.actualizar(base, "2026-10-19", Caida({}), raiz=tmp, base_real=BASE_REAL, conf=CONF)
 revisar("sin internet no se cae y lo dice en palabras simples", not r["ok"] and "internet" in (r["error"] or ""), str(r))
+# F3-03 (4 de Noviembre). Los errores de Actualizar también quedan anotados (con pythonw el stderr es logs/servidor.log),
+# el general y el de una edición, y la página recibe el mismo texto de siempre.
+class FallaBajar(Supa):
+    def bajar(self, r, local): raise PermissionError(13, "Acceso denegado", str(local))
+def con_registro(f):
+    viejo, sys.stderr = sys.stderr, io.StringIO()
+    try:
+        return f(), sys.stderr.getvalue()
+    finally:
+        sys.stderr = viejo
+r, reg = con_registro(lambda: N.actualizar(base, "2026-10-19", Caida({}), raiz=tmp, base_real=BASE_REAL, conf=CONF))
+revisar("F3-03. el error general de Actualizar queda anotado y la página recibe el mismo texto",
+        "error en Actualizar" in reg and "getaddrinfo" in reg and not r["ok"] and "internet" in (r["error"] or ""), reg[-200:])
+_vacia = tmp / "vacia_f3_03.db"
+r, reg = con_registro(lambda: N.actualizar(_vacia, "2026-10-19", FallaBajar({"marcas/2026-10-18.json": json.dumps({"fecha": "2026-10-18", "estado": "listo"}).encode()}),
+                                           raiz=tmp / "raiz_f3_03", base_real=BASE_REAL, conf=CONF))
+revisar("F3-03. el error de una edición queda anotado con el día en palabras y la edición sigue avisada en la página",
+        "error en Actualizar, edición del domingo 18 de Octubre" in reg and "PermissionError" in reg
+        and any("no se pudo cargar" in x and "PermissionError" in x for x in r["problemas"]), reg[-300:] + str(r["problemas"]))
 r = N.actualizar(base, "2026-10-19", None, raiz=tmp, base_real=BASE_REAL, conf={})
 revisar("sin la clave de Supabase en config.py lo dice", not r["ok"] and "config.py" in (r["error"] or ""), str(r))
 r = N.actualizar(BASE_REAL, "2026-10-19", S, raiz=tmp, base_real=BASE_REAL, conf=CONF)

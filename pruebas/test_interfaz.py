@@ -192,6 +192,30 @@ r = post("/api/agendar", {"remate_id": bus["resultados"][0]["remate_id"]})
 est = json.loads(get(f"/api/estado?hoy={HOY}"))
 revisar("servidor. agendar desde la página", r.get("ok") and any("6443" in a["rol"] for a in est["agenda"]), str(r))
 revisar("servidor. un pedido malo devuelve el error en palabras", post("/api/manual", {}) == {"ok": False, "error": "Falta la fecha del remate."})
+# F3-03 (4 de Noviembre). Un error del programa sigue llegando a la página y además queda anotado. Con pythonw el stderr del
+# servidor es logs/servidor.log, aquí se captura el stderr mientras dura cada pedido.
+import io
+def con_registro(f):
+    viejo, sys.stderr = sys.stderr, io.StringIO()
+    try:
+        return f(), sys.stderr.getvalue()
+    finally:
+        sys.stderr = viejo
+def get_json(p):
+    try:
+        return json.loads(get(p))
+    except urllib.error.HTTPError as er:
+        return json.loads(er.read())
+_r, _reg = con_registro(lambda: get_json("/api/estado?hoy=malo"))
+revisar("F3-03. un error del programa en GET sigue llegando a la página igual que antes",
+        _r.get("ok") is False and _r.get("error", "").startswith("Error del programa. ValueError."), str(_r))
+revisar("F3-03. y queda anotado con la hora, la ruta y el detalle", _reg.startswith("--- ") and "error en GET /api/estado" in _reg
+        and "Traceback" in _reg and "ValueError" in _reg, _reg[-200:])
+_r, _reg = con_registro(lambda: post("/api/marcar", {"campo": "vv_entregado"}))
+revisar("F3-03. un pedido incompleto en POST sigue llegando a la página igual que antes", _r == {"ok": False, "error": "Pedido incompleto. 'valor'"}, str(_r))
+revisar("F3-03. y queda anotado, porque también puede ser un error del programa", "error en POST /api/marcar" in _reg and "KeyError" in _reg, _reg[-200:])
+_r, _reg = con_registro(lambda: post("/api/manual", {}))
+revisar("F3-03. un dato faltante con su mensaje en palabras no se anota como error", _r.get("error") == "Falta la fecha del remate." and _reg == "", _reg[-200:])
 srv.shutdown(); srv.server_close()
 
 despues = sorted(p.name for p in (RAIZ / "ia_respuestas").rglob("*.json"))
