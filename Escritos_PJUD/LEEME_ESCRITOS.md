@@ -9,9 +9,9 @@ Modelos que pasó el abogado el 3 de Noviembre de 2026. Los PDF son los original
 03. Que se certifique ejecutoriada la resolución que ordena extender la escritura pública de adjudicación (EPA).
 04a y 04b. Prórroga del plazo para firmar la EPA. Dos modelos del mismo paso.
 05a y 05b. Alzamiento de hipotecas, prohibiciones y embargos, ya firmada la EPA. Dos modelos del mismo paso.
-06. Que se certifique ejecutoriada la resolución que ordena el alzamiento.
-07. Entrega material del inmueble o lanzamiento.
-08. Lanzamiento por exhorto, cuando el inmueble está en otra jurisdicción.
+06a. Acreditar ante el juez que la propiedad quedó inscrita a nuestro nombre en el Conservador. MODELO PENDIENTE, el abogado todavía no lo pasa.
+06b. Que se certifique ejecutoriada la resolución que ordena el alzamiento.
+07a y 07b. Entrega material del inmueble o lanzamiento. Es el mismo paso. El 07b se usa cuando el inmueble está en otra jurisdicción y el lanzamiento se pide por exhorto a ese tribunal.
 
 ## Reglas del abogado (3 de Noviembre de 2026)
 
@@ -24,4 +24,4 @@ Las tres resoluciones del tribunal que venían en el paquete original eran un er
 
 ## Pendiente de confirmar con el abogado
 
-El lugar del 02 en la secuencia lo puso Claude. El modelo lo presenta el demandante para girar el cheque, no el adjudicatario. Falta un modelo propio para pedir el certificado del registro de deudores y otro para pedir que se certifique que los fondos están disponibles (el 01b trae el de alimentos en su segundo otrosí).
+El lugar del 02 en la secuencia lo puso Claude. El modelo lo presenta el demandante para girar el cheque, no el adjudicatario. Falta el modelo del 06a. Falta además un modelo propio para pedir el certificado del registro de deudores y otro para pedir que se certifique que los fondos están disponibles (el 01b trae el de alimentos en su segundo otrosí).
