@@ -2132,7 +2132,8 @@
     "vv_desde": "2026-10-29 10:00",
     "vv_desde_origen": "texto",
     "vv_hasta": "2026-10-29 12:00",
-    "vv_estado": "revisar",
+    "vv_estado": "calculado",
+    "correccion": "4 de Noviembre de 2026. Antes vv_estado revisar (ámbar) por la pregunta 5 al abogado. El abogado respondió que lo ideal es siempre llevarlo el día martes. El plazo del aviso no cambia y queda en verde con la recomendación del martes.",
     "cita": "deberán asistir a las dependencias del Tribunal los días martes y jueves, anterior a la realización de la subasta, según correspondiere, entre las 10:00 y las 12:00 horas"
    },
    "direccion": {

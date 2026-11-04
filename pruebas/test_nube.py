@@ -67,12 +67,22 @@ c = sqlite3.connect(base); ref = sqlite3.connect(RAIZ / "interfaz_prueba.db")
 Q = ("SELECT a.orden, r.sub_orden, r.vv_estado, r.vv_desde, r.vv_hasta, r.vv_regla, r.direccion, r.comuna, r.fecha_remate "
      "FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN ediciones e ON e.id = a.edicion_id WHERE e.fecha = '2026-10-18' ORDER BY 1, 2")
 nuevo, viejo = c.execute(Q).fetchall(), ref.execute(Q).fetchall()
+# CORRECCIÓN del 4 de Noviembre. La referencia es la carga del 20 de Octubre, anterior a las respuestas del abogado. Se le aplican
+# solo esos cambios. Pregunta 5, el martes y jueves del 21° Civil ya no queda en ámbar (mismas fechas). Pregunta 11, sin la alerta
+# ASUMIDO. Del lado nuevo se saca la recomendación del martes, que no existía. Todo lo demás debe seguir idéntico.
+viejo = [x[:2] + ("calculado",) + x[3:] if x[5] == "martes_o_jueves_anterior" and x[2] == "revisar" else x for x in viejo]
+_ABOGADO_VIEJO = lambda t: "ASUMIDO" in t or t == "Fecha del vale vista provisoria. Depende de la pregunta 5 al abogado."
+_ABOGADO_NUEVO = lambda t: t.startswith("El abogado recomienda llevar el vale vista un martes.")
 revisar("147 remates del 18 de Octubre", len(nuevo) == 147, str(len(nuevo)))
 revisar("vale vista, dirección y fecha iguales aviso por aviso a la carga con Haiku del 20 de Octubre", nuevo == viejo,
         str([x for x in zip(nuevo, viejo) if x[0] != x[1]][:2]))
 QA = ("SELECT a.orden, al.tipo, al.texto FROM alertas al JOIN avisos a ON a.id = al.aviso_id JOIN ediciones e ON e.id = a.edicion_id "
       "WHERE e.fecha = '2026-10-18' ORDER BY 1, 2, 3")
-revisar("alertas del 18 iguales a la carga con Haiku", c.execute(QA).fetchall() == ref.execute(QA).fetchall())
+revisar("alertas del 18 iguales a la carga con Haiku (salvo las respuestas del abogado)",
+        [x for x in c.execute(QA).fetchall() if not _ABOGADO_NUEVO(x[2])] == [x for x in ref.execute(QA).fetchall() if not _ABOGADO_VIEJO(x[2])])
+revisar("las alertas que se sacaron de la referencia son solo de las preguntas 5 y 11, y hay una recomendación por cada pregunta 5",
+        sum(1 for x in ref.execute(QA) if x[2] == "Fecha del vale vista provisoria. Depende de la pregunta 5 al abogado.")
+        == sum(1 for x in c.execute(QA) if _ABOGADO_NUEVO(x[2])))
 # CORRECCIÓN del 21 de Octubre. Antes se comparaba el total de cambios de las dos bases, y eso dependía de lo cargado antes del 18
 # en interfaz_prueba.db (que se rehízo con el descarte de tribunales no civiles y pasó de 8 a 7). Ahora se comparan solo los
 # cambios que nacen con la edición del 18 de Octubre, que es lo que esta prueba carga.

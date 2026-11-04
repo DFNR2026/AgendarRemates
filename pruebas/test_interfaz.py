@@ -252,5 +252,12 @@ _pag = _R / "BASE_DANADA.html"
 _txt = _pag.read_text(encoding="utf-8") if _pag.exists() else ""
 revisar("respaldo. con la base dañada la agenda no queda muda, deja la página con los respaldos y meses en palabras",
         not _cayo and "base está dañada" in _txt and "4 de Septiembre de 2026" in _txt and "2026-09" not in _txt)
+# Pregunta 6 al abogado, respondida el 4 de Noviembre. Llegar media hora antes de que abra la entrega, porque es por orden de llegada.
+from interfaz.datos import nota_llegada
+revisar("llegada. 3° Civil sin hora leída dice las 10:30", nota_llegada("3° Juzgado Civil de Santiago").startswith("Llega a las 10:30"))
+revisar("llegada. con hora de apertura leída del aviso resta media hora", nota_llegada("21° Juzgado Civil de Santiago", "2026-11-05 10:00", "texto").startswith("Llega a las 09:30"))
+revisar("llegada. un desde estimado no se toma como hora de apertura", nota_llegada("1° Juzgado Civil de Santiago", "2026-11-02 10:00", "estimado_dia_siguiente_edicion").startswith("Llega media hora antes de que abra"))
+revisar("llegada. entrega en el remate, media hora antes del remate", nota_llegada(None, None, None, "en_el_remate", "13:00").startswith("Llega a las 12:30, media hora antes del remate"))
+revisar("llegada. todas dicen que es por orden de llegada", all("orden de llegada" in nota_llegada(*a) for a in [("x",), ("3° Juzgado Civil de Santiago",)]))
 print("\nRESULTADO.", "TODO OK" if not FALLAS else f"{len(FALLAS)} fallas")
 sys.exit(1 if FALLAS else 0)

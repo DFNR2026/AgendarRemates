@@ -49,8 +49,10 @@ def main():
     for f in fechas:
         r = cargar_edicion(con, f, ahora, RAIZ / "capturas" / f, cliente=None, usar_ia=True)
         print(f, r.get("avisos"), "avisos", r.get("remates"), "remates")
-    # Cambios de la edición siguiente a cada una (cargar_edicion ya rehace la siguiente, esto cubre huecos entre fechas)
-    for f in fechas:
+    # Cambios. Se rehacen en TODAS las ediciones desde la primera recargada (4 de Noviembre). Antes solo la siguiente de cada
+    # una, y se perdía un cambio cuando la propiedad volvía a publicarse varios días después (C-14215-2025, del 31 de Octubre
+    # al 4 de Noviembre). registrar_cambios conserva lo que Diego ya marcó como visto.
+    for f in [x[0] for x in con.execute("SELECT fecha FROM ediciones WHERE fecha >= ? ORDER BY fecha", (fechas[0],))]:
         RP.registrar_cambios(con, f, ahora)
     with con:
         sueltos = [b for b in bienes_antes if not con.execute(

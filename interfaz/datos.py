@@ -84,6 +84,25 @@ def _hora(v):
 
 
 EN_EL_REMATE = "Se entrega en el mismo remate, antes del llamado. Puede ser minutos antes de empezar."
+ORDEN_LLEGADA = "Atienden por orden de llegada y otros postores hacen fila."
+
+
+def nota_llegada(tribunal=None, desde=None, origen=None, regla=None, hora_remate=None):
+    """Respuesta del abogado del 4 de Noviembre (pregunta 6). Estar media hora antes de que abra la entrega de vale vistas,
+    porque es por orden de llegada. Diego cree que vale para todos los remates, así que sale en todas las fichas.
+    El 3° Civil recibe de 11 a 14 (sus avisos), por eso el abogado dijo las 10:30. No cambia ninguna fecha."""
+    def menos_media(h):
+        t = dt.datetime.strptime(h, "%H:%M") - dt.timedelta(minutes=30)
+        return t.strftime("%H:%M")
+    if regla == "en_el_remate":
+        return (f"Llega a las {menos_media(hora_remate)}, media hora antes del remate. " if hora_remate
+                else "Llega media hora antes del remate. ") + ORDEN_LLEGADA
+    abre = _hora(desde) if origen == "texto" else None
+    if not abre and normalizar(tribunal).startswith("3 juzgado civil de santiago"):
+        abre = "11:00"
+    if abre:
+        return f"Llega a las {menos_media(abre)}, media hora antes de que abra la entrega de vale vistas. " + ORDEN_LLEGADA
+    return "Llega media hora antes de que abra la entrega de vale vistas. " + ORDEN_LLEGADA
 
 
 def texto_vv(desde, hasta, origen=None, regla=None):
@@ -207,6 +226,7 @@ def armar(con, remate_id, extra=None):
         **din, "asumido": any("ASUMIDO" in a["texto"] for a in al),
         "vv_desde": f["vv_desde"], "vv_hasta": f["vv_hasta"], "vv_txt": texto_vv(f["vv_desde"], f["vv_hasta"], f["vv_desde_origen"], f["vv_regla"]), "vv_tipo": tipo_vv(f["vv_desde"], f["vv_hasta"], f["vv_regla"]),
         "vv_color": color_vv(f["vv_estado"], f["vv_hasta"]), "vv_regla": f["vv_regla_texto"],
+        "vv_llegada": nota_llegada(f["tribunal"], f["vv_desde"], f["vv_desde_origen"], f["vv_regla"], f["hora_remate"]),
         "vv_de_publicacion": f.get("vv_de_publicacion"), "alertas": al,
         "pubs": pubs, "pub_txt": "Publicado en El Mercurio los días " + ", ".join(p["texto"] for p in vigentes) if vigentes else "",
         "edicion": f["edicion"],
@@ -269,6 +289,7 @@ def manuales(con):
             "mod": modo(m["modalidad"]), "mod_txt": modalidad_texto(m["modalidad"]), "direccion": "Agregada a mano, sin dirección.",
             "minimo": "Sin dato", "garantia": "Sin dato", "monto": m["monto_vv"] or "Sin dato", "uf": None, "uf_txt": None,
             "otro_porcentaje": None, "asumido": False, "vv_desde": vd, "vv_hasta": vh, "vv_txt": texto_vv(vd, vh), "vv_tipo": tipo_vv(vd, vh),
+            "vv_llegada": nota_llegada(m["tribunal"], vd, "texto"),
             "vv_color": "verde" if vh else "rojo", "vv_regla": None, "alertas": al, "pubs": [], "pub_txt": "Agregada a mano. No viene de El Mercurio.",
             "vv_entregado": bool(m["vv_entregado"]), "cambio_fecha": False, "cambios_sin_ver": False, "nuevo_llamado": False,
             "publicado": pub})

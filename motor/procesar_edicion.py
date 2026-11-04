@@ -120,6 +120,10 @@ def bloque_vale_vista(res: dict) -> dict:
     else:                                            # rojo
         b.update(vv_estado="revisar", vv_desde=None, vv_desde_origen=None, vv_hasta=None)
         b["alertas"].append(("revisar_lectura", texto_rojo(list(res.get("motivos") or [])), cita))
+    if res.get("martes_recomendado") and color in ("verde", "ambar"):      # pregunta 5, respuesta del abogado del 4 de Noviembre
+        from motor.extraccion import fecha_palabras
+        b["alertas"].append(("condicion_especial", "El abogado recomienda llevar el vale vista un martes. Para este remate es el martes "
+                             f"{fecha_palabras(res['martes_recomendado'])}.", cita))
     if res.get("contradiccion"):                     # contradicción real (ya se descartaron correo, escrito, OJV y cupón)
         b["alertas"].append(("contradiccion", VV_CONTRADICCION, res["contradiccion"]))
     if any("Posible error de escritura" in m for m in res.get("motivos") or []):

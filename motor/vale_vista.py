@@ -136,16 +136,20 @@ def calcular(r: dict, fecha_remate: str, hora_remate: str | None, fecha_edicion:
         dias = (4,) if regla == "viernes_anterior" else (1, 3)
         d = d0 - dt.timedelta(days=1)
         while d.weekday() not in dias: d -= dt.timedelta(days=1)
-        if len(dias) > 1: out["preguntas"].append(5)
+        if len(dias) > 1:
+            # Pregunta 5 respondida por el abogado el 4 de Noviembre ("lo ideal es siempre llevarlo el día martes"). El plazo
+            # del aviso no cambia. Se agrega el martes hábil antes del remate como recomendación y ya no queda en ámbar.
+            m = d0 - dt.timedelta(days=1)
+            while m.weekday() != 1 or not habil(m): m -= dt.timedelta(days=1)
+            out["martes_recomendado"] = m.isoformat()
         # F1-01 (30 de Octubre). Si ese viernes, martes o jueves es feriado, la entrega se adelanta. Antes quedaba en el feriado.
         # Viernes. Al día hábil anterior, como dice en letras el 15° Civil ("En caso de recaer dicho viernes en día feriado, la
         # entrega deberá efectuarse el día hábil anterior"). Martes y jueves. Al martes o jueves hábil anterior, que es día de
         # recepción del tribunal y además más temprano que el día hábil anterior (provisorio, pregunta 12 al abogado).
         if not habil(d):
             if regla == "viernes_anterior":
+                # Pregunta 12 respondida por el abogado el 4 de Noviembre ("siempre el día antes"). Ya no queda en ámbar.
                 d = habil_antes(d)
-                avisado = " ".join([r.get("frase_regla") or ""] + list(r.get("frases_extra") or []))
-                if not re.search(r"feriado", avisado, re.I): out["preguntas"].append(12)
             else:
                 d -= dt.timedelta(days=1)
                 while d.weekday() not in dias or not habil(d): d -= dt.timedelta(days=1)
@@ -367,7 +371,8 @@ def resolver(lecturas: list, texto: str, fecha_remate: str | None, hora_remate: 
     preg = list(c["preguntas"])
     if r["regla"] == "dias_habiles_antes" and re.search(r"horario\s+de\s+atenci", base["cita"] or "", re.I):
         preg.append(4)
-    base.update(vv_desde=c["vv_desde"], vv_desde_origen=c["vv_desde_origen"], vv_hasta=c["vv_hasta"], preguntas=sorted(set(preg)))
+    base.update(vv_desde=c["vv_desde"], vv_desde_origen=c["vv_desde_origen"], vv_hasta=c["vv_hasta"], preguntas=sorted(set(preg)),
+                martes_recomendado=c.get("martes_recomendado"))
     base.update(color="ambar" if preg else "verde", vv_estado="revisar" if preg else "calculado")
     return base
 

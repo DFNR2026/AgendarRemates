@@ -132,10 +132,13 @@ for _r, _rem, _esp in [
         (_F15, "2026-12-29", ("2026-12-24 13:00", "verde", [])),       # viernes 25 de Diciembre, Navidad. El aviso dice día hábil anterior
         (_F15, "2027-03-30", ("2027-03-25 13:00", "verde", [])),       # viernes 26 de Marzo de 2027, Viernes Santo
         (_F15, "2027-01-05", ("2026-12-31 13:00", "verde", [])),       # viernes 1 de Enero, año nuevo
-        (_F27, "2026-12-28", ("2026-12-24", "ambar", [12])),           # 27° Civil, el aviso no dice qué pasa con el feriado
-        (_F21, "2026-12-09", ("2026-12-03 12:00", "ambar", [5, 12])),  # martes 8 de Diciembre, Inmaculada Concepción. Al jueves anterior
+        # CORRECCIÓN del 4 de Noviembre. El abogado respondió la pregunta 12 para el viernes ("siempre el día antes") y la 5
+        # ("lo ideal es siempre llevarlo el día martes"). Antes se esperaba ("2026-12-24", "ambar", [12]), ("2026-12-03 12:00",
+        # "ambar", [5, 12]) y ("2026-12-10 12:00", "ambar", [5]). Las fechas no cambian.
+        (_F27, "2026-12-28", ("2026-12-24", "verde", [])),             # 27° Civil, viernes 25 feriado, al día hábil anterior
+        (_F21, "2026-12-09", ("2026-12-03 12:00", "ambar", [12])),     # martes 8 de Diciembre, Inmaculada Concepción. Al jueves anterior
         (_F15, "2026-12-15", ("2026-12-11 13:00", "verde", [])),       # sin feriado, no cambia
-        (_F21, "2026-12-15", ("2026-12-10 12:00", "ambar", [5]))]:     # sin feriado, no cambia
+        (_F21, "2026-12-15", ("2026-12-10 12:00", "verde", []))]:      # sin feriado, no cambia
     if _vv(_r, _rem) != _esp:
         fallas.append(f"F1-01. remate {_rem} {_r['regla']} dio {_vv(_r, _rem)} y se esperaba {_esp}")
 for _fecha, _color in [("2026-12-25", "rojo"), ("2026-12-26", "rojo"), ("2026-12-24", "verde")]:
@@ -144,6 +147,20 @@ for _fecha, _color in [("2026-12-25", "rojo"), ("2026-12-26", "rojo"), ("2026-12
     _x = V.resolver([_r, _r], "Garantía vale vista. " + _r["frase_regla"], "2026-12-29", "12:00", "2026-11-20")
     if _x["color"] != _color:
         fallas.append(f"F1-01. fecha fija {_fecha} dio {_x['color']} y se esperaba {_color}")
+# Respuestas del abogado del 4 de Noviembre. Pregunta 5. El plazo del 21° Civil no cambia y se recomienda el martes hábil
+# antes del remate (el 8 de Diciembre es feriado, así que para el 9 y el 15 de Diciembre es el martes 1 y el martes 15 no cuenta).
+from motor.procesar_edicion import bloque_vale_vista
+for _rem, _mar in [("2026-12-15", "2026-12-01"), ("2026-12-09", "2026-12-01"), ("2026-11-12", "2026-11-10"), ("2026-11-09", "2026-11-03")]:
+    _t = "Garantía vale vista. " + _F21["frase_regla"] + "."
+    _x = V.resolver([_F21, _F21], _t, _rem, "12:00", "2026-11-02")
+    if _x.get("martes_recomendado") != _mar:
+        fallas.append(f"Pregunta 5. remate {_rem} dio martes recomendado {_x.get('martes_recomendado')} y se esperaba {_mar}")
+_b = bloque_vale_vista(V.resolver([_F21, _F21], "Garantía vale vista. " + _F21["frase_regla"] + ".", "2026-11-12", "12:00", "2026-11-02"))
+if [a[1] for a in _b["alertas"]] != ["El abogado recomienda llevar el vale vista un martes. Para este remate es el martes 10 de Noviembre de 2026."]:
+    fallas.append(f"Pregunta 5. alerta de la recomendación {_b['alertas']}")
+_b = bloque_vale_vista(V.resolver([_F15, _F15], "Garantía vale vista. " + _F15["frase_regla"] + ".", "2026-12-15", "12:00", "2026-11-02"))
+if any("martes" in a[1] for a in _b["alertas"]):
+    fallas.append("Pregunta 5. la recomendación del martes salió en un aviso que no es de martes y jueves")
 print("\n".join(fallas) if fallas else f"{medidos} avisos del 14 de Octubre y casos en rojo revisados.")
 print("RESULTADO.", "FALLAS" if fallas else "TODO OK")
 sys.exit(1 if fallas else 0)

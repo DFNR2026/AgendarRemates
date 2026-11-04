@@ -72,7 +72,9 @@ with tempfile.TemporaryDirectory() as tmp:
     # 18 de Octubre. 27 y 28 dejaron de ser "sin dato" en el banco (CORRECCIÓN de Diego, "calificados al momento de hacerse el llamado" es entrega en el remate). Eran 9.
     revisar("el banco sigue diciendo que el aviso no lo dice (7 remates)", uno(A, f"SELECT COUNT(*) FROM alertas WHERE texto = '{VV_NO_DICE}'") == 7)
     revisar("alertas del código guardadas con su tipo y origen codigo",
-            uno(B, "SELECT COUNT(*) FROM alertas WHERE tipo = 'condicion_especial' AND origen = 'codigo'") == 12
+            # CORRECCIÓN del 4 de Noviembre. Antes 12. Salen las 5 alertas "10% DEL MÍNIMO ASUMIDO" (pregunta 11 respondida por el abogado).
+            uno(B, "SELECT COUNT(*) FROM alertas WHERE tipo = 'condicion_especial' AND origen = 'codigo'") == 7
+            and uno(B, "SELECT COUNT(*) FROM alertas WHERE texto LIKE '%ASUMIDO%'") == 0
             and uno(B, "SELECT COUNT(*) FROM alertas WHERE origen = 'ia'") == 0)
     # Parte 3.7b (17 de Octubre). Con la etiqueta arreglada, el bien de cada remate del motor es el mismo que el del banco
     # (antes el lote 4 del aviso 30 quedaba como "estacionamiento 6").

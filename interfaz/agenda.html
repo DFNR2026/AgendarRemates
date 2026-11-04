@@ -240,7 +240,7 @@ function fichaHTML(it){const k=clave(it),al=it.alertas||[],grave=al.some(a=>a.cl
     <section class="caja dinero"><h3>Dinero</h3><div style="font-size:15px"><span class="gris">Mínimo</span> ${E(it.minimo)}</div><div style="font-size:15px"><span class="gris">Garantía</span> ${E(it.garantia)}${etiquetas(it)}</div><div style="font-size:13px;font-weight:700;color:var(--suave);margin-top:6px">VALE VISTA POR</div><div style="font-size:32px;font-weight:800;color:var(--cafe);line-height:1.1">${E(it.monto)}</div>${ufHTML(it)}</section>
     <section class="caja"><div class="fila"><h3>Entrega del vale vista</h3><span class="chip ${it.vv_color}">${{verde:'Calculado',ambar:'Revisar',rojo:'Sin fecha'}[it.vv_color]}</span></div>
       <div class="tipos" role="group" aria-label="Tipo de entrega">${tipos}</div>
-      <div style="font-size:22px;font-weight:800;line-height:1.2">${it.vv_tipo?TIT_VV[it.vv_tipo]:'Sin fecha'}</div><div style="font-size:16px;font-weight:700;line-height:1.35">${E(it.vv_txt)}</div>
+      <div style="font-size:22px;font-weight:800;line-height:1.2">${it.vv_tipo?TIT_VV[it.vv_tipo]:'Sin fecha'}</div><div style="font-size:16px;font-weight:700;line-height:1.35">${E(it.vv_txt)}</div>${it.vv_llegada?`<div style="font-size:14px;color:var(--tinta2)">${E(it.vv_llegada)}</div>`:''}
       <label class="chk" style="font-size:15px;margin-top:auto"><input type="checkbox" data-acc="entregado" data-k="${k}" ${it.vv_entregado?'checked':''}>Vale vista entregado</label></section>
   </div>
   ${it.vv_regla?`<blockquote>“${E(it.vv_regla)}”</blockquote>`:''}

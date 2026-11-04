@@ -14,3 +14,14 @@ Abierto el 2026-10-15. Dudas que salieron al anotar el banco nivel 2 (edición 2
 10. Costas. Muchos avisos dicen "mínimo X UF, más $ Y por costas" (aviso 17 del 14 de Octubre, 398,322141 UF más $ 1.189.800). Y el aviso 38 separa costas procesales ($ 173.300) y personales ($ 500.000). ¿Las costas forman parte del mínimo para la postura? ¿Cuentan para calcular el 10% de la garantía? ¿Las paga el que se adjudica, aparte? Por ahora el programa las guarda aparte del mínimo y no las suma a nada.
 11. Garantía sin base. Algunos avisos solo dicen "caución del 10%" o "10% para participar", sin decir de qué (avisos 15, 16, 32 y 55 del 14 de Octubre). Diego decidió asumir el 10% del mínimo y mostrarlo como ASUMIDO. Pero el art. 494 del Código de Procedimiento Civil dice "diez por ciento de la valoración de dichos bienes" (texto visto en iura.cl/cpc/494). ¿"Valoración" es la tasación, el avalúo o el mínimo? ¿Qué se asume cuando el aviso no lo dice?
 12. Entrega del vale vista en un día fijo de la semana que cae en feriado (agregada el 30 de Octubre, hallazgo F1-01 de la auditoría). Si el viernes anterior es feriado (25 de Diciembre, 1 de Enero, Viernes Santo), ¿se entrega el día hábil anterior? El 15° Civil lo dice en sus avisos, el 27° Civil ("hasta el día viernes de la semana anterior") no lo dice. Y en el 21° Civil, si el martes o el jueves es feriado, ¿se entrega el día hábil anterior (por ejemplo el miércoles) o el martes o jueves anterior? Provisorio. Viernes al día hábil anterior. Martes y jueves al martes o jueves hábil anterior, que es día de recepción del tribunal y además más temprano. El 15° Civil queda en verde porque su aviso lo dice, los demás en ámbar.
+
+## Respuestas del abogado (4 de Noviembre de 2026, traídas por Diego, tal como las anotó)
+
+12. "Siempre el día antes, o quedan a criterio si es que uno va al tribunal y te dicen qué hacer."
+3. "Se cuentan desde la hora del remate."
+11. "Siempre del mínimo que aparece en la publicación del diario."
+1. "La entrega física es de lunes a viernes. Los sábados no se entregan vale vistas."
+5. "Lo ideal es siempre llevarlo el día martes."
+6. "Estar a las 10:30, media hora antes de la entrega de vale vistas, porque es por orden de llegada, ya que uno se topa con otros participantes que hacen fila y atrasan." Diego agrega que cree que esto vale para absolutamente todos los remates.
+
+Sin respuesta todavía. Preguntas 2, 4, 7, 8, 9 y 10, y el "jueves anterior" del 22° Civil (C-7083-2024 y C-19837-2024).

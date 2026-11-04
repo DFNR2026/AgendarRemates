@@ -276,8 +276,9 @@ def garantia(texto: str) -> dict:
             g["base_origen"] = "texto"
             fin = p.end() + b.end()
         else:
+            # Pregunta 11 respondida por el abogado el 4 de Noviembre. La garantía es "siempre del mínimo que aparece en la
+            # publicación del diario". Antes salía la alerta "10% DEL MÍNIMO ASUMIDO. EL AVISO NO LO DICE." y la etiqueta ASUMIDO.
             g["base"], g["base_origen"] = "minimo", "asumido"
-            alertas.append(("condicion_especial", f"{g['porcentaje']}% DEL MÍNIMO ASUMIDO. EL AVISO NO LO DICE."))
         g["cita"] = texto[p.start():fin]
         otros = {float(x.group(1).replace(",", ".")) for x in porcentajes[1:]} - {float(g["porcentaje"])}
         if otros:
