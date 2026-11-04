@@ -32,13 +32,13 @@ def esperado(regla, v, f, h):
     """Fecha (AAAA-MM-DD) que debería tener vv_hasta según la regla, o None si no se recalcula."""
     d0 = dt.date.fromisoformat(f)
     if regla == "dias_habiles_antes": return habiles_antes(d0, v["dias"]).isoformat()
-    if regla == "dia_anterior": return (d0 - dt.timedelta(days=1)).isoformat()
-    if regla == "dia_anterior_sabado_a_viernes":
+    # CORRECCIÓN del 4 de Noviembre (pregunta 2 dada por resuelta con las respuestas 1 y 12 del abogado). Si el día anterior no
+    # es hábil (remate lunes, el día anterior es domingo) se entrega el día hábil anterior, el viernes. Antes estas tres reglas
+    # solo pasaban el sábado al viernes, y los remates de lunes no se recalculaban porque estaban en revisar.
+    if regla in ("dia_anterior", "dia_anterior_sabado_a_viernes", "dia_anterior_sabado_a_habil"):
         d = d0 - dt.timedelta(days=1)
-        return (d - dt.timedelta(days=1) if d.weekday() == 5 else d).isoformat()
-    if regla == "dia_anterior_sabado_a_habil":
-        d = d0 - dt.timedelta(days=1)
-        return (habiles_antes(d0, 1) if d.weekday() == 5 else d).isoformat()
+        while not habil(d): d -= dt.timedelta(days=1)
+        return d.isoformat()
     if regla == "viernes_anterior":
         d = d0 - dt.timedelta(days=1)
         while d.weekday() != 4: d -= dt.timedelta(days=1)

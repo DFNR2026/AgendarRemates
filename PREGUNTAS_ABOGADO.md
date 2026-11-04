@@ -25,3 +25,10 @@ Abierto el 2026-10-15. Dudas que salieron al anotar el banco nivel 2 (edición 2
 6. "Estar a las 10:30, media hora antes de la entrega de vale vistas, porque es por orden de llegada, ya que uno se topa con otros participantes que hacen fila y atrasan." Diego agrega que cree que esto vale para absolutamente todos los remates.
 
 Sin respuesta todavía. Preguntas 2, 4, 7, 8, 9 y 10, y el "jueves anterior" del 22° Civil (C-7083-2024 y C-19837-2024).
+
+## Preguntas dadas por resueltas sin preguntarlas (decisión de Diego, 4 de Noviembre de 2026)
+
+2. Resuelta con las respuestas 1 y 12. Los sábados no se entregan vale vistas y siempre es "el día antes", así que si el día anterior al remate es domingo se entrega el viernes. Es lo que ya hacía el programa.
+4. Resuelta con la respuesta 6. La hora de cierre del "horario de atención" importa poco, porque la idea es llegar media hora antes de que abra.
+
+Siguen sin respuesta y Diego no las considera necesarias porque no cambian ninguna fecha. Preguntas 7, 8, 9 y 10, y el "jueves anterior" del 22° Civil.

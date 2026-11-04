@@ -70,8 +70,13 @@ nuevo, viejo = c.execute(Q).fetchall(), ref.execute(Q).fetchall()
 # CORRECCIÓN del 4 de Noviembre. La referencia es la carga del 20 de Octubre, anterior a las respuestas del abogado. Se le aplican
 # solo esos cambios. Pregunta 5, el martes y jueves del 21° Civil ya no queda en ámbar (mismas fechas). Pregunta 11, sin la alerta
 # ASUMIDO. Del lado nuevo se saca la recomendación del martes, que no existía. Todo lo demás debe seguir idéntico.
-viejo = [x[:2] + ("calculado",) + x[3:] if x[5] == "martes_o_jueves_anterior" and x[2] == "revisar" else x for x in viejo]
-_ABOGADO_VIEJO = lambda t: "ASUMIDO" in t or t == "Fecha del vale vista provisoria. Depende de la pregunta 5 al abogado."
+# Mismo 4 de Noviembre, más tarde. Diego dio por resueltas las preguntas 2 y 4. Un remate que en la referencia estaba en ámbar
+# solo por la pregunta 2, 4 o 5 ahora queda en verde con las mismas fechas.
+_RESUELTAS = {f"Fecha del vale vista provisoria. Depende de la pregunta {n} al abogado." for n in (2, 4, 5)}
+_solo_resueltas = {(o, s) for o, s, t in ref.execute("SELECT a.orden, al.sub_orden, al.texto FROM alertas al JOIN avisos a ON a.id = al.aviso_id "
+                   "JOIN ediciones e ON e.id = a.edicion_id WHERE e.fecha = '2026-10-18'") if t in _RESUELTAS}
+viejo = [x[:2] + ("calculado",) + x[3:] if x[2] == "revisar" and ((x[0], x[1]) in _solo_resueltas or (x[0], 0) in _solo_resueltas) else x for x in viejo]
+_ABOGADO_VIEJO = lambda t: "ASUMIDO" in t or t in _RESUELTAS
 _ABOGADO_NUEVO = lambda t: t.startswith("El abogado recomienda llevar el vale vista un martes.")
 revisar("147 remates del 18 de Octubre", len(nuevo) == 147, str(len(nuevo)))
 revisar("vale vista, dirección y fecha iguales aviso por aviso a la carga con Haiku del 20 de Octubre", nuevo == viejo,
@@ -80,7 +85,7 @@ QA = ("SELECT a.orden, al.tipo, al.texto FROM alertas al JOIN avisos a ON a.id =
       "WHERE e.fecha = '2026-10-18' ORDER BY 1, 2, 3")
 revisar("alertas del 18 iguales a la carga con Haiku (salvo las respuestas del abogado)",
         [x for x in c.execute(QA).fetchall() if not _ABOGADO_NUEVO(x[2])] == [x for x in ref.execute(QA).fetchall() if not _ABOGADO_VIEJO(x[2])])
-revisar("las alertas que se sacaron de la referencia son solo de las preguntas 5 y 11, y hay una recomendación por cada pregunta 5",
+revisar("las alertas que se sacaron de la referencia son solo de las preguntas 2, 4, 5 y 11, y hay una recomendación por cada pregunta 5",
         sum(1 for x in ref.execute(QA) if x[2] == "Fecha del vale vista provisoria. Depende de la pregunta 5 al abogado.")
         == sum(1 for x in c.execute(QA) if _ABOGADO_NUEVO(x[2])))
 # CORRECCIÓN del 21 de Octubre. Antes se comparaba el total de cambios de las dos bases, y eso dependía de lo cargado antes del 18

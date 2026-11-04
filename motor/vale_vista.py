@@ -131,7 +131,8 @@ def calcular(r: dict, fecha_remate: str, hora_remate: str | None, fecha_edicion:
         if not habil(d):
             cubre = regla != "dia_anterior" and d.weekday() == 5
             d = habil_antes(d + dt.timedelta(days=1))
-            if not cubre: out["preguntas"].append(2)
+            # Pregunta 2 dada por respondida el 4 de Noviembre (decisión de Diego). El abogado dijo que los sábados no se entregan
+            # vale vistas (pregunta 1) y que siempre es "el día antes" (pregunta 12), o sea el viernes. Ya no queda en ámbar.
     elif regla in ("viernes_anterior", "martes_o_jueves_anterior"):
         dias = (4,) if regla == "viernes_anterior" else (1, 3)
         d = d0 - dt.timedelta(days=1)
@@ -369,8 +370,8 @@ def resolver(lecturas: list, texto: str, fecha_remate: str | None, hora_remate: 
         base["motivos"].append("La frase nombra un día de la semana distinto al que da el cálculo.")
         base["vv_estado"] = "revisar"; return base
     preg = list(c["preguntas"])
-    if r["regla"] == "dias_habiles_antes" and re.search(r"horario\s+de\s+atenci", base["cita"] or "", re.I):
-        preg.append(4)
+    # Pregunta 4 ("horario de atención" sin hora) dada por resuelta el 4 de Noviembre (decisión de Diego). La hora de cierre
+    # importa poco, porque la idea es llegar media hora antes de que abra (pregunta 6). Ya no queda en ámbar.
     base.update(vv_desde=c["vv_desde"], vv_desde_origen=c["vv_desde_origen"], vv_hasta=c["vv_hasta"], preguntas=sorted(set(preg)),
                 martes_recomendado=c.get("martes_recomendado"))
     base.update(color="ambar" if preg else "verde", vv_estado="revisar" if preg else "calculado")

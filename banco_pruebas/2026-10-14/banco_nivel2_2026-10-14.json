@@ -971,7 +971,8 @@
     "vv_desde": "2026-11-06 12:00",
     "vv_desde_origen": "texto",
     "vv_hasta": "2026-11-06 14:00",
-    "vv_estado": "revisar",
+    "vv_estado": "calculado",
+    "correccion": "4 de Noviembre de 2026. Antes vv_estado revisar (ámbar) por la pregunta 2 al abogado. Diego la dio por resuelta porque el abogado dijo que los sábados no se entregan vale vistas y que siempre es el día antes, o sea el viernes. Las fechas no cambian.",
     "cita": "El vale vista deberá ser presentado en la secretaría del tribunal el día anterior al fijado para la subasta, entre las 12:00 y 14:00 horas",
     "citas_extra": [
      "el que si recayere en día sábado deberá ser presentado el día viernes anterior"
@@ -1078,7 +1079,8 @@
     "vv_desde": "2026-11-13 12:00",
     "vv_desde_origen": "texto",
     "vv_hasta": "2026-11-13 14:00",
-    "vv_estado": "revisar",
+    "vv_estado": "calculado",
+    "correccion": "4 de Noviembre de 2026. Antes vv_estado revisar (ámbar) por la pregunta 2 al abogado. Diego la dio por resuelta porque el abogado dijo que los sábados no se entregan vale vistas y que siempre es el día antes, o sea el viernes. Las fechas no cambian.",
     "cita": "deberán asistir a las dependencias del Tribunal el día anterior fijado para la subasta, y si recayere en día sábado deberá ser presentado el día hábil anterior, entre las 12:00 y las 14:00 horas"
    },
    "direccion": {
@@ -1124,7 +1126,8 @@
     "vv_desde": "2026-11-06 12:00",
     "vv_desde_origen": "texto",
     "vv_hasta": "2026-11-06 14:00",
-    "vv_estado": "revisar",
+    "vv_estado": "calculado",
+    "correccion": "4 de Noviembre de 2026. Antes vv_estado revisar (ámbar) por la pregunta 2 al abogado. Diego la dio por resuelta porque el abogado dijo que los sábados no se entregan vale vistas y que siempre es el día antes, o sea el viernes. Las fechas no cambian.",
     "cita": "El vale vista deberá ser presentado en la secretaría del tribunal el día anterior al fijado para la subasta, entre las 12:00 y 14:00 horas",
     "citas_extra": [
      "el que si recayere en día sábado deberá ser presentado el día hábil anterior"
@@ -1172,7 +1175,8 @@
     "vv_desde": "2026-11-06 12:00",
     "vv_desde_origen": "texto",
     "vv_hasta": "2026-11-06 14:00",
-    "vv_estado": "revisar",
+    "vv_estado": "calculado",
+    "correccion": "4 de Noviembre de 2026. Antes vv_estado revisar (ámbar) por la pregunta 2 al abogado. Diego la dio por resuelta porque el abogado dijo que los sábados no se entregan vale vistas y que siempre es el día antes, o sea el viernes. Las fechas no cambian.",
     "cita": "El vale vista deberá ser presentado en la secretaría del tribunal el día anterior al fijado para la subasta, entre las 12:00 y 14:00 horas",
     "citas_extra": [
      "el que si recayere en día sábado deberá ser presentado el día hábil anterior"
@@ -1995,7 +1999,8 @@
     "vv_desde": "2026-10-15",
     "vv_desde_origen": "estimado_dia_siguiente_edicion",
     "vv_hasta": "2026-11-11",
-    "vv_estado": "revisar",
+    "vv_estado": "calculado",
+    "correccion": "4 de Noviembre de 2026. Antes vv_estado revisar (ámbar) por la pregunta 4 al abogado. Diego la dio por resuelta porque la hora de cierre importa poco, porque la idea es llegar media hora antes de que abra (pregunta 6). Las fechas no cambian.",
     "cita": "entregado materialmente al tribunal en horario de atención de público al menos un día hábil anterior a subasta"
    },
    "direccion": {
@@ -2041,7 +2046,8 @@
     "vv_desde": "2026-10-15",
     "vv_desde_origen": "estimado_dia_siguiente_edicion",
     "vv_hasta": "2026-11-04",
-    "vv_estado": "revisar",
+    "vv_estado": "calculado",
+    "correccion": "4 de Noviembre de 2026. Antes vv_estado revisar (ámbar) por la pregunta 4 al abogado. Diego la dio por resuelta porque la hora de cierre importa poco, porque la idea es llegar media hora antes de que abra (pregunta 6). Las fechas no cambian.",
     "cita": "Dicho Vale Vista debe ser acompañado materialmente al Tribunal en horario de atención de público al menos un día hábil anterior a la realización de la subasta"
    },
    "direccion": {
@@ -2087,7 +2093,8 @@
     "vv_desde": "2026-10-15",
     "vv_desde_origen": "estimado_dia_siguiente_edicion",
     "vv_hasta": "2026-11-02",
-    "vv_estado": "revisar",
+    "vv_estado": "calculado",
+    "correccion": "4 de Noviembre de 2026. Antes vv_estado revisar (ámbar) por la pregunta 4 al abogado. Diego la dio por resuelta porque la hora de cierre importa poco, porque la idea es llegar media hora antes de que abra (pregunta 6). Las fechas no cambian.",
     "cita": "Dicho Vale Vista debe ser acompañado materialmente al Tribunal en horario de atención de público al menos un día hábil anterior a la realización de la subasta"
    },
    "direccion": {
@@ -2265,7 +2272,8 @@
     "vv_desde": "2026-10-30 09:00",
     "vv_desde_origen": "texto",
     "vv_hasta": "2026-10-30 12:00",
-    "vv_estado": "revisar",
+    "vv_estado": "calculado",
+    "correccion": "4 de Noviembre de 2026. Antes vv_estado revisar (ámbar) por la pregunta 2 al abogado. Diego la dio por resuelta porque el abogado dijo que los sábados no se entregan vale vistas y que siempre es el día antes, o sea el viernes. Las fechas no cambian.",
     "cita": "Dicho vale vista deberá acompañarse materialmente a las dependencias del Tribunal el día anterior a la fecha fijada para el remate de 9:00 a 12:00 horas"
    },
    "direccion": {
