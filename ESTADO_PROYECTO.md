@@ -1,6 +1,6 @@
 # ESTADO DEL PROYECTO AGENDAR_REMATES (documento vivo)
 
-Última actualización 2 de Noviembre de 2026. Agenda real en uso diario desde el 21 de Octubre. Arreglos locales del 29 (una sola agenda, sin ventana, inicio con Windows) y auditoría externa del 30 con 34 hallazgos en REPORTE_AUDITORIA_2026-10-30.md. Etapa A de la auditoría terminada el 30 de Octubre y subida a GitHub (23fcd76). El 31 se confirmó en Windows el respaldo diario y se resolvió la ventana negra (el ícono viejo del escritorio). Etapa B terminada el 1 de Noviembre, aplicada en la base real y subida a GitHub (181072f). Bitácoras hasta BITACORA_2026-11-01.md. Bitácoras en BITACORA_2026-10-14.md a BITACORA_2026-10-30.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
+Última actualización 3 de Noviembre de 2026. Agenda real en uso diario desde el 21 de Octubre. Arreglos locales del 29 (una sola agenda, sin ventana, inicio con Windows) y auditoría externa del 30 con 34 hallazgos en REPORTE_AUDITORIA_2026-10-30.md. Etapa A de la auditoría terminada el 30 de Octubre y subida a GitHub (23fcd76). El 31 se confirmó en Windows el respaldo diario y se resolvió la ventana negra (el ícono viejo del escritorio). Etapa B terminada el 1 de Noviembre, aplicada en la base real y subida a GitHub (181072f). Bitácoras hasta BITACORA_2026-11-03.md. Bitácoras en BITACORA_2026-10-14.md a BITACORA_2026-10-30.md. Este archivo es la fuente de verdad del proyecto. Todo chat nuevo debe leerlo completo antes de proponer nada. Cuando algo cambie, se actualiza aquí y se deja constancia en la bitácora de la sesión.
 
 ## Qué es
 
@@ -174,6 +174,7 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
    ✅ F1-03 y F1-07. Decisión de Diego, avisos mal redactados, solo advertencia (ya la tienen)
    ✅ F2-13. Tribunal arbitral descartado (motivo "tribunal arbitral"), aplicado en la base real
    ✅ F3-08. El PC lee Supabase con la clave publicable (política pc_solo_lectura) y la nube usa una secreta nueva. Diego decidió dejar en config.py la clave de Anthropic y la contraseña del Mercurio
+✅ Escritos post adjudicación del abogado en Escritos_PJUD, con su versión editable en DOCX, numerados según el orden en que se suben al PJUD (bitácora del 3 de Noviembre y Escritos_PJUD\LEEME_ESCRITOS.md)
 ⬜ (Futuro) Google Calendar o celular
 
 ## Cómo se corre
