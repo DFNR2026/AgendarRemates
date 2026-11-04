@@ -176,6 +176,7 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
    ✅ F3-08. El PC lee Supabase con la clave publicable (política pc_solo_lectura) y la nube usa una secreta nueva. Diego decidió dejar en config.py la clave de Anthropic y la contraseña del Mercurio
 ✅ Escritos post adjudicación del abogado en Escritos_PJUD, con su versión editable en DOCX, numerados según el orden en que se suben al PJUD (bitácora del 3 de Noviembre y Escritos_PJUD\LEEME_ESCRITOS.md)
 ✅ Respuestas del abogado del 4 de Noviembre a las preguntas 1, 3, 5, 6, 11 y 12 (PREGUNTAS_ABOGADO.md y bitácora del 4 de Noviembre). Sin ASUMIDO, viernes feriado sin ámbar, 21° Civil en verde con la recomendación del martes, nota de llegar media hora antes en cada ficha. Aplicado en la base real
+✅ Preguntas 2 y 4 dadas por resueltas por Diego el 4 de Noviembre (la 2 con las respuestas 1 y 12, la 4 con la 6). Sin ámbar, aplicado en la base real con db\migrar_preguntas_2_4.py sin tocar la agenda. Las preguntas 7, 8, 9, 10 y el 22° Civil quedan sin preguntar porque no cambian fechas
 ⬜ (Futuro) Google Calendar o celular
 
 ## Cómo se corre
