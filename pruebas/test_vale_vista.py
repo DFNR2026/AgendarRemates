@@ -161,6 +161,85 @@ if [a[1] for a in _b["alertas"]] != ["El abogado recomienda llevar el vale vista
 _b = bloque_vale_vista(V.resolver([_F15, _F15], "Garantía vale vista. " + _F15["frase_regla"] + ".", "2026-12-15", "12:00", "2026-11-02"))
 if any("martes" in a[1] for a in _b["alertas"]):
     fallas.append("Pregunta 5. la recomendación del martes salió en un aviso que no es de martes y jueves")
+# Regla de la secretaria del 24° Civil (decisión de Diego del 6 de Noviembre, motor\reglas_tribunal.py). Sin internet.
+from types import SimpleNamespace
+from motor import reglas_tribunal as RT
+from motor.procesar_edicion import bloque_vale_vista, extraer_avisos
+F, H = "2026-11-25", "15:00"
+def bl(color, regla=None, cita=None, desde=None, hasta=None, estado=None, motivos=None):
+    return bloque_vale_vista({"regla": regla, "cita": cita, "citas_extra": [], "vv_desde": desde, "vv_desde_origen": "texto" if desde else None,
+                              "vv_hasta": hasta, "vv_estado": estado, "color": color, "motivos": motivos or [], "preguntas": [], "contradiccion": None})
+b = RT.vale_vista_24(bl("sin_dato", "sin_dato"), F, H)
+if not (b["color"] == "verde" and b["vv_estado"] == "calculado" and b["regla"] == "en_el_remate" and b["vv_desde"] == b["vv_hasta"] == "2026-11-25 15:00"
+        and [x[1] for x in b["alertas"]] == [RT.VV_SECRETARIA]):
+    fallas.append(f"24° Civil. aviso que no dice nada debe quedar en el remate, en verde, con la alerta de la secretaria {b}")
+b = RT.vale_vista_24(bl("rojo", "otra", "frase", motivos=["Las dos lecturas de la IA no coinciden."]), F, None)
+if not (b["color"] == "ambar" and b["vv_estado"] == "revisar" and b["vv_hasta"] == F and b["regla"] == "en_el_remate"
+        and [x[1] for x in b["alertas"]] == [RT.VV_SECRETARIA_ROJO]):
+    fallas.append(f"24° Civil. lectura fallida debe quedar en ámbar con la fecha del remate y la alerta de revisar el aviso {b}")
+v = bl("verde", "dia_anterior", "el día anterior", "2026-11-24", "2026-11-24", "calculado")
+b = RT.vale_vista_24(v, F, H)
+if not (b["vv_hasta"] == "2026-11-24" and b["color"] == "verde" and ("contradiccion", RT.VV_SECRETARIA_CONTRA, "el día anterior") in b["alertas"]):
+    fallas.append(f"24° Civil. aviso con otra regla debe mantener su fecha y alertar la contradicción {b}")
+v = bl("verde", "en_el_remate", "al momento de la subasta", "2026-11-25 15:00", "2026-11-25 15:00", "calculado")
+if RT.vale_vista_24(v, F, H) != v:
+    fallas.append("24° Civil. aviso que dice lo mismo que la secretaria no debe cambiar")
+v = bl("sin_dato", "sin_dato")
+if RT.vale_vista_24(v, None, None) != v:
+    fallas.append("24° Civil. sin fecha del remate el bloque no debe cambiar")
+ex = {"modalidad": {"valor": "sin_dato", "cita": None}, "alertas": [("revisar_lectura", RT.MOD_SIN_DATO)]}
+m = RT.modalidad_24(ex)
+if not (m["modalidad"]["valor"] == "presencial" and m["alertas"] == [("condicion_especial", RT.MOD_SECRETARIA)]):
+    fallas.append(f"24° Civil. modalidad sin dato debe pasar a presencial con la alerta de la secretaria {m}")
+m = RT.modalidad_24({"modalidad": {"valor": "zoom", "cita": "zoom"}, "alertas": []})
+if not (m["modalidad"]["valor"] == "zoom" and m["alertas"] == [("contradiccion", RT.MOD_SECRETARIA_CONTRA.format("por Zoom"))]):
+    fallas.append(f"24° Civil. un aviso por Zoom debe mantenerse y alertar la contradicción {m}")
+p24 = {"modalidad": {"valor": "presencial", "cita": "presencial"}, "alertas": []}
+if RT.modalidad_24(p24) != p24:
+    fallas.append("24° Civil. un aviso presencial no debe cambiar")
+txt = ("REMATE: VIGÉSIMO CUARTO JUZGADO CIVIL DE SANTIAGO, Huérfanos 1409 piso 10, Rol C-1234-2024. Se rematará el 25 de noviembre "
+       "de 2026, a las 15:00 horas, el inmueble de calle Uno 1, comuna de Maipú. Mínimo $50.000.000. Garantía 10% del mínimo.")
+otro = txt.replace("VIGÉSIMO CUARTO", "VIGÉSIMO TERCER")
+ea = extraer_avisos([SimpleNamespace(orden=1, texto=txt), SimpleNamespace(orden=2, texto=otro)], "2026-11-06")
+if not (ea[1]["tribunal"] == RT.TRIB_24 and ea[1]["modalidad"]["valor"] == "presencial" and ("condicion_especial", RT.MOD_SECRETARIA) in ea[1]["alertas"]
+        and ea[2]["modalidad"]["valor"] == "sin_dato"):
+    fallas.append(f"24° Civil. la carga debe aplicar la modalidad de la secretaria solo al 24° {ea[1]['tribunal']} {ea[1]['modalidad']} {ea[2]['modalidad']}")
+# La carga y el retomar aplican la regla al 24° y no a otro tribunal. La IA se reemplaza por lecturas fijas de "sin_dato"
+# (iguales a las guardadas de C-30048-2018), así la prueba no llama a Haiku ni escribe en ia_respuestas.
+import tempfile, sqlite3
+from motor import procesar_edicion as PE
+_sd = {"regla": "sin_dato", "dias": None, "horas": None, "fecha": None, "hora_desde": None, "hora_hasta": None, "frase_regla": None, "frases_extra": [], "contradiccion": None}
+_leer_real = V.leer_con_ia
+V.leer_con_ia = lambda texto, cliente=None, lecturas=2: {"lecturas": [dict(_sd), dict(_sd)], "uso": []}
+try:
+    avs = [SimpleNamespace(orden=1, texto=txt), SimpleNamespace(orden=2, texto=otro)]
+    ex2 = extraer_avisos(avs, "2026-11-06")
+    PE.agregar_vale_vista(avs, ex2, "2026-11-06")
+    if not (ex2[1]["vale_vista"]["regla"] == "en_el_remate" and ex2[1]["vale_vista"]["vv_hasta"] == "2026-11-25 15:00"
+            and ex2[2]["vale_vista"]["color"] == "sin_dato"):
+        fallas.append(f"24° Civil. la carga debe aplicar la regla del vale vista solo al 24° {ex2[1]['vale_vista']['regla']} {ex2[2]['vale_vista']['color']}")
+    from db.crear_base import crear
+    from db.carga import VV_NO_LEIDO
+    with tempfile.TemporaryDirectory() as _tmp:
+        cx = crear(Path(_tmp) / "r.db")
+        cx.execute("INSERT INTO ediciones(fecha, leida_en, estado) VALUES ('2026-11-06', '2026-11-06T05:00:00', 'ok')")
+        ed = cx.execute("SELECT id FROM ediciones").fetchone()[0]
+        cols = {r[1] for r in cx.execute("PRAGMA table_info(avisos)")}
+        for o, tx, tr in ((1, txt, RT.TRIB_24), (2, otro, "23° Juzgado Civil de Santiago")):
+            cx.execute("INSERT INTO avisos(edicion_id, orden, texto, tribunal, filtro_estado) VALUES (?,?,?,?, 'pasa')", (ed, o, tx, tr))
+            aid = cx.execute("SELECT max(id) FROM avisos").fetchone()[0]
+            cx.execute("INSERT INTO remates(aviso_id, sub_orden, fecha_remate, hora_remate, modalidad) VALUES (?,1,'2026-11-25','15:00','presencial')", (aid,))
+            cx.execute("INSERT INTO alertas(aviso_id, sub_orden, tipo, texto, origen) VALUES (?,1,'dato_faltante',?,'codigo')", (aid, VV_NO_LEIDO))
+        cx.commit()
+        PE.retomar_vale_vista(cx, "2026-11-06", None)
+        rr = dict(cx.execute("SELECT a.orden, r.vv_regla FROM remates r JOIN avisos a ON a.id = r.aviso_id").fetchall())
+        if rr != {1: "en_el_remate", 2: "sin_dato"}:
+            fallas.append(f"24° Civil. retomar debe aplicar la regla del vale vista solo al 24° {rr}")
+        cx.close()
+except Exception as e:
+    fallas.append(f"24° Civil. la prueba de la carga y el retomar se cayó {type(e).__name__} {e}")
+finally:
+    V.leer_con_ia = _leer_real
 print("\n".join(fallas) if fallas else f"{medidos} avisos del 14 de Octubre y casos en rojo revisados.")
 print("RESULTADO.", "FALLAS" if fallas else "TODO OK")
 sys.exit(1 if fallas else 0)

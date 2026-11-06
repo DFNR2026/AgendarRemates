@@ -143,7 +143,10 @@ def traducir(x: dict) -> dict:
 
 def extraer_avisos(avisos: list, fecha: str) -> dict:
     """{orden: datos traducidos} para todos los avisos del cortador."""
-    return {a.orden: traducir(extraer(a.texto, fecha)) for a in avisos}
+    from motor import reglas_tribunal as RT
+    out = {a.orden: traducir(extraer(a.texto, fecha)) for a in avisos}
+    # 24° Civil (Diego, 6 de Noviembre). La secretaria dice que sus remates son siempre presenciales.
+    return {k: (RT.modalidad_24(v) if RT.es_24(v.get("tribunal")) else v) for k, v in out.items()}
 
 
 def agregar_vale_vista(avisos: list, extraido: dict, fecha: str, cliente=None) -> dict:
@@ -154,6 +157,7 @@ def agregar_vale_vista(avisos: list, extraido: dict, fecha: str, cliente=None) -
     alerta de siempre (vale vista no leído). Nunca se cae la carga por la IA.
     Devuelve un resumen {leidos, sin_ia, saltados, colores, errores}."""
     from motor import vale_vista as V
+    from motor import reglas_tribunal as RT
     resumen = {"leidos": 0, "sin_ia": 0, "saltados": 0, "colores": {}, "errores": []}
     for a in avisos:
         ex = extraido[a.orden]
@@ -167,6 +171,9 @@ def agregar_vale_vista(avisos: list, extraido: dict, fecha: str, cliente=None) -
             resumen["sin_ia"] += 1; resumen["errores"].append(f"aviso {a.orden}. {' '.join(g.get('errores') or ['Faltan lecturas de la IA.'])[:200]}"); continue
         res = V.resolver(g["lecturas"], a.texto, (ex.get("fecha_remate") or {}).get("valor"), (ex.get("hora_remate") or {}).get("valor"), fecha)
         ex["vale_vista"] = bloque_vale_vista(res)
+        if RT.es_24(ex.get("tribunal")):            # regla de la secretaria del 24° Civil (Diego, 6 de Noviembre)
+            ex["vale_vista"] = RT.vale_vista_24(ex["vale_vista"], (ex.get("fecha_remate") or {}).get("valor"), (ex.get("hora_remate") or {}).get("valor"))
+            res = {**res, "color": ex["vale_vista"]["color"]}
         resumen["leidos"] += 1
         resumen["colores"][res["color"]] = resumen["colores"].get(res["color"], 0) + 1
     return resumen
@@ -213,12 +220,13 @@ def retomar_vale_vista(con, fecha: str, cliente=None) -> dict:
     if not fila:
         raise ValueError(f"La edición {fecha} no está en la base. No hay nada que retomar.")
     ed_id, estado, alarmas = fila
-    pend = con.execute("SELECT DISTINCT a.id, a.orden, a.texto FROM avisos a JOIN alertas al ON al.aviso_id = a.id "
+    from motor import reglas_tribunal as RT
+    pend = con.execute("SELECT DISTINCT a.id, a.orden, a.texto, a.tribunal FROM avisos a JOIN alertas al ON al.aviso_id = a.id "
                        "WHERE a.edicion_id = ? AND a.filtro_estado <> 'descartado' AND al.texto = ? ORDER BY a.orden",
                        (ed_id, VV_NO_LEIDO)).fetchall()
     resumen = {"pendientes_antes": 0, "leidos": 0, "sin_ia": 0, "saltados": 0, "colores": {}, "errores": []}
     with con:
-        for aviso_id, orden, texto in pend:
+        for aviso_id, orden, texto, tribunal in pend:
             if extraer(texto, fecha).get("pegado"):          # en la carga tampoco se le pregunta a la IA
                 resumen["saltados"] += 1; continue
             resumen["pendientes_antes"] += 1
@@ -231,6 +239,9 @@ def retomar_vale_vista(con, fecha: str, cliente=None) -> dict:
             f, h, n_rem = con.execute("SELECT fecha_remate, hora_remate, COUNT(*) FROM remates WHERE aviso_id = ?", (aviso_id,)).fetchone()
             res = V.resolver(g["lecturas"], texto, f, h, fecha)
             b = bloque_vale_vista(res)
+            if RT.es_24(tribunal):                 # regla de la secretaria del 24° Civil (Diego, 6 de Noviembre)
+                b = RT.vale_vista_24(b, f, h)
+                res = {**res, "color": b["color"]}
             con.execute("UPDATE remates SET vv_regla = ?, vv_regla_texto = ?, vv_desde = ?, vv_desde_origen = ?, vv_hasta = ?, vv_estado = ? "
                         "WHERE aviso_id = ?", (b["regla"], b["cita"], b["vv_desde"], b["vv_desde_origen"], b["vv_hasta"], b["vv_estado"], aviso_id))
             subs = [r[0] for r in con.execute("SELECT sub_orden FROM alertas WHERE aviso_id = ? AND texto = ? ORDER BY id", (aviso_id, VV_NO_LEIDO))]

@@ -76,15 +76,31 @@ _RESUELTAS = {f"Fecha del vale vista provisoria. Depende de la pregunta {n} al a
 _solo_resueltas = {(o, s) for o, s, t in ref.execute("SELECT a.orden, al.sub_orden, al.texto FROM alertas al JOIN avisos a ON a.id = al.aviso_id "
                    "JOIN ediciones e ON e.id = a.edicion_id WHERE e.fecha = '2026-10-18'") if t in _RESUELTAS}
 viejo = [x[:2] + ("calculado",) + x[3:] if x[2] == "revisar" and ((x[0], x[1]) in _solo_resueltas or (x[0], 0) in _solo_resueltas) else x for x in viejo]
+# CORRECCIÓN del 6 de Noviembre. Regla de la secretaria del 24° Civil (decisión de Diego). En la referencia, un remate del 24° cuyo
+# aviso no dice cuándo se entrega el vale vista (sin_dato) ahora va en el mismo remate y en verde, con la alerta de la secretaria en
+# vez de la de regla no encontrada. Lo mismo con la modalidad sin dato. Todo lo demás debe seguir idéntico.
+from motor import reglas_tribunal as RT
+from motor.vale_vista import NO_ENCONTRADA
+_r24 = {(o, s): (f + (" " + h if h else "")) for o, s, f, h in ref.execute(
+    "SELECT a.orden, r.sub_orden, r.fecha_remate, r.hora_remate FROM remates r JOIN avisos a ON a.id = r.aviso_id JOIN ediciones e ON e.id = a.edicion_id "
+    "WHERE e.fecha = '2026-10-18' AND a.tribunal = ? AND r.vv_regla = 'sin_dato' AND r.fecha_remate IS NOT NULL", (RT.TRIB_24,))}
+viejo = [x[:2] + ("calculado", _r24[x[:2]], _r24[x[:2]], "en_el_remate") + x[6:] if x[:2] in _r24 else x for x in viejo]
+_o24 = {o for o, s in _r24}
 _ABOGADO_VIEJO = lambda t: "ASUMIDO" in t or t in _RESUELTAS
 _ABOGADO_NUEVO = lambda t: t.startswith("El abogado recomienda llevar el vale vista un martes.")
+_SEC_VIEJO = lambda o, t: o in _o24 and t in (NO_ENCONTRADA, RT.MOD_SIN_DATO)
+_SEC_NUEVO = lambda o, t: o in _o24 and t in (RT.VV_SECRETARIA, RT.MOD_SECRETARIA)
 revisar("147 remates del 18 de Octubre", len(nuevo) == 147, str(len(nuevo)))
 revisar("vale vista, dirección y fecha iguales aviso por aviso a la carga con Haiku del 20 de Octubre", nuevo == viejo,
         str([x for x in zip(nuevo, viejo) if x[0] != x[1]][:2]))
 QA = ("SELECT a.orden, al.tipo, al.texto FROM alertas al JOIN avisos a ON a.id = al.aviso_id JOIN ediciones e ON e.id = a.edicion_id "
       "WHERE e.fecha = '2026-10-18' ORDER BY 1, 2, 3")
-revisar("alertas del 18 iguales a la carga con Haiku (salvo las respuestas del abogado)",
-        [x for x in c.execute(QA).fetchall() if not _ABOGADO_NUEVO(x[2])] == [x for x in ref.execute(QA).fetchall() if not _ABOGADO_VIEJO(x[2])])
+revisar("alertas del 18 iguales a la carga con Haiku (salvo las respuestas del abogado y la regla del 24° Civil)",
+        [x for x in c.execute(QA).fetchall() if not _ABOGADO_NUEVO(x[2]) and not _SEC_NUEVO(x[0], x[2])]
+        == [x for x in ref.execute(QA).fetchall() if not _ABOGADO_VIEJO(x[2]) and not _SEC_VIEJO(x[0], x[2])])
+revisar("24° Civil. cada alerta de regla no encontrada del 24° se cambió por la de la secretaria", len(_r24) > 0 and
+        sum(1 for x in ref.execute(QA) if _SEC_VIEJO(x[0], x[2]) and x[2] == NO_ENCONTRADA) == sum(1 for x in c.execute(QA) if _SEC_NUEVO(x[0], x[2]) and x[2] == RT.VV_SECRETARIA),
+        str(sorted(_r24)))
 revisar("las alertas que se sacaron de la referencia son solo de las preguntas 2, 4, 5 y 11, y hay una recomendación por cada pregunta 5",
         sum(1 for x in ref.execute(QA) if x[2] == "Fecha del vale vista provisoria. Depende de la pregunta 5 al abogado.")
         == sum(1 for x in c.execute(QA) if _ABOGADO_NUEVO(x[2])))
