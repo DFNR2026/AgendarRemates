@@ -33,7 +33,8 @@ h2.tit{margin:0;font-size:17px;font-weight:800;letter-spacing:.06em;text-transfo
 .planilla{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px;margin-top:4px}
 .planilla td{border:1px solid var(--borde);padding:6px 8px;vertical-align:top;overflow-wrap:anywhere;line-height:1.35}
 .planilla td.k{background:var(--papel);color:var(--suave);font-size:11px;font-weight:700;letter-spacing:.06em;width:34%}
-.planilla .monto{color:var(--cafe);font-weight:700;font-size:14px}.planilla .links{margin:0}
+.planilla .monto{color:var(--cafe);font-weight:700;font-size:14px}
+.pesos{font-weight:700;font-size:14px;color:var(--tinta);margin-top:3px}.dinero .pesos{font-size:22px}.planilla .links{margin:0}
 .fila{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
 .rol{font-family:var(--mono);font-size:13px;font-weight:600}
 .car{font-weight:600;font-size:14px;line-height:1.3}
@@ -136,18 +137,26 @@ async function api(ruta,cuerpo){
   const r=await fetch(ruta,cuerpo?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cuerpo)}:{cache:'no-store'});
   const j=await r.json(); if(j.ok===false) throw new Error(j.error||'Error'); return j;}
 function aviso(t,bien){const d=document.getElementById('toast');d.textContent=t;d.classList.toggle('bien',!!bien);d.classList.remove('oculto');clearTimeout(aviso.t);aviso.t=setTimeout(()=>d.classList.add('oculto'),7000);}
-async function cargar(){try{EST=await api('/api/estado');render();}catch(e){aviso('No se pudo leer la agenda. '+e.message);}}
+async function cargar(){try{EST=await api('/api/estado');render();}catch(e){aviso('No se pudo leer la agenda. '+e.message);return;}
+  if(!UF||UF.dia!==EST.hoy)api('/api/uf').then(u=>{UF={...u,dia:EST.hoy};render();}).catch(()=>{});}   // UF del día (5 de Noviembre), sin internet la agenda abre igual
 async function hacer(ruta,cuerpo){try{const r=await api(ruta,cuerpo);await cargar();if(UI.panel==='buscar')await buscar();return r;}catch(e){aviso(e.message);return null;}}
 
 function fmtCLP(n){return '$'+Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
 function leerUF(t){if(!t)return null;const n=Number(String(t).replace(/[$\s]/g,'').replace(/\./g,'').replace(',','.'));return isFinite(n)&&n>0?n:null;}
-function ufCalc(uf,txt){const n=leerUF(UI.uf);return n?`${txt} × ${fmtCLP(n)} = ${fmtCLP(uf*n)}`:'Pega el valor de la UF para ver el monto en pesos';}
+let UF=null;   // UF de hoy desde /api/uf, o la escrita a mano por Diego (5 de Noviembre)
+function fmtUF(n){return '$'+n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+function pesosHTML(it){if(!it.uf)return '';
+  if(!UF||!UF.valor)return `<div class="pesos gris" style="font-size:12px;font-weight:400">Sin el valor de la UF de hoy. Escríbelo en la ficha.</div>`;
+  const h=String(it.vv_hasta||'').slice(0,10);
+  const cuando=UF.manual?'escrita a mano':(h&&h>UF.fecha?`de hoy, provisoria para la entrega del ${diaCorto(h)}`:`del ${diaCorto(UF.fecha)}`);
+  return `<div class="pesos">= ${fmtCLP(it.uf*UF.valor)} en pesos<div class="gris" style="font-size:12px;font-weight:400">Con la UF de ${fmtUF(UF.valor)}, ${cuando}</div></div>`;}
+function ufCalc(uf,txt){const n=leerUF(UI.uf)||(UF&&UF.valor);return n?`${txt} × ${fmtCLP(n)} = ${fmtCLP(uf*n)}`:'Pega el valor de la UF para ver el monto en pesos';}
 function diaCorto(d){const t=new Date(d+'T12:00');return ['Dom.','Lun.','Mar.','Mié.','Jue.','Vie.','Sáb.'][t.getDay()]+' '+t.getDate()+' '+['Ene.','Feb.','Mar.','Abr.','May.','Jun.','Jul.','Ago.','Sep.','Oct.','Nov.','Dic.'][t.getMonth()];}
 
 function etiquetas(it){let h='';if(it.asumido)h+=' <span class="tag asu">ASUMIDO</span>';if(it.otro_porcentaje)h+=` <span class="tag pct">${E(it.otro_porcentaje)}</span>`;return h;}
 function linksHTML(pubs,titulo){if(!pubs||!pubs.length)return '';
   return `<div class="links"><span class="gris" style="font-size:12px">${E(titulo)}</span>${pubs.map(p=>p.href?`<a class="lk${p.ant?' ant':''}" href="${E(p.href)}" target="_blank" rel="noopener">${p.ant?'Llamado anterior, ':''}${E(p.texto)}</a>`+(p.href_fin?`<a class="lk${p.ant?' ant':''}" href="${E(p.href_fin)}" target="_blank" rel="noopener">${E(p.texto)} (sigue)</a>`:''):'').join('')}</div>`;}
-function ufHTML(it){return it.uf?`<div class="ufbox"><label class="lab" style="color:var(--tinta);font-weight:700">Cálculo de VV por UF<input class="campo" data-uf-in value="${E(UI.uf)}" placeholder="Pega aquí el valor de la UF"></label><div class="rol" data-uf="${it.uf}" data-uftxt="${E(it.uf_txt)}">${E(ufCalc(it.uf,it.uf_txt))}</div></div>`:'';}
+function ufHTML(it){return it.uf?`<div class="ufbox" style="align-self:stretch;text-align:left"><label class="lab" style="color:var(--tinta);font-weight:700">Valor de la UF en pesos<input class="campo" data-uf-in value="${E(UF&&UF.valor?fmtUF(UF.valor).slice(1):'')}" placeholder="Ej. 41.274,20" inputmode="decimal"></label><div class="gris" style="font-size:12px">${UF&&UF.manual?'Escrita a mano. Bórrala para volver a la automática.':'Se actualiza sola cada día. Si la cambias, manda la tuya.'}</div></div>`:'';}
 
 // --- Columna izquierda ---------------------------------------------------------------------------------------------
 function renderIzq(){
@@ -169,7 +178,7 @@ function renderIzq(){
         <tr><td class="k">DIRECCIÓN</td><td>${E(it.direccion)}</td></tr>
         <tr><td class="k">REMATE</td><td>${E(it.remate_corto)}<br><span class="gris">${E(it.mod_txt)}</span></td></tr>
         <tr><td class="k">VALE VISTA</td><td>${E(it.vv_txt)}</td></tr>
-        <tr><td class="k">MONTO VV</td><td><span class="monto">${E(it.monto)}</span>${etiquetas(it)}</td></tr>
+        <tr><td class="k">MONTO VV</td><td><span class="monto">${E(it.monto)}</span>${etiquetas(it)}${pesosHTML(it)}</td></tr>
         ${it.pubs&&it.pubs.length?`<tr><td class="k">AVISOS</td><td>${linksHTML(it.pubs,'')}</td></tr>`:''}
       </tbody></table>
       ${it.alertas.map(a=>`<div class="al ${a.clase}">${E(a.texto)}</div>`).join('')}
@@ -246,7 +255,7 @@ function fichaHTML(it){const k=clave(it),al=it.alertas||[],grave=al.some(a=>a.cl
     <button class="btn2" style="min-height:44px" data-acc="cerrarFicha" aria-label="Cerrar ficha">✕ Cerrar ficha</button></div>
   <div class="tres">
     <section class="caja"><h3>Remate</h3><div style="font-size:22px;font-weight:800;line-height:1.2">${E(it.remate_txt)}</div><div style="font-size:15px">${E(it.mod_txt)}</div><div style="font-size:15px;color:var(--tinta2)">${E(it.direccion)}</div></section>
-    <section class="caja dinero"><h3>Dinero</h3><div style="font-size:15px"><span class="gris">Mínimo</span> ${E(it.minimo)}</div><div style="font-size:15px"><span class="gris">Garantía</span> ${E(it.garantia)}${etiquetas(it)}</div><div style="font-size:13px;font-weight:700;color:var(--suave);margin-top:6px">VALE VISTA POR</div><div style="font-size:32px;font-weight:800;color:var(--cafe);line-height:1.1">${E(it.monto)}</div>${ufHTML(it)}</section>
+    <section class="caja dinero">${ufHTML(it)}<h3>Dinero</h3><div style="font-size:15px"><span class="gris">Mínimo</span> ${E(it.minimo)}</div><div style="font-size:15px"><span class="gris">Garantía</span> ${E(it.garantia)}${etiquetas(it)}</div><div style="font-size:13px;font-weight:700;color:var(--suave);margin-top:6px">VALE VISTA POR</div><div style="font-size:32px;font-weight:800;color:var(--cafe);line-height:1.1">${E(it.monto)}</div>${pesosHTML(it)}</section>
     <section class="caja"><div class="fila"><h3>Entrega del vale vista</h3><span class="chip ${it.vv_color}">${{verde:'Calculado',ambar:'Revisar',rojo:'Sin fecha'}[it.vv_color]}</span></div>
       <div class="tipos" role="group" aria-label="Tipo de entrega">${tipos}</div>
       <div style="font-size:22px;font-weight:800;line-height:1.2">${it.vv_tipo?TIT_VV[it.vv_tipo]:'Sin fecha'}</div><div style="font-size:16px;font-weight:700;line-height:1.35">${E(it.vv_txt)}</div>${it.vv_llegada?`<div style="font-size:14px;color:var(--tinta2)">${E(it.vv_llegada)}</div>`:''}
@@ -261,7 +270,7 @@ function irAFicha(){const f=document.getElementById('ficha');if(f)f.scrollIntoVi
 function tarjetaRes(it){return `<article class="tarjeta"><div class="rol" style="color:var(--cafe)">${E(it.rol)}${it.inmueble?` · ${E(it.inmueble)}`:""}</div><div class="car">${E(it.caratula)}</div><div class="peq gris">${E(it.tribunal)}</div>
   <div class="peq"><span class="gris">Dirección</span> ${E(it.direccion)}</div>
   <div class="peq"><span class="gris">Remate</span> ${E(it.remate_corto)} · ${E(it.mod_txt)}</div><div class="peq"><span class="gris">Vale vista</span> ${E(it.vv_txt)}</div>
-  <div class="peq"><span class="gris">Monto VV</span> ${E(it.monto)}${etiquetas(it)}</div>${ufHTML(it)}<div class="gris" style="font-size:11px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Ver aviso')}
+  <div class="peq"><span class="gris">Monto VV</span> ${E(it.monto)}${etiquetas(it)}${pesosHTML(it)}</div><div class="gris" style="font-size:11px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Ver aviso')}
   ${it.en_calendario?'<div class="peq" style="font-weight:700;color:var(--ok);padding:8px 0">Ya está en tu calendario</div>':`<button class="btn" style="align-self:flex-start" data-acc="agendar" data-rid="${it.remate_id}">Agregar al calendario</button>`}</article>`;}
 function renderRes(){const c=document.getElementById('res');if(!c)return;if(!UI.res){c.innerHTML='<p class="peq gris">Buscando...</p>';return;}
   const r=UI.res;c.innerHTML=`<div class="gris" style="font-size:12px">${r.total} resultados${r.total>r.mostrados?`, se muestran los primeros ${r.mostrados}. Usa los filtros para acotar.`:''}</div>`+r.resultados.map(tarjetaRes).join('');}
@@ -318,11 +327,12 @@ document.addEventListener('change',async e=>{const t=e.target;
   if(t.dataset.acc==='entregado'){const it=item(t.dataset.k);if(it)await hacer('/api/marcar',{campo:'vv_entregado',valor:t.checked,...(it.tipo==='manual'?{manual_id:it.manual_id}:{bien_id:it.bien_id})});}
   else if(t.dataset.filtro==='edicion'||t.dataset.filtro==='pasados'){UI.f[t.dataset.filtro]=t.type==='checkbox'?t.checked:t.value;await buscar();}
   else if(t.dataset.form==='mod'){UI.form.mod=t.value;}
+  else if('ufIn' in t.dataset){const txt=t.value.trim(),v=leerUF(txt);if(txt&&!v){aviso('Escribe la UF en pesos, por ejemplo 41.274,20.');return;}
+    try{UF={...(await api('/api/uf',{valor:v})),dia:EST.hoy};render();}catch(er){aviso(er.message);}}
   else if('ftrib' in t.dataset){UI.ftrib=t.value;renderIzq();}});
 let espera=null;
 document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.filtro&&t.dataset.filtro!=='edicion'&&t.dataset.filtro!=='pasados'){UI.f[t.dataset.filtro]=t.value;const x=t.parentNode.querySelector('.borrar');if(x)x.hidden=!t.value;clearTimeout(espera);espera=setTimeout(buscar,250);}
-  else if('ufIn' in t.dataset){UI.uf=t.value;document.querySelectorAll('[data-uf-in]').forEach(x=>{if(x!==t)x.value=t.value;});document.querySelectorAll('[data-uf]').forEach(x=>{x.textContent=ufCalc(+x.dataset.uf,x.dataset.uftxt);});}
   else if(t.dataset.form){UI.form[t.dataset.form]=t.value;}});
 /* Actualización obligatoria al abrir (decisión de Diego, 20 de Octubre). Tapa la agenda hasta terminar.
    Desde el 29 de Octubre (pedido de Diego) solo la primera vez del día. Las siguientes van calladas y solo avisan si llegó algo o falló. */

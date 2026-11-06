@@ -23,6 +23,7 @@ sys.path.insert(0, str(RAIZ))
 from db.crear_base import crear, BASE
 from db.respaldo import respaldar, pagina_base_danada
 from interfaz import datos as D
+from interfaz import uf as U
 
 PAGINA = Path(__file__).resolve().parent / "agenda.html"
 APAGAR_SIN_SENAL = 180     # segundos sin señal de la página para apagarse (Chrome cerrado). La página avisa cada 30. Puesto por Claude.
@@ -63,6 +64,8 @@ def hoy_chile():
 
 class Manejador(BaseHTTPRequestHandler):
     ruta_base = BASE
+    uf_ruta = RAIZ / "uf_guardada.json"      # 5 de Noviembre. UF del día, fuera de la base y de git
+    uf_abrir = staticmethod(U.abrir_url)
 
     def log_message(self, *a):          # sin ruido en la ventana
         pass
@@ -97,6 +100,8 @@ class Manejador(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(cuerpo)
                 return
+            if u.path == "/api/uf":
+                return self._json(U.obtener(self.uf_ruta, hoy_chile(), self.uf_abrir))
             con = self._con()
             try:
                 hoy = q.get("hoy") or hoy_chile()
@@ -123,6 +128,12 @@ class Manejador(BaseHTTPRequestHandler):
             if u.path == "/api/actualizar":          # mitad del PC del lector diario (20 de Octubre)
                 from interfaz import nube
                 return self._json(nube.actualizar(self.ruta_base, hoy_chile()))
+            if u.path == "/api/uf":                   # UF escrita a mano por Diego, o vacía para volver a la automática
+                try:
+                    U.guardar_manual(self.uf_ruta, p.get("valor"), hoy_chile())
+                except ValueError as e:
+                    raise D.ErrorDato(str(e))
+                return self._json(U.obtener(self.uf_ruta, hoy_chile(), self.uf_abrir))
             con = self._con()
             try:
                 acciones = {
@@ -156,7 +167,7 @@ def servidor(ruta_base, puerto=8765):
     listo, sin arrancarlo. El respaldo va antes de crear() para guardar la base tal como estaba (F3-01, 30 de Octubre)."""
     respaldar(ruta_base)
     crear(ruta_base).close()
-    clase = type("ManejadorBase", (Manejador,), {"ruta_base": Path(ruta_base)})
+    clase = type("ManejadorBase", (Manejador,), {"ruta_base": Path(ruta_base), "uf_ruta": Path(ruta_base).parent / "uf_guardada.json"})
     return ServidorUnico(("127.0.0.1", puerto), clase)
 
 

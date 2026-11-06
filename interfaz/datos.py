@@ -259,6 +259,13 @@ def agenda(con, hoy):
     return sorted(out, key=lambda x: (x["fecha_remate"] or "9999", x.get("hora") or ""))
 
 
+def uf_de_texto(t):
+    """5 de Noviembre. La primera cifra en UF que Diego escribió en el monto de una causa a mano ("56,162976 UF (10% del
+    mínimo de 561,62976 UF)" da 56.162976), para pasarla a pesos. Sin cifra en UF devuelve None."""
+    m = re.search(r"(\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:,\d+)?)\s*UF\b", t or "", re.I)
+    return float(m.group(1).replace(".", "").replace(",", ".")) if m else None
+
+
 def manuales(con):
     out = []
     cur = con.execute("SELECT * FROM agenda_manual ORDER BY id")
@@ -287,7 +294,7 @@ def manuales(con):
             "remate_txt": larga(m["fecha_remate"]) + (f" a las {m['hora_remate']}" if m["hora_remate"] else ""),
             "remate_corto": corta(m["fecha_remate"]) + (f" a las {m['hora_remate']}" if m["hora_remate"] else ""),
             "mod": modo(m["modalidad"]), "mod_txt": modalidad_texto(m["modalidad"]), "direccion": m["direccion"] or "Agregada a mano, sin dirección.",
-            "minimo": "Sin dato", "garantia": "Sin dato", "monto": m["monto_vv"] or "Sin dato", "uf": None, "uf_txt": None,
+            "minimo": "Sin dato", "garantia": "Sin dato", "monto": m["monto_vv"] or "Sin dato", "uf": uf_de_texto(m["monto_vv"]), "uf_txt": None,
             "otro_porcentaje": None, "asumido": False, "vv_desde": vd, "vv_hasta": vh, "vv_txt": texto_vv(vd, vh), "vv_tipo": tipo_vv(vd, vh),
             "vv_llegada": nota_llegada(m["tribunal"], vd, "texto"),
             "vv_color": "verde" if vh else "rojo", "vv_regla": None, "alertas": al, "pubs": [], "pub_txt": "Agregada a mano. No viene de El Mercurio.",

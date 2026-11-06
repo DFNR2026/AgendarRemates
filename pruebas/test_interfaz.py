@@ -148,6 +148,10 @@ ag3 = {a.get("manual_id"): a for a in D.estado(con, HOY)["agenda"] if a["tipo"] 
 revisar("a mano. la dirección escrita aparece en la causa, sin espacios de más", ag3[m3]["direccion"] == "Calle Los Aromos 123, Maipú", ag3[m3]["direccion"])
 revisar("a mano. sin dirección lo dice", ag3[m1]["direccion"] == "Agregada a mano, sin dirección.", ag3[m1]["direccion"])
 D.quitar(con, None, m3)
+m4 = D.agregar_manual(con, {"trib": "2° Juzgado Civil de Santiago", "fecha": "2026-11-18", "vh": "2026-11-17", "monto": "56,162976 UF (10% del mínimo de 561,62976 UF)"})["manual_id"]
+ag4 = {a.get("manual_id"): a for a in D.estado(con, HOY)["agenda"] if a["tipo"] == "manual"}
+revisar("UF. una causa a mano con monto en UF lo entrega para pasarlo a pesos", ag4[m4]["uf"] == 56.162976 and ag4[m1]["uf"] is None, str((ag4[m4]["uf"], ag4[m1]["uf"])))
+D.quitar(con, None, m4)
 # Una base anterior al 5 de Noviembre recibe la columna vacía al abrirse, sin cambiar sus datos.
 import shutil, sqlite3 as _sq
 _vieja = Path(tmp.name) / "vieja_sin_direccion.db"
@@ -237,6 +241,51 @@ revisar("F3-03. un pedido incompleto en POST sigue llegando a la página igual q
 revisar("F3-03. y queda anotado, porque también puede ser un error del programa", "error en POST /api/marcar" in _reg and "KeyError" in _reg, _reg[-200:])
 _r, _reg = con_registro(lambda: post("/api/manual", {}))
 revisar("F3-03. un dato faltante con su mensaje en palabras no se anota como error", _r.get("error") == "Falta la fecha del remate." and _reg == "", _reg[-200:])
+# UF del día (pedido de Diego, 5 de Noviembre). Sin internet, con fuentes de mentira. Ninguna llamada sale del PC.
+import datetime as _dt
+from interfaz import uf as U
+from interfaz.datos import uf_de_texto
+MIND = '{"serie": [{"fecha": "2026-11-05T03:00:00.000Z", "valor": 41274.2}, {"fecha": "2026-11-04T03:00:00.000Z", "valor": 41268.88}]}'
+FIND = '{"serie": [{"fecha": "2026-11-05", "valor": 41274.2}]}'
+pedidas = []
+def fuente(respuestas):
+    def abrir(url):
+        pedidas.append(url)
+        r = respuestas.get(url.split("/")[2])
+        if isinstance(r, Exception): raise r
+        return r
+    return abrir
+revisar("UF. lee la más reciente de mindicador con fecha y hora", U.leer_serie(MIND) == ("2026-11-05", 41274.2))
+revisar("UF. si mindicador falla usa findic", U.buscar_internet(fuente({"mindicador.cl": OSError("sin red"), "findic.cl": FIND})) == ("2026-11-05", 41274.2, "findic.cl"))
+revisar("UF. una respuesta rota (serie vacía o valor absurdo) no se usa", U.buscar_internet(fuente({"mindicador.cl": '{"serie": []}', "findic.cl": '{"serie": [{"fecha": "2026-11-05", "valor": 3}]}'})) is None)
+_ruf = Path(tmp.name) / "uf_guardada.json"
+_ah = _dt.datetime(2026, 11, 5, 10, 0)
+pedidas.clear()
+r1 = U.obtener(_ruf, "2026-11-05", fuente({"mindicador.cl": MIND}), _ah)
+r2 = U.obtener(_ruf, "2026-11-05", fuente({"mindicador.cl": MIND}), _ah)
+revisar("UF. la busca una sola vez al día", r1 == r2 == {"valor": 41274.2, "fecha": "2026-11-05", "fuente": "mindicador.cl", "manual": False} and len(pedidas) == 1, str((r1, pedidas)))
+pedidas.clear()
+r3 = U.obtener(_ruf, "2026-11-06", fuente({"mindicador.cl": OSError("x"), "findic.cl": OSError("x")}), _ah + _dt.timedelta(days=1))
+r4 = U.obtener(_ruf, "2026-11-06", fuente({}), _ah + _dt.timedelta(days=1, minutes=10))
+revisar("UF. sin internet queda la última con su fecha y no reintenta antes de 30 minutos", r3["valor"] == 41274.2 and r3["fecha"] == "2026-11-05" and r4 == r3 and len(pedidas) == 2, str((r3, pedidas)))
+U.guardar_manual(_ruf, 41300.5, "2026-11-06")
+revisar("UF. la escrita a mano manda", U.obtener(_ruf, "2026-11-06", fuente({}), _ah) == {"valor": 41300.5, "fecha": "2026-11-06", "fuente": "escrita a mano", "manual": True})
+U.guardar_manual(_ruf, None, "2026-11-06")
+revisar("UF. al borrarla vuelve la automática", U.obtener(_ruf, "2026-11-06", fuente({}), _ah + _dt.timedelta(days=1, minutes=10))["manual"] is False)
+try:
+    U.guardar_manual(_ruf, 41.27, "2026-11-06"); _rech = False
+except ValueError:
+    _rech = True
+revisar("UF. un valor que no es UF en pesos se rechaza", _rech)
+revisar("UF. la cifra en UF de una causa a mano se lee del monto escrito", (uf_de_texto("56,162976 UF (10% del mínimo de 561,62976 UF)"), uf_de_texto("1.234,5 UF"), uf_de_texto("$7.500.000"), uf_de_texto(None)) == (56.162976, 1234.5, None, None))
+srv.RequestHandlerClass.uf_abrir = staticmethod(fuente({"mindicador.cl": MIND}))
+_get_uf = json.loads(get("/api/uf"))
+revisar("UF. el servidor la entrega en /api/uf y la guarda junto a la base", _get_uf.get("valor") and (Path(ruta).parent / "uf_guardada.json").exists(), str(_get_uf))
+revisar("UF. el servidor guarda la escrita a mano y rechaza una mala con su motivo",
+        post("/api/uf", {"valor": 41300.5}).get("manual") is True and post("/api/uf", {"valor": 5}).get("ok") is False and post("/api/uf", {"valor": None}).get("manual") is False)
+_tar = html[html.index("function renderIzq("):html.index("function iso(")]
+revisar("UF. la tarjeta y la ficha muestran el monto en pesos y la ficha el valor de la UF",
+        "${pesosHTML(it)}" in _tar and html.count("${pesosHTML(it)}") >= 3 and "${ufHTML(it)}<h3>Dinero</h3>" in html and "provisoria para la entrega" in html)
 srv.shutdown(); srv.server_close()
 
 despues = sorted(p.name for p in (RAIZ / "ia_respuestas").rglob("*.json"))
