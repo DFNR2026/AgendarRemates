@@ -204,6 +204,11 @@ _rem = html[html.index("<h3>Remate</h3>"):html.index("</section>", html.index("<
 revisar("ficha. el recuadro Remate va en planilla con día, hora, modalidad con ícono y dirección",
         'class="planilla grande"' in _rem and all(f'<td class="k">{k}</td>' in _rem for k in ("DÍA", "HORA", "MODALIDAD", "DIRECCIÓN"))
         and "diaLargo(it.fecha_remate" in _rem and "${SVG[it.mod](20)}" in _rem and "${E(it.direccion)}" in _rem and ".planilla.grande{font-size:16px;table-layout:auto}" in html)
+# Ficha (5 de Noviembre). Dinero y Entrega del vale vista también en planilla.
+revisar("ficha. Dinero y Entrega del vale vista van en planilla con sus filas",
+        all(f'<td class="k">{k}</td>' in html for k in ("MÍNIMO", "GARANTÍA", "VALE VISTA", "TIPO", "FECHA", "LLEGADA"))
+        and 'aria-label="Dinero del remate"' in html and 'aria-label="Entrega del vale vista"><tbody>' in html
+        and '<div class="vvmonto">${E(it.monto)}</div>${pesosHTML(it)}' in html)
 # Estilo A de Diego (5 de Noviembre). Cada causa agendada muestra sus datos en planilla, con la dirección.
 _tarj = html[html.index("function renderIzq("):html.index("function iso(")]
 revisar("causas agendadas. la tarjeta va en planilla con tribunal, dirección, remate, vale vista y monto",
