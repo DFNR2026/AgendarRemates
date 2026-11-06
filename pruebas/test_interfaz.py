@@ -180,6 +180,11 @@ def post(p, d):
 html = get("/")
 revisar("servidor. entrega la página", "<title>Agenda de remates</title>" in html)
 revisar("página. no carga programas de internet (funciona sin conexión)", not re.search(r"<script[^>]+src=", html))
+# Estilo A de Diego (5 de Noviembre). Cada causa agendada muestra sus datos en planilla, con la dirección.
+_tarj = html[html.index("function renderIzq("):html.index("function iso(")]
+revisar("causas agendadas. la tarjeta va en planilla con tribunal, dirección, remate, vale vista y monto",
+        'class="planilla"' in _tarj and all(f'<td class="k">{k}</td>' in _tarj for k in ("TRIBUNAL", "DIRECCIÓN", "REMATE", "VALE VISTA", "MONTO VV"))
+        and "${E(it.direccion)}" in _tarj)
 # F3-07 (30 de Octubre). Medido con Chromium aparte. Aquí se revisa que el aviso siga en la página y que el latido no lo calle.
 revisar("F3-07. la página avisa cuando la agenda se cerró (dos latidos fallidos y al volver a la pestaña)",
         'id="cerrada"' in html and "La agenda se cerró" in html and "LATIDO.fallas>=2" in html
@@ -191,6 +196,7 @@ revisar("servidor. buscador", bus["total"] >= 1 and all("6443" in r["rol"] for r
 r = post("/api/agendar", {"remate_id": bus["resultados"][0]["remate_id"]})
 est = json.loads(get(f"/api/estado?hoy={HOY}"))
 revisar("servidor. agendar desde la página", r.get("ok") and any("6443" in a["rol"] for a in est["agenda"]), str(r))
+revisar("causas agendadas. el estado entrega la dirección de cada causa del diario", all(x["direccion"] for x in est["agenda"] if x["tipo"] == "diario"), str([x["direccion"] for x in est["agenda"]]))
 revisar("servidor. un pedido malo devuelve el error en palabras", post("/api/manual", {}) == {"ok": False, "error": "Falta la fecha del remate."})
 # F3-03 (4 de Noviembre). Un error del programa sigue llegando a la página y además queda anotado. Con pythonw el stderr del
 # servidor es logs/servidor.log, aquí se captura el stderr mientras dura cada pedido.
