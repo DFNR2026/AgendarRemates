@@ -246,6 +246,18 @@ function icoVV(t){const cal='<rect x="3" y="4.5" width="18" height="16" rx="2"><
   const d=t==='remate'?'<path d="M13 2.5l8.5 8.5-3.2 3.2-8.5-8.5z"></path><path d="M14.1 9.9L4.5 19.5"></path><path d="M3 21.5h9"></path>':cal+ICO_VV[t];
   return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;}
 const NOM_VV={rango:'Rango de días',dia:'Un día fijo',remate:'En el remate'},TIT_VV={rango:'Rango de días',dia:'Un día fijo',remate:'En el mismo remate'};
+/* Cómo llenar el vale vista (Diego, 6 de Noviembre). Tribunal en palabras, RUT, monto, nominativo o endosable y a la orden de quién,
+   con la frase del aviso que lo dice. */
+function formaHTML(it){const f=it.vv_forma;if(!f)return '';
+  return `<section class="caja"><h3>Cómo llenar el vale vista</h3><table class="planilla grande" aria-label="Cómo llenar el vale vista"><tbody>
+    <tr><td class="k">A NOMBRE DE</td><td style="font-weight:700">${E(f.a_nombre_de)}</td></tr>
+    <tr><td class="k">RUT</td><td>${E(f.rut)}</td></tr>
+    <tr><td class="k">MONTO</td><td><div class="vvmonto" style="font-size:18px">${E(it.monto)}</div>${pesosHTML(it)}</td></tr>
+    <tr><td class="k">TIPO</td><td>${E(f.tipo_txt)}</td></tr>
+    <tr><td class="k">A LA ORDEN</td><td>${E(f.orden_txt)}</td></tr>
+    ${f.llevar?`<tr><td class="k">LLEVAR</td><td>${E(f.llevar)}</td></tr>`:''}
+    ${f.cita?`<tr><td class="k">EL AVISO DICE</td><td style="font-size:14px;color:var(--tinta2)">“${E(f.cita)}”</td></tr>`:''}</tbody></table>
+    ${(f.alertas||[]).map(a=>`<div class="al rojo">${E(a)}</div>`).join('')}</section>`;}
 function fichaHTML(it){const k=clave(it),al=it.alertas||[],grave=al.some(a=>a.clase==='rojo');
   const tipos=['rango','dia','remate'].map(t=>`<div class="tipo${it.vv_tipo===t?' on':''}"${it.vv_tipo===t?' aria-current="true"':''}>${icoVV(t)}<span>${NOM_VV[t]}</span></div>`).join('');
   const alertas=al.length?`<section class="alertas${grave?' grave':''}" aria-label="Alertas del aviso"><div class="cab-al"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L1.8 18.6A2 2 0 0 0 3.5 21.6h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9.5v4.5"></path><path d="M12 17.6h.01"></path></svg><h3>Alertas del aviso</h3><span class="n">${al.length}</span></div>${al.map(a=>`<div class="alerta ${a.clase}"><span class="bang" aria-hidden="true">!</span><div class="tx">${E(a.texto)}</div></div>`).join('')}</section>`
@@ -274,6 +286,7 @@ function fichaHTML(it){const k=clave(it),al=it.alertas||[],grave=al.some(a=>a.cl
       ${it.vv_llegada?`<tr><td class="k">LLEGADA</td><td style="font-size:14px">${E(it.vv_llegada)}</td></tr>`:''}</tbody></table>
       <label class="chk" style="font-size:15px;margin-top:auto"><input type="checkbox" data-acc="entregado" data-k="${k}" ${it.vv_entregado?'checked':''}>Vale vista entregado</label></section>
   </div>
+  ${formaHTML(it)}
   ${it.vv_regla?`<blockquote>“${E(it.vv_regla)}”</blockquote>`:''}
   <div class="dos">${alertas}<section style="display:flex;flex-direction:column;gap:8px"><h3 style="margin:0;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)">Avisos en El Mercurio</h3><div class="gris" style="font-size:14px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Cada aviso publicado')}</section></div>
   <div class="fila" style="justify-content:flex-start"><button class="btn2" style="color:var(--rojo);border-color:var(--rojo);min-height:44px" data-acc="quitar" data-k="${k}">Quitar del calendario</button></div></section>`;}

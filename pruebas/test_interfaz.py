@@ -214,6 +214,9 @@ revisar("cabecera. sin el título Agendar Remates y con los botones chicos",
         "Agendar Remates</div>" not in _cen and ".cab .btn2,.nav .btn2{min-height:28px" in html and "padding:10px 28px 48px" in html)
 revisar("cabecera. Volver a hoy y Mes siguiente van en la cabecera del mes grande y no en una fila propia",
         'data-acc="mesHoy"' not in _cen and 'data-acc="mesHoy"' in _mes and "${g?`<div class=\"nav\">" in _mes)
+# Ficha (6 de Noviembre). Cómo llenar el vale vista, con nombre en palabras, RUT, monto, tipo, a la orden de quién y la frase del aviso.
+revisar("ficha. muestra cómo llenar el vale vista", "${formaHTML(it)}" in html and all(f'<td class="k">{k}</td>' in html for k in ("A NOMBRE DE", "RUT", "MONTO", "TIPO", "A LA ORDEN"))
+        and "EL AVISO DICE" in html)
 # Ficha (5 de Noviembre). Dinero y Entrega del vale vista también en planilla.
 revisar("ficha. Dinero y Entrega del vale vista van en planilla con sus filas",
         all(f'<td class="k">{k}</td>' in html for k in ("MÍNIMO", "GARANTÍA", "VALE VISTA", "TIPO", "FECHA", "LLEGADA"))
@@ -236,6 +239,7 @@ revisar("servidor. buscador", bus["total"] >= 1 and all("6443" in r["rol"] for r
 r = post("/api/agendar", {"remate_id": bus["resultados"][0]["remate_id"]})
 est = json.loads(get(f"/api/estado?hoy={HOY}"))
 revisar("servidor. agendar desde la página", r.get("ok") and any("6443" in a["rol"] for a in est["agenda"]), str(r))
+revisar("ficha. el estado entrega cómo llenar el vale vista de cada causa", all(x.get("vv_forma") and x["vv_forma"]["rut"] for x in est["agenda"]), str([x.get("vv_forma") for x in est["agenda"]])[:300])
 revisar("causas agendadas. el estado entrega la dirección de cada causa del diario", all(x["direccion"] for x in est["agenda"] if x["tipo"] == "diario"), str([x["direccion"] for x in est["agenda"]]))
 revisar("servidor. un pedido malo devuelve el error en palabras", post("/api/manual", {}) == {"ok": False, "error": "Falta la fecha del remate."})
 # F3-03 (4 de Noviembre). Un error del programa sigue llegando a la página y además queda anotado. Con pythonw el stderr del

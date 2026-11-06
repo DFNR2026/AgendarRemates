@@ -171,8 +171,8 @@ def agregar_vale_vista(avisos: list, extraido: dict, fecha: str, cliente=None) -
             resumen["sin_ia"] += 1; resumen["errores"].append(f"aviso {a.orden}. {' '.join(g.get('errores') or ['Faltan lecturas de la IA.'])[:200]}"); continue
         res = V.resolver(g["lecturas"], a.texto, (ex.get("fecha_remate") or {}).get("valor"), (ex.get("hora_remate") or {}).get("valor"), fecha)
         ex["vale_vista"] = bloque_vale_vista(res)
-        if RT.es_24(ex.get("tribunal")):            # regla de la secretaria del 24° Civil (Diego, 6 de Noviembre)
-            ex["vale_vista"] = RT.vale_vista_24(ex["vale_vista"], (ex.get("fecha_remate") or {}).get("valor"), (ex.get("hora_remate") or {}).get("valor"))
+        if RT.tiene_regla_vv(ex.get("tribunal")):   # regla confirmada por el tribunal, 24° y 11° Civil (Diego, 6 de Noviembre)
+            ex["vale_vista"] = RT.vale_vista_secretaria(ex["vale_vista"], (ex.get("fecha_remate") or {}).get("valor"), (ex.get("hora_remate") or {}).get("valor"), ex.get("tribunal"))
             res = {**res, "color": ex["vale_vista"]["color"]}
         resumen["leidos"] += 1
         resumen["colores"][res["color"]] = resumen["colores"].get(res["color"], 0) + 1
@@ -239,8 +239,8 @@ def retomar_vale_vista(con, fecha: str, cliente=None) -> dict:
             f, h, n_rem = con.execute("SELECT fecha_remate, hora_remate, COUNT(*) FROM remates WHERE aviso_id = ?", (aviso_id,)).fetchone()
             res = V.resolver(g["lecturas"], texto, f, h, fecha)
             b = bloque_vale_vista(res)
-            if RT.es_24(tribunal):                 # regla de la secretaria del 24° Civil (Diego, 6 de Noviembre)
-                b = RT.vale_vista_24(b, f, h)
+            if RT.tiene_regla_vv(tribunal):        # regla confirmada por el tribunal, 24° y 11° Civil (Diego, 6 de Noviembre)
+                b = RT.vale_vista_secretaria(b, f, h, tribunal)
                 res = {**res, "color": b["color"]}
             con.execute("UPDATE remates SET vv_regla = ?, vv_regla_texto = ?, vv_desde = ?, vv_desde_origen = ?, vv_hasta = ?, vv_estado = ? "
                         "WHERE aviso_id = ?", (b["regla"], b["cita"], b["vv_desde"], b["vv_desde_origen"], b["vv_hasta"], b["vv_estado"], aviso_id))

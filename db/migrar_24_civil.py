@@ -1,4 +1,4 @@
-"""Regla de la secretaria del 24° Juzgado Civil de Santiago (decisión de Diego del 6 de Noviembre de 2026, motor\\reglas_tribunal.py).
+"""Reglas confirmadas por el 24° y el 11° Juzgado Civil de Santiago (decisiones de Diego del 6 de Noviembre de 2026, motor\\reglas_tribunal.py).
 Aplica la regla a lo ya cargado sin recargar ediciones, para no cambiar los números internos de los remates que Diego tiene
 agendados. Deja cada aviso del 24° Civil igual que si se hubiera cargado con el código nuevo (se comprobó contra una carga
 completa desde las capturas). No llama a Haiku. Usa solo las respuestas guardadas en ia_respuestas.
@@ -35,12 +35,13 @@ def main():
             print(f"Falta un respaldo de hoy ({hoy}) en respaldos. No se tocó nada."); sys.exit(1)
     con = sqlite3.connect(ruta)
     con.execute("PRAGMA foreign_keys = ON")
-    avisos = con.execute("SELECT a.id, a.texto, e.fecha FROM avisos a JOIN ediciones e ON e.id = a.edicion_id "
-                         "WHERE a.tribunal = ? AND a.filtro_estado <> 'descartado' ORDER BY e.fecha, a.orden", (RT.TRIB_24,)).fetchall()
+    # 6 de Noviembre, tarde. También el 11° Civil (regla del secretario). La modalidad sigue siendo solo del 24°.
+    avisos = con.execute("SELECT a.id, a.texto, e.fecha, a.tribunal FROM avisos a JOIN ediciones e ON e.id = a.edicion_id "
+                         "WHERE a.tribunal IN (?, ?) AND a.filtro_estado <> 'descartado' ORDER BY e.fecha, a.orden", (RT.TRIB_24, RT.TRIB_11)).fetchall()
     n = {"avisos": len(avisos), "modalidad": 0, "vale_vista": 0, "sin_leer": 0, "sin_cambio": 0}
     with con:
-        for aid, texto, fecha_ed in avisos:
-            mods = {r[0] for r in con.execute("SELECT modalidad FROM remates WHERE aviso_id = ?", (aid,))}
+        for aid, texto, fecha_ed, trib in avisos:
+            mods = {r[0] for r in con.execute("SELECT modalidad FROM remates WHERE aviso_id = ?", (aid,))} if RT.es_24(trib) else set()
             if mods == {"sin_dato"}:
                 con.execute("UPDATE remates SET modalidad = 'presencial' WHERE aviso_id = ?", (aid,))
                 con.execute("DELETE FROM alertas WHERE aviso_id = ? AND texto = ?", (aid, RT.MOD_SIN_DATO))
@@ -58,7 +59,7 @@ def main():
             viejo = bloque_guardado(texto, f, h, fecha_ed)
             if viejo is None:
                 n["sin_leer"] += 1; continue
-            nuevo = RT.vale_vista_24(viejo, f, h)
+            nuevo = RT.vale_vista_secretaria(viejo, f, h, trib)
             if nuevo == viejo:
                 n["sin_cambio"] += 1; continue
             con.execute("UPDATE remates SET vv_regla = ?, vv_regla_texto = ?, vv_desde = ?, vv_desde_origen = ?, vv_hasta = ?, vv_estado = ? "

@@ -6,10 +6,14 @@ presenciales. Siempre se contrasta con el aviso.
   Si el aviso no dice nada, vale la regla de la secretaria.
   Si el aviso dice otra cosa, se deja lo del aviso y se alerta.
   Si la lectura del aviso falló (rojo), se pone la fecha de la secretaria en ámbar, avisando que hay que revisar el aviso.
+11° Juzgado Civil de Santiago (Diego, 6 de Noviembre de 2026). El secretario confirmó que el vale vista es nominativo a la orden
+del tribunal, que se entrega el mismo día del remate y que se lleva fotocopia de la cédula por ambos lados. Diego decidió que, si
+el aviso no dice cuándo, va en el mismo remate como en el 24°. Sus avisos dicen "al momento de efectuarse el llamado a remate".
 Nada de esto cambia la lectura de los demás tribunales."""
 from motor.vale_vista import NO_ENCONTRADA
 
 TRIB_24 = "24° Juzgado Civil de Santiago"
+TRIB_11 = "11° Juzgado Civil de Santiago"
 VV_SECRETARIA = ("Regla de la secretaria del 24° Civil. El vale vista se entrega en el mismo remate, porque el aviso no dice "
                  "cuándo se entrega.")
 VV_SECRETARIA_ROJO = ("No se pudo leer la regla del vale vista del aviso. Se usa la regla de la secretaria del 24° Civil, que dice "
@@ -28,7 +32,36 @@ def es_24(tribunal) -> bool:
     return (tribunal or "").strip() == TRIB_24
 
 
+# Textos por tribunal para la regla del vale vista. El 24° es la secretaria y el 11° el secretario.
+_QUIEN = {TRIB_24: ("la secretaria", "de la secretaria"), TRIB_11: ("el secretario", "del secretario")}
+_NUM = {TRIB_24: "24°", TRIB_11: "11°"}
+
+
+def textos_vv(tribunal):
+    (q, de), n = _QUIEN[tribunal], _NUM[tribunal]
+    return (f"Regla {de} del {n} Civil. El vale vista se entrega en el mismo remate, porque el aviso no dice cuándo se entrega.",
+            f"No se pudo leer la regla del vale vista del aviso. Se usa la regla {de} del {n} Civil, que dice que se entrega en el "
+            "mismo remate. Revisa que el aviso no diga otra cosa.",
+            f"El aviso da otra fecha para el vale vista, pero {q} del {n} Civil dijo que se entrega en el mismo remate. Confirma en el tribunal.")
+
+
+def tiene_regla_vv(tribunal) -> bool:
+    return (tribunal or "").strip() in _QUIEN
+
+
+def vale_vista_secretaria(b: dict, fecha_remate, hora_remate, tribunal) -> dict:
+    """Igual que vale_vista_24 para cualquier tribunal con regla confirmada (24° y 11°)."""
+    t = (tribunal or "").strip()
+    if t not in _QUIEN:
+        return b
+    return _vale_vista(b, fecha_remate, hora_remate, *textos_vv(t))
+
+
 def vale_vista_24(b: dict, fecha_remate, hora_remate) -> dict:
+    return _vale_vista(b, fecha_remate, hora_remate, VV_SECRETARIA, VV_SECRETARIA_ROJO, VV_SECRETARIA_CONTRA)
+
+
+def _vale_vista(b: dict, fecha_remate, hora_remate, VV_SECRETARIA, VV_SECRETARIA_ROJO, VV_SECRETARIA_CONTRA) -> dict:
     """Bloque vale_vista de motor.procesar_edicion.bloque_vale_vista -> bloque con la regla de la secretaria aplicada.
     Sin fecha del remate no se puede poner la entrega, y el bloque queda igual."""
     if not fecha_remate:

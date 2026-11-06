@@ -240,6 +240,54 @@ except Exception as e:
     fallas.append(f"24° Civil. la prueba de la carga y el retomar se cayó {type(e).__name__} {e}")
 finally:
     V.leer_con_ia = _leer_real
+# Regla del secretario del 11° Civil (6 de Noviembre, tarde). Mismo cálculo que el 24°, con sus propios textos.
+b = RT.vale_vista_secretaria(bl("sin_dato", "sin_dato"), F, H, RT.TRIB_11)
+if not (b["regla"] == "en_el_remate" and b["color"] == "verde" and b["alertas"][-1][1].startswith("Regla del secretario del 11° Civil.")):
+    fallas.append(f"11° Civil. aviso que no dice nada debe quedar en el remate con la regla del secretario {b}")
+v = bl("sin_dato", "sin_dato")
+if RT.vale_vista_secretaria(v, F, H, "23° Juzgado Civil de Santiago") != v:
+    fallas.append("Un tribunal sin regla confirmada no debe cambiar")
+if RT.vale_vista_secretaria(bl("sin_dato", "sin_dato"), F, H, RT.TRIB_24) != RT.vale_vista_24(bl("sin_dato", "sin_dato"), F, H):
+    fallas.append("24° Civil. la regla general debe dar lo mismo que la del 24°")
+
+# Forma del vale vista y cómo llenarlo (pedido de Diego, 6 de Noviembre). Frases reales de los avisos.
+from motor import forma_vale_vista as FV
+casos = [
+    ("En cuanto a la garantía, esta se efectuará mediante vale vista nominativo al Tribunal por un monto equivalente al 10% del mínimo.", ("nominativo", "tribunal")),
+    ("Todo postor deberá acompañar materialmente vale vista endosable a la orden del tribunal equivalente al 20% del precio mínimo.", ("endosable", "tribunal")),
+    ("Postores acompañar vale vista endosable orden Tribunal por 10% mínimo subasta.", ("endosable", "tribunal")),
+    ("Interesados deberán entregar vale vista a la orden del Tribunal, nominativo o endosable, por el 10% del mínimo.", ("nominativo_o_endosable", "tribunal")),
+    ("Ésta caución se constituirá mediante un vale vista tomado a propia orden, susceptible de ser endosado al momento de la subasta.", ("endosable", "postor")),
+    ("Garantía mediante un vale vista por el 10% del mínimo tomado a nombre Décimo Tercer Juzgado Civil de Santiago.", (None, "tribunal")),
+    ("Todo postor deberá entregar materialmente vale vista equivalente al 10% del mínimo, por orden de llegada en el tribunal.", (None, None)),
+    ("Mínimo $66.762.980. La garantía será mediante vale vista endosable a nombre del 1° Juzgado Civil de Santiago, Rut N° 60.306.001-6.", ("endosable", "tribunal")),
+]
+for frase, esperado in casos:
+    f = FV.leer(frase)
+    if (f["tipo"], f["orden"]) != esperado:
+        fallas.append(f"Forma del vale vista. {esperado} y salió {(f['tipo'], f['orden'])} en {frase[:60]}")
+if "$66.762.980" in (FV.leer(casos[-1][0])["cita"] or "") or "60.306.001-6" not in (FV.leer(casos[-1][0])["cita"] or ""):
+    fallas.append("Forma del vale vista. la cita debe ser la oración completa sin cortar en los puntos de los números")
+def dvf(n):
+    s, m = 0, 2
+    for d in reversed(n):
+        s += int(d) * m; m = 2 if m == 7 else m + 1
+    r = 11 - s % 11
+    return "0" if r == 11 else "K" if r == 10 else str(r)
+if len(FV.TABLA) != 30 or any(dvf(r["rut"].split("-")[0].replace(".", "")) != r["rut"].split("-")[1] for r in FV.TABLA.values()):
+    fallas.append(f"RUT. la tabla debe traer los 30 civiles de Santiago con su dígito verificador correcto ({len(FV.TABLA)})")
+if (FV.TABLA["5° Juzgado Civil de Santiago"]["rut"], FV.TABLA["15° Juzgado Civil de Santiago"]["rut"], FV.TABLA["24° Juzgado Civil de Santiago"]["rut"]) != ("60.306.005-9", "60.306.062-8", "61.933.300-4"):
+    fallas.append("RUT. el 5°, el 15° y el 24° deben ir como los corrigió Diego y el PDF")
+c11 = FV.como_llenar(FV.TRIB_11, "El vale vista deberá presentarse en el remate.")
+if not (c11["a_nombre_de"] == "Décimo Primer Juzgado Civil de Santiago" and c11["rut"] == "60.306.011-3" and c11["tipo"] == "nominativo"
+        and "secretario" in c11["tipo_txt"] and c11["llevar"] and c11["orden_txt"] == "A la orden del tribunal"):
+    fallas.append(f"11° Civil. sin decirlo el aviso, el vale vista es nominativo a la orden del tribunal con la cédula por ambos lados {c11}")
+c11 = FV.como_llenar(FV.TRIB_11, "Garantía mediante vale vista endosable a la orden del tribunal.")
+if not (c11["tipo"] == "endosable" and c11["alertas"]):
+    fallas.append(f"11° Civil. si el aviso dice endosable se deja y se alerta {c11}")
+cm = FV.como_llenar("2° Juzgado Civil de Santiago", None)
+if not (cm["tipo_txt"].startswith("Sin dato") and cm["rut"] == "60.306.002-4" and cm["a_nombre_de"] == "Segundo Juzgado Civil de Santiago"):
+    fallas.append(f"Causa a mano. sin aviso debe decir sin dato y traer el RUT de la tabla {cm}")
 print("\n".join(fallas) if fallas else f"{medidos} avisos del 14 de Octubre y casos en rojo revisados.")
 print("RESULTADO.", "FALLAS" if fallas else "TODO OK")
 sys.exit(1 if fallas else 0)
