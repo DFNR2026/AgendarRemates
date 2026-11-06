@@ -20,7 +20,7 @@ a{color:var(--cafe)}a:hover{color:var(--lk-tx)}
 button{font-family:inherit}
 .raiz{position:relative;min-height:100vh;display:flex;flex-wrap:wrap}
 .izq{flex:0 0 340px;max-width:100%;background:var(--papel);border-right:1px solid var(--borde);padding:26px 20px;display:flex;flex-direction:column;gap:12px}
-.centro{flex:999 1 560px;min-width:0;padding:26px 28px 48px;display:flex;flex-direction:column;gap:16px}
+.centro{flex:999 1 560px;min-width:0;padding:10px 28px 48px;display:flex;flex-direction:column;gap:16px}
 .riel{width:84px;padding-top:22px;display:flex;justify-content:center}
 .lupa{width:60px;height:60px;border-radius:calc(18px*var(--r));border:0;background:var(--cafe);color:var(--sobre);cursor:pointer;display:flex;align-items:center;justify-content:center}
 .panel{position:absolute;top:0;right:0;min-height:100%;width:440px;max-width:100%;background:var(--papel);border-left:1px solid var(--borde);box-shadow:-12px 0 32px var(--sombra);padding:26px 22px;display:flex;flex-direction:column;gap:12px}
@@ -78,6 +78,8 @@ table.cmp thead th{border-bottom:2px solid var(--borde);color:var(--suave);font-
 .carril b,.carril span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ico{display:flex;align-items:center;justify-content:center;border-radius:calc(7px*var(--r));cursor:pointer;padding:0;background:var(--papel);color:var(--cafe);border:2px solid var(--cafe)}
 .nav{display:flex;gap:8px;align-items:center}
+/* 5 de Noviembre (Diego). Cabecera y botones del mes chicos, para no empujar el calendario hacia abajo. */
+.cab .btn2,.nav .btn2{min-height:28px;padding:3px 9px;font-size:12px}
 input.campo,select.campo{height:40px;border:1px solid var(--campo);border-radius:calc(10px*var(--r));padding:0 10px;font-family:inherit;font-size:14px;background:var(--blanco);color:var(--tinta);min-width:0;width:100%}
 label.lab{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--suave)}
 .caja{background:var(--blanco);border:1px solid var(--borde);border-radius:calc(12px*var(--r));padding:12px 14px;display:flex;flex-direction:column;gap:6px}
@@ -182,9 +184,6 @@ function renderIzq(){
         <tr><td class="k">TRIBUNAL</td><td>${E(it.tribunal)}</td></tr>
         <tr><td class="k">DIRECCIÓN</td><td>${E(it.direccion)}</td></tr>
         <tr><td class="k">REMATE</td><td>${E(it.remate_corto)}<br><span class="gris">${E(it.mod_txt)}</span></td></tr>
-        <tr><td class="k">VALE VISTA</td><td>${E(it.vv_txt)}</td></tr>
-        <tr><td class="k">MONTO VV</td><td><span class="monto">${E(it.monto)}</span>${etiquetas(it)}${pesosHTML(it)}</td></tr>
-        ${it.pubs&&it.pubs.length?`<tr><td class="k">AVISOS</td><td>${linksHTML(it.pubs,'')}</td></tr>`:''}
       </tbody></table>
       ${it.alertas.map(a=>`<div class="al ${a.clase}">${E(a.texto)}</div>`).join('')}
       ${(it.publicado||[]).map(p=>`<div class="aviso-pub"><span>${E(p.texto)} ¿La cambio por la del diario?</span><div class="fila"><button class="btn2" data-acc="reemplazar" data-man="${it.manual_id}" data-rid="${p.remate_id}">Sí, cambiarla</button><button class="btn2" data-acc="nopub" data-man="${it.manual_id}">No, dejarla a mano</button></div></div>`).join('')}
@@ -203,7 +202,7 @@ function mes(y,m,tam,ags){
   const negro='var(--hoy)',sh='inset 3px 0 0 '+negro+',inset -3px 0 0 '+negro;
   const cols=`grid-template-columns:${g?'190px':'170px'} repeat(${dim},minmax(0,1fr))`;
   const nR=ags.filter(a=>isos.includes(a.remate)).length;
-  let h=`<section class="mes" style="padding:${g?'20px 20px 16px':'14px 18px'}"><div class="fila"><h2 style="margin:0;font-weight:800;font-size:${g?'30px':'18px'};color:${g?'var(--tinta)':'var(--suave)'}">${MES[m]} ${y}</h2><span class="gris" style="font-size:12px">${nR?(nR===1?'1 remate':nR+' remates'):''}</span></div>`;
+  let h=`<section class="mes" style="padding:${g?'20px 20px 16px':'14px 18px'}"><div class="fila"><h2 style="margin:0;font-weight:800;font-size:${g?'30px':'18px'};color:${g?'var(--tinta)':'var(--suave)'}">${MES[m]} ${y}</h2><div style="display:flex;gap:10px;align-items:center"><span class="gris" style="font-size:12px">${nR?(nR===1?'1 remate':nR+' remates'):''}</span>${g?`<div class="nav">${UI.off>0?'<button class="btn2" data-acc="mesAnt">◀ Mes anterior</button>':''}<button class="btn2" data-acc="mesHoy">Volver a hoy</button><button class="btn2" data-acc="mesSig">Mes siguiente ▶</button></div>`:''}</div></div>`;
   h+=`<div class="grilla" style="${cols}"><div class="gris" style="font-size:11px;align-self:end;padding:4px 0">Causa</div>`;
   for(const d of isos){const dw=new Date(d+'T12:00').getDay(),fer=EST.feriados[d],hoy=d===H,fin=dw===0||dw===6;
     h+=`<div title="${E(fer||'')}" style="display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;padding:4px 0;min-width:0;color:${fer?'var(--rojo)':(fin?'var(--finde)':'var(--suave)')};${hoy?'box-shadow:'+sh+',inset 0 3px 0 '+negro+(lanes.length?';border-radius:calc(6px*var(--r)) calc(6px*var(--r)) 0 0':',inset 0 -3px 0 '+negro+';border-radius:calc(6px*var(--r))'):''}"><span>${INI[dw]}</span><span style="font-size:${g?13:11}px;font-weight:700;color:${fer?'var(--rojo)':'var(--tinta)'}">${+d.slice(8)}</span></div>`;}
@@ -225,7 +224,7 @@ function mes(y,m,tam,ags){
 function tablaCmp(c,tachar){return `<div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:15px;font-weight:800">${E(c.titulo)}</div><div class="peq gris">${E(c.caratula)}</div><div style="overflow-x:auto"><table class="cmp"><thead><tr><th scope="col">Dato</th><th scope="col">${E(c.antes)}</th><th scope="col">${E(c.despues)}</th></tr></thead><tbody>${c.filas.map(f=>`<tr><th scope="row">${E(f.campo)}</th><td style="color:var(--suave);${tachar?'text-decoration:line-through':''}">${E(f.a)}</td><td style="font-weight:700;${tachar?'color:var(--rojo)':''}">${E(f.b)}</td></tr>`).join('')}${(c.pub_a||c.pub_b)?`<tr><th scope="row">Avisos del Mercurio</th><td>${c.pub_a?linksHTML([c.pub_a],''):''}</td><td>${c.pub_b?linksHTML([c.pub_b],''):''}</td></tr>`:''}</tbody></table></div>${c.nota?`<div class="gris" style="font-size:12px">${E(c.nota)}</div>`:''}</div>`;}
 
 function renderCentro(){
-  let h=`<header class="cab"><div style="font-size:26px;font-weight:800">Agendar Remates</div><div class="ley">
+  let h=`<header class="cab"><div class="ley">
     <span style="color:var(--cafe)">${SVG.pres(16)}<span class="gris">Presencial</span></span><span style="color:var(--cafe)">${SVG.virt(16)}<span class="gris">Virtual</span></span>
     <span><span style="width:16px;height:16px;border:2px solid var(--cafe);color:var(--cafe);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">?</span>Sin modalidad</span>
     <span><span style="width:18px;height:18px;border:2px solid var(--rojo);border-radius:calc(6px*var(--r))"></span>Fecha cambiada</span>
@@ -236,7 +235,6 @@ function renderCentro(){
   if(EST.franja_ambar.length)h+=`<section class="franja ambar" role="status"><div style="font-size:15px;font-weight:800">EDICIONES CARGADAS PERO INCOMPLETAS</div>${EST.franja_ambar.map(x=>`<div style="font-size:13px">${E(x)}</div>`).join('')}</section>`;
   if(EST.cambios.length)h+=`<section class="franja rojo" role="alert"><div class="fila"><div style="flex:1 1 400px;font-size:22px;font-weight:800">${E(EST.titulo_cambios)}</div><button class="btn" style="background:var(--papel);color:var(--rojo)" data-acc="detC">${UI.detC?'Ocultar detalles':'Revisar detalles'}</button></div>${UI.detC?`<div class="detalle">${EST.cambios.map(c=>tablaCmp(c,true)).join('')}<button class="btn" style="align-self:flex-start" data-acc="vistoC">Marcar como visto</button></div>`:''}</section>`;
   if(EST.llamados.length)h+=`<section class="franja llam" role="status"><div class="fila"><div style="flex:1 1 400px"><div style="font-size:19px;font-weight:800">NUEVO LLAMADO EN UNA CAUSA AGENDADA</div><div class="peq" style="color:var(--tinta2)">Un remate que no se hizo vuelve a publicarse. Es un remate nuevo, con sus propias bases.</div></div><button class="btn" data-acc="detL">${UI.detL?'Ocultar detalles':'Revisar detalles'}</button></div>${UI.detL?`<div class="detalle">${EST.llamados.map(c=>tablaCmp(c,false)).join('')}<button class="btn" style="align-self:flex-start" data-acc="vistoL">Marcar como visto</button></div>`:''}</section>`;
-  h+=`<div class="nav">${UI.off>0?'<button class="btn2" data-acc="mesAnt">◀ Mes anterior</button>':''}<button class="btn2" data-acc="mesHoy">Volver a hoy</button><button class="btn2" data-acc="mesSig">Mes siguiente ▶</button></div>`;
   const hoy=new Date(EST.hoy+'T12:00'),ags=itemsCal();
   [0,1].forEach((d,i)=>{const t=new Date(hoy.getFullYear(),hoy.getMonth()+UI.off+d,1);h+=mes(t.getFullYear(),t.getMonth(),i===0?'grande':'medio',ags);});   // mes actual y siguiente (Diego, 18 de Octubre)
   if(UI.verFicha){const it=item(UI.ficha);if(it)h+=fichaHTML(it);else UI.verFicha=false;}   // ficha bajo el calendario (Diego, 22 de Octubre)

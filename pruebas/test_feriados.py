@@ -30,8 +30,16 @@ sys.path.insert(0, str(RAIZ))
 from db.crear_base import crear, aviso_feriados
 with tempfile.TemporaryDirectory() as tmp:
     con = crear(Path(tmp) / "f.db")
+    # CORRECCIÓN del 5 de Noviembre (pedido de Diego). Antes el aviso de 2027 provisorio salía desde octubre de 2026 y
+    # estorbaba. Ahora sale desde el 20 de diciembre del año anterior hasta que se cargue la lista oficial.
     al = aviso_feriados(con, dt.date(2026, 10, 17))
-    revisar("la alarma avisa que 2027 es provisorio", al == "Los feriados de 2027 son provisorios (calculados por ley). Reemplázalos por la lista oficial cuando se publique", al)
+    revisar("en octubre de 2026 todavía no avisa que 2027 es provisorio", al == "", al)
+    al = aviso_feriados(con, dt.date(2026, 12, 19))
+    revisar("el 19 de diciembre de 2026 todavía no avisa", al == "", al)
+    al = aviso_feriados(con, dt.date(2026, 12, 20))
+    revisar("desde el 20 de diciembre de 2026 avisa que 2027 es provisorio", al == "Los feriados de 2027 son provisorios (calculados por ley). Reemplázalos por la lista oficial cuando se publique", al)
+    al = aviso_feriados(con, dt.date(2027, 3, 2))
+    revisar("en marzo de 2027 sigue avisando mientras no esté la lista oficial", al.startswith("Los feriados de 2027 son provisorios"), al)
     al = aviso_feriados(con, dt.date(2027, 12, 5))
     revisar("en diciembre de 2027 avisa que falta 2028 y que 2027 es provisorio", al.startswith("Faltan los feriados de 2028. Los feriados de 2027 son provisorios"), al)
     con.close()

@@ -116,7 +116,9 @@ e = D.estado(con, HOY)
 revisar("visto. los dos avisos grandes desaparecen y siguen vistos después de rehacer los cambios", e["cambios"] == [] and e["llamados"] == [])
 revisar("sincronización. la franja negra con los días que faltan", e["franja_negra"][0] == "SIN SINCRONIZAR. La última edición cargada es la del miércoles 14 de Octubre de 2026."
         and "Falta la edición del lunes 12 de Octubre de 2026." in e["franja_negra"], str(e["franja_negra"]))
-revisar("la franja ámbar avisa los feriados provisorios", any("provisorios" in x for x in e["franja_ambar"]), str(e["franja_ambar"][-1:]))
+# CORRECCIÓN del 5 de Noviembre, noche (pedido de Diego). En Octubre ya no sale el aviso de feriados provisorios, sale desde el 20 de diciembre.
+revisar("la franja ámbar no avisa los feriados provisorios en Octubre", not any("provisorios" in x for x in e["franja_ambar"]), str(e["franja_ambar"][-1:]))
+revisar("la franja ámbar avisa los feriados provisorios desde el 20 de diciembre", any("provisorios" in x for x in D.estado(con, "2026-12-20")["franja_ambar"]))
 
 # 4. Vale vista entregado y quitar con la X.
 D.marcar(con, "vv_entregado", True, bien_id=lote1["bien_id"])
@@ -204,6 +206,14 @@ _rem = html[html.index("<h3>Remate</h3>"):html.index("</section>", html.index("<
 revisar("ficha. el recuadro Remate va en planilla con día, hora, modalidad con ícono y dirección",
         'class="planilla grande"' in _rem and all(f'<td class="k">{k}</td>' in _rem for k in ("DÍA", "HORA", "MODALIDAD", "DIRECCIÓN"))
         and "diaLargo(it.fecha_remate" in _rem and "${SVG[it.mod](20)}" in _rem and "${E(it.direccion)}" in _rem and ".planilla.grande{font-size:16px;table-layout:auto}" in html)
+# Cabecera (5 de Noviembre, noche, pedido de Diego). Sin el título "Agendar Remates", con la leyenda y los botones chicos arriba,
+# y Volver a hoy y Mes siguiente dentro de la cabecera del mes grande, no en una fila propia.
+_cen = html[html.index("function renderCentro("):html.index("function icoVV(")]
+_mes = html[html.index("function mes("):html.index("function tablaCmp(")]
+revisar("cabecera. sin el título Agendar Remates y con los botones chicos",
+        "Agendar Remates</div>" not in _cen and ".cab .btn2,.nav .btn2{min-height:28px" in html and "padding:10px 28px 48px" in html)
+revisar("cabecera. Volver a hoy y Mes siguiente van en la cabecera del mes grande y no en una fila propia",
+        'data-acc="mesHoy"' not in _cen and 'data-acc="mesHoy"' in _mes and "${g?`<div class=\"nav\">" in _mes)
 # Ficha (5 de Noviembre). Dinero y Entrega del vale vista también en planilla.
 revisar("ficha. Dinero y Entrega del vale vista van en planilla con sus filas",
         all(f'<td class="k">{k}</td>' in html for k in ("MÍNIMO", "GARANTÍA", "VALE VISTA", "TIPO", "FECHA", "LLEGADA"))
@@ -211,9 +221,10 @@ revisar("ficha. Dinero y Entrega del vale vista van en planilla con sus filas",
         and '<div class="vvmonto">${E(it.monto)}</div>${pesosHTML(it)}' in html)
 # Estilo A de Diego (5 de Noviembre). Cada causa agendada muestra sus datos en planilla, con la dirección.
 _tarj = html[html.index("function renderIzq("):html.index("function iso(")]
-revisar("causas agendadas. la tarjeta va en planilla con tribunal, dirección, remate, vale vista y monto",
-        'class="planilla"' in _tarj and all(f'<td class="k">{k}</td>' in _tarj for k in ("TRIBUNAL", "DIRECCIÓN", "REMATE", "VALE VISTA", "MONTO VV"))
-        and "${E(it.direccion)}" in _tarj)
+# CORRECCIÓN del 5 de Noviembre, noche (pedido de Diego). La tarjeta se simplifica. Vale vista, monto y avisos quedan solo en la ficha.
+revisar("causas agendadas. la tarjeta va en planilla con tribunal, dirección y remate, sin vale vista, monto ni avisos",
+        'class="planilla"' in _tarj and all(f'<td class="k">{k}</td>' in _tarj for k in ("TRIBUNAL", "DIRECCIÓN", "REMATE"))
+        and not any(f'<td class="k">{k}</td>' in _tarj for k in ("VALE VISTA", "MONTO VV", "AVISOS")) and "${E(it.direccion)}" in _tarj)
 # F3-07 (30 de Octubre). Medido con Chromium aparte. Aquí se revisa que el aviso siga en la página y que el latido no lo calle.
 revisar("F3-07. la página avisa cuando la agenda se cerró (dos latidos fallidos y al volver a la pestaña)",
         'id="cerrada"' in html and "La agenda se cerró" in html and "LATIDO.fallas>=2" in html
@@ -294,8 +305,8 @@ revisar("UF. el servidor la entrega en /api/uf y la guarda junto a la base", _ge
 revisar("UF. el servidor guarda la escrita a mano y rechaza una mala con su motivo",
         post("/api/uf", {"valor": 41300.5}).get("manual") is True and post("/api/uf", {"valor": 5}).get("ok") is False and post("/api/uf", {"valor": None}).get("manual") is False)
 _tar = html[html.index("function renderIzq("):html.index("function iso(")]
-revisar("UF. la tarjeta y la ficha muestran el monto en pesos y la ficha el valor de la UF",
-        "${pesosHTML(it)}" in _tar and html.count("${pesosHTML(it)}") >= 3 and "${ufHTML(it)}<h3>Dinero</h3>" in html and "provisoria para la entrega" in html)
+revisar("UF. la ficha y el buscador muestran el monto en pesos y la ficha el valor de la UF (la tarjeta ya no lleva monto)",
+        "${pesosHTML(it)}" not in _tar and html.count("${pesosHTML(it)}") >= 2 and "${ufHTML(it)}<h3>Dinero</h3>" in html and "provisoria para la entrega" in html)
 srv.shutdown(); srv.server_close()
 
 despues = sorted(p.name for p in (RAIZ / "ia_respuestas").rglob("*.json"))

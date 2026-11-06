@@ -42,7 +42,10 @@ def aviso_feriados(con, hoy=None):
         faltan.append(str(hoy.year + 1))
     avisos = [f"Faltan los feriados de {', '.join(faltan)}"] if faltan else []
     # 17 de Octubre. Un año calculado por ley (fuente PROVISORIO) debe reemplazarse por la lista oficial cuando se publique.
-    prov = [r[0] for r in con.execute("SELECT DISTINCT substr(fecha,1,4) FROM feriados WHERE fuente LIKE 'PROVISORIO%' ORDER BY 1")]
+    # 5 de Noviembre (Diego). El aviso de provisorio solo sirve cuando se acerca ese año, así que sale desde el 20 de diciembre
+    # del año anterior y sigue hasta que se cargue la lista oficial.
+    prov = [r[0] for r in con.execute("SELECT DISTINCT substr(fecha,1,4) FROM feriados WHERE fuente LIKE 'PROVISORIO%' ORDER BY 1")
+            if hoy >= date(int(r[0]) - 1, 12, 20)]
     if prov:
         avisos.append(f"Los feriados de {', '.join(prov)} son provisorios (calculados por ley). Reemplázalos por la lista oficial cuando se publique")
     return ". ".join(avisos)
