@@ -127,7 +127,7 @@ const SVG={
  virt:s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="3.5" width="19" height="12.5" rx="1.5"/><path d="M12 16v3.5"/><path d="M7.5 20.5h9"/></svg>`,
  nose:s=>`<span style="font-size:${s-3}px;font-weight:800;line-height:1" aria-hidden="true">?</span>`};
 let EST=null;
-const FORM0=()=>({trib:'',rol:'',anio:'',car:'',fecha:'',hora:'',mod:'pres',vd:'',vh:'',monto:''});
+const FORM0=()=>({trib:'',rol:'',anio:'',car:'',direccion:'',fecha:'',hora:'',mod:'pres',vd:'',vh:'',monto:''});
 const UI={panel:null,ficha:null,verFicha:false,sel:null,off:0,detC:false,detL:false,uf:'',f:{trib:'',rol:'',anio:'',dir:'',edicion:'',pasados:false},res:null,form:FORM0(),err:'',ftrib:''};
 const clave=it=>it.tipo==='manual'?'m'+it.manual_id:'b'+it.bien_id;
 const item=k=>(EST&&EST.agenda||[]).find(x=>clave(x)===k);
@@ -283,7 +283,7 @@ function renderPanel(){
   else if(UI.panel==='manual'){const F=UI.form;const c=(n,t,lab,ph)=>`<label class="lab">${lab}<input class="campo" type="${t}" data-form="${n}" value="${E(F[n])}" ${ph?`placeholder="${E(ph)}"`:''}></label>`;
     h=`<div class="fila"><h2 class="tit">Causa a mano</h2><button class="x44" data-acc="buscar" aria-label="Volver al buscador">←</button></div>
     <div class="peq" style="color:var(--tinta2)">Para una causa que no salió en El Mercurio o que el programa no leyó. En el calendario queda marcada como agregada a mano.</div>
-    ${c('trib','text','Tribunal','Ej. 15° Juzgado Civil de Santiago')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${c('rol','text','Rol')}${c('anio','text','Año')}</div>${c('car','text','Carátula (opcional)')}
+    ${c('trib','text','Tribunal','Ej. 15° Juzgado Civil de Santiago')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${c('rol','text','Rol')}${c('anio','text','Año')}</div>${c('car','text','Carátula (opcional)')}${c('direccion','text','Dirección de la propiedad (opcional)','Ej. Calle Los Aromos 123, Maipú')}
     <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:8px">${c('fecha','date','Fecha del remate')}${c('hora','time','Hora')}</div>
     <label class="lab">Modalidad<select class="campo" data-form="mod">${[['pres','Presencial'],['virt','Virtual (Zoom o en línea)'],['nose','No lo sé']].map(([v,t])=>`<option value="${v}" ${F.mod===v?'selected':''}>${t}</option>`).join('')}</select></label>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${c('vd','date','Vale vista desde')}${c('vh','date','Vale vista hasta')}</div>${c('monto','text','Monto del vale vista (opcional)','Ej. $7.500.000 o 98,5 UF')}

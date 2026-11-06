@@ -20,6 +20,10 @@ def crear(ruta_base=BASE):
             con.close()
             raise SystemExit(f"La base {ruta_base} es de la versión {fila[0]} del esquema y este programa usa la {VERSION_ESQUEMA}. No se tocó nada.")
     con.executescript((RAIZ / "esquema.sql").read_text(encoding="utf-8"))
+    # 5 de Noviembre (aprobado por Diego). Dirección en las causas agregadas a mano. Una base anterior recibe la columna vacía,
+    # sin cambiar ningún dato. CREATE TABLE IF NOT EXISTS no agrega columnas a una tabla que ya existe.
+    if "direccion" not in {r[1] for r in con.execute("PRAGMA table_info(agenda_manual)")}:
+        con.execute("ALTER TABLE agenda_manual ADD COLUMN direccion TEXT")
     con.execute("INSERT OR REPLACE INTO meta(clave, valor) VALUES ('version_esquema', ?)", (VERSION_ESQUEMA,))
     for csv_feriados in sorted(RAIZ.glob("feriados_*.csv")):
         with open(csv_feriados, encoding="utf-8", newline="") as f:

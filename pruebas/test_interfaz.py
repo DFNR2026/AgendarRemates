@@ -142,6 +142,21 @@ m1 = D.agregar_manual(con, {"trib": "1° Juzgado Civil de Rancagua", "rol": "123
 m2 = D.agregar_manual(con, {"trib": "3° Juzgado de Familia de Santiago", "rol": "C-9854", "anio": "2025", "fecha": "2026-10-23", "mod": "virt"})["manual_id"]
 ag = {a.get("manual_id"): a for a in D.estado(con, HOY)["agenda"] if a["tipo"] == "manual"}
 revisar("a mano. aparece en la agenda con su ventana del vale vista", ag[m1]["vv_txt"] == "Jue. 19 Nov." and ag[m1]["publicado"] == [] and ag[m1]["mod"] == "pres", str(ag[m1]["vv_txt"]))
+# 5 de Noviembre. Dirección en las causas a mano (aprobado por Diego). Sin dirección dice que falta, con dirección la muestra.
+m3 = D.agregar_manual(con, {"trib": "2° Juzgado Civil de Santiago", "fecha": "2026-11-25", "direccion": "  Calle Los Aromos 123, Maipú "})["manual_id"]
+ag3 = {a.get("manual_id"): a for a in D.estado(con, HOY)["agenda"] if a["tipo"] == "manual"}
+revisar("a mano. la dirección escrita aparece en la causa, sin espacios de más", ag3[m3]["direccion"] == "Calle Los Aromos 123, Maipú", ag3[m3]["direccion"])
+revisar("a mano. sin dirección lo dice", ag3[m1]["direccion"] == "Agregada a mano, sin dirección.", ag3[m1]["direccion"])
+D.quitar(con, None, m3)
+# Una base anterior al 5 de Noviembre recibe la columna vacía al abrirse, sin cambiar sus datos.
+import shutil, sqlite3 as _sq
+_vieja = Path(tmp.name) / "vieja_sin_direccion.db"
+shutil.copy(RAIZ / "agendar_remates_vacia_antes_carga_21oct.db", _vieja)
+_c = _sq.connect(_vieja); _antes_col = "direccion" in [r[1] for r in _c.execute("PRAGMA table_info(agenda_manual)")]; _c.close()
+_c = crear(_vieja); _c.close(); _c = crear(_vieja)
+revisar("base anterior. recibe la columna dirección al abrirse y abrir dos veces no falla",
+        not _antes_col and "direccion" in [r[1] for r in _c.execute("PRAGMA table_info(agenda_manual)")])
+_c.close()
 revisar("a mano. si salió publicada, ofrece cambiarla por la del diario", len(ag[m2]["publicado"]) == 1 and ag[m2]["publicado"][0]["remate_id"] == rid9
         and ag[m2]["publicado"][0]["texto"] == "Salió publicada en El Mercurio el 10 Oct., remate el Vie. 23 Oct.", str(ag[m2]["publicado"]))
 D.marcar(con, "vv_entregado", True, manual_id=m2)

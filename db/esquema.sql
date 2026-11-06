@@ -191,6 +191,7 @@ CREATE TABLE IF NOT EXISTS agenda_manual (
   rol                TEXT,
   anio               TEXT,
   caratula           TEXT,
+  direccion          TEXT,                           -- tal como la escribió Diego (5 de Noviembre)
   fecha_remate       TEXT NOT NULL,                  -- AAAA-MM-DD
   hora_remate        TEXT,
   modalidad          TEXT NOT NULL DEFAULT 'sin_dato' CHECK (modalidad IN ('zoom','presencial','sin_dato')),

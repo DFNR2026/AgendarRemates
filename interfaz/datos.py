@@ -286,7 +286,7 @@ def manuales(con):
             "fecha_remate": m["fecha_remate"], "hora": m["hora_remate"],
             "remate_txt": larga(m["fecha_remate"]) + (f" a las {m['hora_remate']}" if m["hora_remate"] else ""),
             "remate_corto": corta(m["fecha_remate"]) + (f" a las {m['hora_remate']}" if m["hora_remate"] else ""),
-            "mod": modo(m["modalidad"]), "mod_txt": modalidad_texto(m["modalidad"]), "direccion": "Agregada a mano, sin dirección.",
+            "mod": modo(m["modalidad"]), "mod_txt": modalidad_texto(m["modalidad"]), "direccion": m["direccion"] or "Agregada a mano, sin dirección.",
             "minimo": "Sin dato", "garantia": "Sin dato", "monto": m["monto_vv"] or "Sin dato", "uf": None, "uf_txt": None,
             "otro_porcentaje": None, "asumido": False, "vv_desde": vd, "vv_hasta": vh, "vv_txt": texto_vv(vd, vh), "vv_tipo": tipo_vv(vd, vh),
             "vv_llegada": nota_llegada(m["tribunal"], vd, "texto"),
@@ -509,9 +509,10 @@ def agregar_manual(con, datos):
     rol = re.sub(r"\D", "", datos.get("rol") or "") or None
     anio = re.sub(r"\D", "", datos.get("anio") or "") or None
     with con:
-        cur = con.execute("INSERT INTO agenda_manual(tribunal, rol, anio, caratula, fecha_remate, hora_remate, modalidad, vv_desde, vv_hasta, "
-                          "monto_vv, agregado_en) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                          ((datos.get("trib") or "").strip() or None, rol, anio, (datos.get("car") or "").strip() or None, fecha,
+        cur = con.execute("INSERT INTO agenda_manual(tribunal, rol, anio, caratula, direccion, fecha_remate, hora_remate, modalidad, vv_desde, vv_hasta, "
+                          "monto_vv, agregado_en) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                          ((datos.get("trib") or "").strip() or None, rol, anio, (datos.get("car") or "").strip() or None,
+                           (datos.get("direccion") or "").strip() or None, fecha,
                            (datos.get("hora") or "").strip() or None, _MOD.get(datos.get("mod"), "sin_dato"), vd, vh,
                            (datos.get("monto") or "").strip() or None, _ahora()))
     return {"manual_id": cur.lastrowid}
