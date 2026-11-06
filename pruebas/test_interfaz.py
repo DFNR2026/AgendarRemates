@@ -199,6 +199,11 @@ def post(p, d):
 html = get("/")
 revisar("servidor. entrega la página", "<title>Agenda de remates</title>" in html)
 revisar("página. no carga programas de internet (funciona sin conexión)", not re.search(r"<script[^>]+src=", html))
+# Ficha (5 de Noviembre). El recuadro Remate va en planilla con día, hora, modalidad con su ícono y dirección.
+_rem = html[html.index("<h3>Remate</h3>"):html.index("</section>", html.index("<h3>Remate</h3>"))]
+revisar("ficha. el recuadro Remate va en planilla con día, hora, modalidad con ícono y dirección",
+        'class="planilla grande"' in _rem and all(f'<td class="k">{k}</td>' in _rem for k in ("DÍA", "HORA", "MODALIDAD", "DIRECCIÓN"))
+        and "diaLargo(it.fecha_remate" in _rem and "${SVG[it.mod](20)}" in _rem and "${E(it.direccion)}" in _rem and ".planilla.grande{font-size:16px;table-layout:auto}" in html)
 # Estilo A de Diego (5 de Noviembre). Cada causa agendada muestra sus datos en planilla, con la dirección.
 _tarj = html[html.index("function renderIzq("):html.index("function iso(")]
 revisar("causas agendadas. la tarjeta va en planilla con tribunal, dirección, remate, vale vista y monto",
