@@ -86,6 +86,20 @@ f_cal = "Los vales vista serán calificados en la audiencia de remate."   # trae
 r_cal = {**r27, "frase_regla": f_cal}
 if V.resolver([r_cal, r_cal], t27 + " " + f_cal, "2026-10-29", "13:00", "2026-10-14")["color"] != "rojo":
     fallas.append("'calificados' sin el llamado no quedó en rojo")
+# 10 de Noviembre (aprobado por Diego). Las instrucciones congeladas le dicen a la IA que esa frase da sin_dato (ejemplo 9). Si la IA
+# responde sin_dato y el aviso trae la frase exacta, el código la lee como entrega en el remate y cita la oración completa.
+# Antes salía el mensaje falso "El aviso no dice cuándo" (C-23164-2024 y C-6843-2024 del 10° Civil, 7 avisos de 28 con la frase).
+_sd27 = {**base, "regla": "sin_dato", "dias": None, "hora_hasta": None, "hora_desde": None, "frase_regla": None, "frases_extra": []}
+x27s = V.resolver([_sd27, dict(_sd27)], t27, "2026-10-29", "13:00", "2026-10-14")
+if not (x27s["regla"] == "en_el_remate" and x27s["color"] == "verde" and x27s.get("vv_hasta") == "2026-10-29 13:00"
+        and x27s["cita"] == r27["frase_regla"] and x27s["cita"] in t27):
+    fallas.append(f"sin_dato de la IA con la frase del llamado no quedó como entrega en el remate {x27s.get('regla')} {x27s.get('color')} {x27s.get('cita')}")
+# Sin la frase exacta, el sin_dato de la IA sigue siendo sin_dato. "calificados en la audiencia" no es la frase.
+_t_sin = "REMATE. Se rematará el inmueble. Todo postor debe acompañar vale vista endosable a la orden del tribunal por el 10% del mínimo."
+for _nombre, _t in (("sin la frase", _t_sin), ("con calificados en la audiencia", _t_sin + " " + f_cal)):
+    _x = V.resolver([_sd27, dict(_sd27)], _t, "2026-10-29", "13:00", "2026-10-14")
+    if not (_x["color"] == "sin_dato" and _x["regla"] == "sin_dato" and _x.get("vv_hasta") is None):
+        fallas.append(f"sin_dato de la IA {_nombre} dejó de ser sin_dato {_x.get('regla')} {_x.get('color')}")
 # Día de la semana. Aviso 34 del 14-10 ("el día viernes anterior") leído como día anterior da el miércoles. Debe quedar en rojo.
 x34 = next(x for x in banco if x["n"] == 34)
 r34 = {**ideal(x34["vale_vista"]), "regla": "dia_anterior"}

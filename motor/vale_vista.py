@@ -333,6 +333,21 @@ def resolver(lecturas: list, texto: str, fecha_remate: str | None, hora_remate: 
         base["motivos"].append("Las dos lecturas de la IA no coinciden."); base["vv_estado"] = "revisar"
         base["regla"] = lecturas[0].get("regla"); return base
     r = lecturas[0]
+    if r.get("regla") == "sin_dato":
+        # 10 de Noviembre (aprobado por Diego). Las instrucciones congeladas (vv-2, ejemplo 9) le dicen a la IA que "los vales
+        # vista se califican al hacerse el llamado al remate" da sin_dato, y la corrección de Diego del 18 de Octubre (esa frase
+        # SÍ es entrega en el remate) solo se aplicaba cuando la IA respondía en_el_remate. De 28 avisos con la frase, 21 quedaban
+        # en el remate y 7 sin dato con el mensaje falso "El aviso no dice cuándo" (C-23164-2024 y C-6843-2024 del 10° Civil).
+        # Ahora, si la IA dice sin_dato y el aviso trae esa frase exacta, el código la lee como entrega en el remate y cita la
+        # oración completa. No se tocan las instrucciones, para no volver a preguntarle a la IA por todos los avisos.
+        m = _CALIFICA_LLAMADO.search(texto)
+        if m:
+            ini = texto.rfind(". ", 0, m.start())
+            ini = ini + 2 if ini >= 0 else 0
+            fin = texto.find(".", m.end())
+            fin = fin + 1 if fin >= 0 else len(texto)
+            r = {**r, "regla": "en_el_remate", "frase_regla": texto[ini:fin].strip()}
+            lecturas = [r, r]
     v = verificar(r, texto)
     v2 = verificar(lecturas[1], texto)
     if v["ok"] and not v2["ok"]:

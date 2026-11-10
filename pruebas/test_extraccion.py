@@ -189,6 +189,50 @@ if not ok: fallas.append("F2-02 falso pegado")
 ok = extraer(_aviso("2026-10-22", 81), "2026-10-22")["pegado"]
 print(("OK    " if ok else "FALLA ") + "F2-02. el pegado real del 22 de Octubre aviso 81 sigue marcado")
 if not ok: fallas.append("F2-02 pegado real")
+# 10 de Noviembre (aprobado por Diego). Fechas de remate que el programa no leía. Textos reales de la base, del 24 de Octubre al 10 de
+# Noviembre. Cada caso es una regla distinta de motor\\extraccion.py y cada uno tiene su mutación anotada en la bitácora del 10.
+from motor.extraccion import fecha_y_hora
+def _fh(texto, edicion, fecha, hora, tipo_alerta=None, nombre=""):
+    r = fecha_y_hora(texto, edicion)
+    ok = (r["fecha_remate"]["valor"] == fecha and r["hora_remate"]["valor"] == hora and (r["fecha_remate"]["cita"] is None or r["fecha_remate"]["cita"] in texto)
+          and (tipo_alerta is None or any(t == tipo_alerta for t, _ in r["alertas"])))
+    print(("OK    " if ok else "FALLA ") + "fecha. " + nombre)
+    if not ok: fallas.append(f"fecha. {nombre} dio {r['fecha_remate']['valor']} {r['hora_remate']['valor']} {r['alertas']}")
+    return r
+_T10 = "REMATE: 10° JUZGADO CIVIL SANtiago, ubicado en Huérfanos N° 1409, 3° Piso, rematará19 noviembre 2026 a las 13:00 horas. Departamento numero 2113"
+_fh(_T10, "2026-10-24", "2026-11-19", "13:00", "detalle_menor", "día pegado a la palabra anterior (C-23164-2024, 10° Civil) con su alerta menor")
+_fh(_T10.replace("rematará19", "rematará 19"), "2026-10-24", "2026-11-19", "13:00", None, "el mismo aviso bien escrito se lee igual")
+if any(t == "detalle_menor" for t, _ in fecha_y_hora(_T10.replace("rematará19", "rematará 19"), "2026-10-24")["alertas"]):
+    fallas.append("fecha. el aviso bien escrito recibió la alerta de día pegado")
+_fh("REMATE. 11° JUZGADO CIVIL SANtiago, Huérfanos 1409, Piso 3, próximo 1° de Diciembre de 2026 a las 13:00 hrs., se remata de manera presencial",
+    "2026-11-09", "2026-12-01", "13:00", None, "día con signo de ordinal (C-316-2024, 11° Civil)")
+_T20 = ("caratulada “Vilchez con Vial y Consultores Asociados Ltda. y otra“, Rol C-35.144-2017, ha fijado audiencia para el día 24 de noviembre de 2026, "
+        "a las 13:00 horas, con el objeto de proceder a la subasta, en forma telemática")
+_fh(_T20, "2026-10-26", "2026-11-24", "13:00", None, "fecha antes del verbo, segunda pasada (C-35144-2017, 20° Civil)")
+_fh("ANTE EL 1° JUZGADO DE CIVIL DE Santiago, Huérfanos 1409, piso 16. Con fecha martes 26 de enero del año 2027, a las 13:00 horas, se llevará a efecto la subasta",
+    "2026-10-27", "2027-01-26", "13:00", None, "fecha antes del verbo con el año siguiente (C-10624-2025, 1° Civil)")
+_fh("Por resolución de fecha 4 de septiembre de 2026, a las 13:00 horas, el tribunal ordenó la subasta del inmueble de autos.",
+    "2026-10-09", None, None, "revisar_lectura", "una fecha anterior a la edición no cuenta en la segunda pasada (inventado a propósito)")
+_T6843 = ("10° JUZGADO CIVIL DE SANTIAGO, Huérfanos 1409, 3° piso, comuna de Santiago, Región Metropolitana, se rematará de forma presencial, en las dependencias "
+          "del Tribunal, el día 19 de noviembre a las 13:00 horas, la parcela número diecisiete")
+_r = _fh(_T6843, "2026-10-30", "2026-11-19", "13:00", "error_escritura", "aviso sin año (C-6843-2024, 10° Civil) con alerta de error de escritura")
+if not any("no dice el año del remate (19 de noviembre). Se tomó 2026" in t for _, t in _r["alertas"]):
+    fallas.append(f"fecha. texto de la alerta de aviso sin año {_r['alertas']}")
+_fh("se rematará el día 15 de enero a las 12:00 horas, el inmueble de autos", "2026-12-20", "2027-01-15", "12:00", "error_escritura",
+    "aviso sin año de diciembre con remate en enero queda en el año siguiente (duda de Diego, inventado a propósito)")
+_fh("se rematará el día 20 de diciembre a las 12:00 horas, el inmueble de autos", "2026-12-20", "2026-12-20", "12:00", "error_escritura",
+    "aviso sin año con remate el mismo día de la edición queda en ese año (inventado a propósito)")
+_fh(_T6843, None, None, None, "revisar_lectura", "sin fecha de edición no se asume ningún año")
+_fh("se rematará el inmueble de autos. El vale vista deberá ser entregado el 18 de noviembre en la secretaría.", "2026-10-30", None, None, "revisar_lectura",
+    "una fecha sin año después de entregar es del vale vista y no del remate (inventado a propósito)")
+_r = _fh("se rematará el día 19 de noviembre de 2026 a las 13:00 horas. La audiencia de remate del 20 de noviembre queda sin efecto.", "2026-10-30", "2026-11-19", "13:00", None,
+         "si hay una fecha completa de remate, la fecha sin año no se usa (inventado a propósito)")
+if any(t == "error_escritura" for t, _ in _r["alertas"]):
+    fallas.append("fecha. un aviso con fecha completa recibió la alerta de aviso sin año")
+_r = _fh("REMATE: DÉCIMO SEGUNDO JUZgado Civil Santiago, Huérfanos 1409, 4° piso, el 25 de noviembre de 20026 a las 13:45 horas, mediante videoconferencia",
+         "2026-11-06", "2026-11-25", "13:45", "error_escritura", "año mal impreso 20026 (C-10957-2025, 12° Civil) con alerta de error de escritura")
+if not any("imprime mal el año del remate (25 de noviembre de 20026). Se tomó 2026" in t for _, t in _r["alertas"]):
+    fallas.append(f"fecha. texto de la alerta de año mal impreso {_r['alertas']}")
 for c, n in aciertos.items():
     print(f"{c:12} aciertos {n} de {len(banco)} (mínimo {MINIMOS[c]})")
     if n < MINIMOS[c]: fallas.append(f"{c} bajó a {n} aciertos")

@@ -94,14 +94,28 @@ _VV_VIEJO = "La IA no encontró la regla del vale vista. Revísala en el aviso."
 _tr = lambda x: x[:2] + (NO_ENCONTRADA,) if x[2] == _VV_VIEJO else x
 _SEC_VIEJO = lambda o, t: o in _o24 and t in (NO_ENCONTRADA, _VV_VIEJO, RT.MOD_SIN_DATO)
 _SEC_NUEVO = lambda o, t: o in _o24 and t in (RT.VV_SECRETARIA, RT.MOD_SECRETARIA)
+# CORRECCIÓN del 10 de Noviembre, tarde. Fecha del remate (aprobado por Diego). Dos avisos del 18 de Octubre que en la referencia no
+# tenían fecha ahora la tienen. Aviso 75 (18° Civil, "El 27 de octubre de 2026, a las 09,00 horas, mediante videoconferencia ... se
+# rematará", la fecha va antes del verbo). Aviso 143 (juez árbitro, descartado, "con fecha 20 octubre a las 15:30 hrs." sin año).
+# En la referencia se pone solo esa fecha y sus alertas se revisan aparte, una por una. Todo lo demás debe seguir idéntico.
+_FECHA_NUEVA = {(75, 1): "2026-10-27", (143, 1): "2026-10-20"}
+viejo = [x[:8] + (_FECHA_NUEVA[x[:2]],) if x[:2] in _FECHA_NUEVA and x[8] is None else x for x in viejo]
+_oF = {o for o, s in _FECHA_NUEVA}
 revisar("147 remates del 18 de Octubre", len(nuevo) == 147, str(len(nuevo)))
 revisar("vale vista, dirección y fecha iguales aviso por aviso a la carga con Haiku del 20 de Octubre", nuevo == viejo,
         str([x for x in zip(nuevo, viejo) if x[0] != x[1]][:2]))
 QA = ("SELECT a.orden, al.tipo, al.texto FROM alertas al JOIN avisos a ON a.id = al.aviso_id JOIN ediciones e ON e.id = a.edicion_id "
       "WHERE e.fecha = '2026-10-18' ORDER BY 1, 2, 3")
 revisar("alertas del 18 iguales a la carga con Haiku (salvo las respuestas del abogado y la regla del 24° Civil)",
-        [x for x in c.execute(QA).fetchall() if not _ABOGADO_NUEVO(x[2]) and not _SEC_NUEVO(x[0], x[2])]
-        == sorted(_tr(x) for x in ref.execute(QA).fetchall() if not _ABOGADO_VIEJO(x[2]) and not _SEC_VIEJO(x[0], x[2])))   # sorted porque el texto nuevo ordena distinto
+        [x for x in c.execute(QA).fetchall() if not _ABOGADO_NUEVO(x[2]) and not _SEC_NUEVO(x[0], x[2]) and x[0] not in _oF]
+        == sorted(_tr(x) for x in ref.execute(QA).fetchall() if not _ABOGADO_VIEJO(x[2]) and not _SEC_VIEJO(x[0], x[2]) and x[0] not in _oF))   # sorted porque el texto nuevo ordena distinto
+_alF = lambda con: {o: sorted((t, x) for oo, t, x in con.execute(QA) if oo == o) for o in sorted(_oF)}
+_SIN_FECHA = ("revisar_lectura", "No se encontró la fecha del remate.")
+_CAMBIO_F = {75: ("revisar_lectura", "No se encontró la hora del remate junto a la fecha."),
+             143: ("error_escritura", "El aviso no dice el año del remate (20 octubre). Se tomó 2026 porque es la primera vez que ese día ocurre desde la edición del diario.")}
+revisar("avisos 75 y 143 del 18. la única alerta que cambia es la de fecha no encontrada, por la de su lectura nueva",
+        _alF(c) == {o: sorted([x for x in v if x != _SIN_FECHA] + [_CAMBIO_F[o]]) for o, v in _alF(ref).items()}
+        and all(_SIN_FECHA in v for v in _alF(ref).values()), str(_alF(c)))
 revisar("24° Civil. cada alerta de regla no encontrada del 24° se cambió por la de la secretaria", len(_r24) > 0 and
         sum(1 for x in ref.execute(QA) if _SEC_VIEJO(x[0], x[2]) and x[2] == _VV_VIEJO) == sum(1 for x in c.execute(QA) if _SEC_NUEVO(x[0], x[2]) and x[2] == RT.VV_SECRETARIA),
         str(sorted(_r24)))

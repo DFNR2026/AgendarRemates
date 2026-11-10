@@ -21,7 +21,16 @@ MESES = {"enero": 1, "febrero": 2, "marzo": 3, "abril": 4, "mayo": 5, "junio": 6
 _MES = "|".join(MESES)
 _DIA_SEM = r"(?:lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo)\s+"
 # "6 de noviembre de 2026", "3 noviembre 2026", "05 de noviembre del año 2026", "29 de Octubre 2026"
-FECHA_TEXTO = re.compile(rf"\b(\d{{1,2}})\s+(?:de\s+)?({_MES})\s*,?\s+(?:de\s+|del\s+)?(?:a[ñn]o\s+)?(\d{{4}})\b", re.I)
+# 10 de Noviembre. El día puede venir pegado a la palabra anterior ("rematará19 noviembre 2026", C-23164-2024 del 10° Civil, 24 al 27
+# de Octubre). Por eso antes del día solo se exige que no haya otro dígito, y no un corte de palabra. Medido en 2.138 avisos, cambian 4.
+# 10 de Noviembre. El día puede traer el signo de ordinal ("próximo 1° de Diciembre de 2026", C-316-2024 del 11° Civil, 9 y 10 de Noviembre).
+FECHA_TEXTO = re.compile(rf"(?<!\d)(\d{{1,2}})[°º]?\s+(?:de\s+)?({_MES})\s*,?\s+(?:de\s+|del\s+)?(?:a[ñn]o\s+)?(\d{{4}})\b", re.I)
+# 10 de Noviembre (decisión de Diego). Fecha sin año ("el día 19 de noviembre a las 13:00 horas", C-6843-2024 del 10° Civil y C-8664-2025
+# del 9° Civil) o con el año mal impreso ("25 de noviembre de 20026", C-10957-2025 del 12° Civil). Solo se usan si el aviso no trae
+# ninguna fecha completa de remate. El año se toma de la primera vez que ese día ocurre desde la edición, así un remate de enero
+# publicado en diciembre queda en enero del año siguiente. Siempre con alerta de error de escritura.
+FECHA_SIN_ANIO = re.compile(rf"(?<!\d)(\d{{1,2}})[°º]?\s+(?:de\s+)?({_MES})\b(?!\s*,?\s+(?:de\s+|del\s+)?(?:a[ñn]o\s+)?\d{{4}})", re.I)
+FECHA_ANIO_MALO = re.compile(rf"(?<!\d)(\d{{1,2}})[°º]?\s+(?:de\s+)?({_MES})\s*,?\s+(?:de\s+|del\s+)?(?:a[ñn]o\s+)?(\d{{5,6}})\b", re.I)
 # "11/11/2026", "27/10/ 2026"
 FECHA_NUM = re.compile(r"\b(\d{1,2})/(\d{1,2})/\s?(\d{4})\b")
 # "a las 13:15 horas", "13:45 hrs.", "a las 11.30 horas", "a las 11:00,", "A Las 15:05 Horas", "10:30 HRS"
@@ -45,6 +54,23 @@ def _fechas(texto):
         except ValueError:
             continue
         out.append((m.start(), m.end(), d.isoformat(), m.group(0)))
+    return sorted(out)
+
+
+def _fechas_sin_anio(texto, fecha_edicion):
+    """Fechas sin año o con el año mal impreso, con el año puesto por la regla de Diego. (inicio, fin, AAAA-MM-DD, cita, año impreso o None)."""
+    ed = dt.date.fromisoformat(fecha_edicion)
+    out = []
+    for patron in (FECHA_SIN_ANIO, FECHA_ANIO_MALO):
+        for m in patron.finditer(texto):
+            for anio in (ed.year, ed.year + 1):
+                try:
+                    d = dt.date(anio, MESES[m.group(2).lower()], int(m.group(1)))
+                except ValueError:
+                    continue
+                if d >= ed:
+                    out.append((m.start(), m.end(), d.isoformat(), m.group(0), m.group(3) if patron is FECHA_ANIO_MALO else None))
+                    break
     return sorted(out)
 
 
@@ -97,10 +123,33 @@ def fecha_y_hora(texto: str, fecha_edicion: str | None = None) -> dict:
         alertas.append(("revisar_lectura", f"El trozo trae más de una fecha de remate ({', '.join(fecha_palabras(x) for x in sorted(cercanas))}). Puede tener dos avisos pegados."))
         return resultado
     if not elegida:
+        # 10 de Noviembre. Segunda pasada, solo si la primera no encontró nada. Hay avisos que dan la fecha y recién después
+        # nombran el remate ("ha fijado audiencia para el día 24 de noviembre de 2026, a las 13:00 horas, con el objeto de
+        # subastar", C-35144-2017 del 20° Civil, y "Con fecha martes 26 de enero del año 2027, a las 13:00 horas, se llevará a
+        # efecto la subasta", C-10624-2025 del 1° Civil). Vale una fecha seguida por el verbo hasta 80 caracteres después. Una
+        # fecha anterior a la edición no cuenta (es una resolución o un trámite ya hecho).
+        lejos = [(ini, fin, valor, cita) for v in VERBO.finditer(texto) for ini, fin, valor, cita in fechas
+                 if fin <= v.start() <= fin + 80 and not (fecha_edicion and valor < fecha_edicion)]
+        elegida = min(lejos) if lejos else None
+    if not elegida and fecha_edicion:
+        # Tercera pasada (decisión de Diego del 10 de Noviembre). Fecha sin año o con el año mal impreso, con las mismas distancias
+        # al verbo. Una fecha que viene después de "entregar" es la del vale vista y no cuenta (igual que F2-02).
+        sin = [(ini, fin, valor, cita, malo) for v in VERBO.finditer(texto) for ini, fin, valor, cita, malo in _fechas_sin_anio(texto, fecha_edicion)
+               if (v.start() <= ini <= v.end() + 250 and not re.search(r"entreg", texto[v.end():ini], re.I)) or fin <= v.start() <= fin + 80]
+        if sin:
+            ini, fin, valor, cita, malo = min(sin)
+            elegida = (ini, fin, valor, cita)
+            porque = "porque es la primera vez que ese día ocurre desde la edición del diario"
+            alertas.append(("error_escritura", f"El aviso imprime mal el año del remate ({cita}). Se tomó {valor[:4]} {porque}." if malo else
+                            f"El aviso no dice el año del remate ({cita}). Se tomó {valor[:4]} {porque}."))
+    if not elegida:
         alertas.append(("revisar_lectura", "No se encontró la fecha del remate."))
         return resultado
     ini, fin, valor, cita = elegida
     resultado["fecha_remate"] = {"valor": valor, "cita": cita}
+    if ini > 0 and texto[ini - 1].isalpha():
+        # 10 de Noviembre. Diego quiere ver todo error de escritura del aviso, aunque sea menor.
+        alertas.append(("detalle_menor", f"El aviso imprime el día del remate pegado a la palabra anterior ({texto[max(0, ini - 8):fin].strip()})."))
     if fecha_edicion and valor < fecha_edicion:
         alertas.append(("error_escritura", f"La fecha del remate ({fecha_palabras(valor)}) es anterior a la edición del diario ({fecha_palabras(fecha_edicion)})."))
     h, hc = _hora_tras(texto, fin, fin + 80)
