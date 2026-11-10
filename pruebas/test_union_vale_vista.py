@@ -86,6 +86,12 @@ revisar("paso 3. rojo nunca guarda fechas aunque vengan", (b["vv_desde"], b["vv_
 b = bloque_vale_vista(res_("sin_dato", vv_estado="sin_dato", cita=None, vv_desde=None, vv_hasta=None))
 revisar("paso 3. sin dato = sin_dato y alerta dato_faltante con el texto aprobado",
         b["vv_estado"] == "sin_dato" and b["alertas"] == [("dato_faltante", NO_ENCONTRADA, None)])
+revisar("paso 3. sin dato dice que el aviso no lo trae y manda al tribunal (texto aprobado por Diego el 10 de Noviembre)",
+        NO_ENCONTRADA == "El aviso no dice cuándo se entrega el vale vista. Pregúntalo en el tribunal.", NO_ENCONTRADA)
+b = bloque_vale_vista(res_("rojo", vv_estado="revisar", vv_desde=None, vv_hasta=None,
+                           motivos=["La IA no encontró regla, pero el aviso parece dar un plazo (hasta las 12 del día anterior)."]))
+revisar("paso 3. si el aviso parece dar un plazo NO se dice que el aviso no lo trae",
+        b["vv_estado"] == "revisar" and all(a[1] != NO_ENCONTRADA for a in b["alertas"]), str(b["alertas"]))
 b = bloque_vale_vista(res_("rojo", vv_estado="revisar", vv_hasta=None, contradiccion="hasta las 12 hrs.",
                            motivos=["El aviso da dos plazos u horarios distintos para la entrega."]))
 revisar("paso 3. contradicción real = alerta contradiccion con la segunda frase, además del rojo",

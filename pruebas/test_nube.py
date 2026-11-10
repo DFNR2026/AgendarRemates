@@ -88,7 +88,11 @@ viejo = [x[:2] + ("calculado", _r24[x[:2]], _r24[x[:2]], "en_el_remate") + x[6:]
 _o24 = {o for o, s in _r24}
 _ABOGADO_VIEJO = lambda t: "ASUMIDO" in t or t in _RESUELTAS
 _ABOGADO_NUEVO = lambda t: t.startswith("El abogado recomienda llevar el vale vista un martes.")
-_SEC_VIEJO = lambda o, t: o in _o24 and t in (NO_ENCONTRADA, RT.MOD_SIN_DATO)
+# CORRECCIÓN del 10 de Noviembre. El texto de regla no encontrada cambió (aprobado por Diego). La referencia tiene el texto viejo y
+# se traduce al nuevo antes de comparar. Nada más cambia.
+_VV_VIEJO = "La IA no encontró la regla del vale vista. Revísala en el aviso."
+_tr = lambda x: x[:2] + (NO_ENCONTRADA,) if x[2] == _VV_VIEJO else x
+_SEC_VIEJO = lambda o, t: o in _o24 and t in (NO_ENCONTRADA, _VV_VIEJO, RT.MOD_SIN_DATO)
 _SEC_NUEVO = lambda o, t: o in _o24 and t in (RT.VV_SECRETARIA, RT.MOD_SECRETARIA)
 revisar("147 remates del 18 de Octubre", len(nuevo) == 147, str(len(nuevo)))
 revisar("vale vista, dirección y fecha iguales aviso por aviso a la carga con Haiku del 20 de Octubre", nuevo == viejo,
@@ -97,9 +101,9 @@ QA = ("SELECT a.orden, al.tipo, al.texto FROM alertas al JOIN avisos a ON a.id =
       "WHERE e.fecha = '2026-10-18' ORDER BY 1, 2, 3")
 revisar("alertas del 18 iguales a la carga con Haiku (salvo las respuestas del abogado y la regla del 24° Civil)",
         [x for x in c.execute(QA).fetchall() if not _ABOGADO_NUEVO(x[2]) and not _SEC_NUEVO(x[0], x[2])]
-        == [x for x in ref.execute(QA).fetchall() if not _ABOGADO_VIEJO(x[2]) and not _SEC_VIEJO(x[0], x[2])])
+        == sorted(_tr(x) for x in ref.execute(QA).fetchall() if not _ABOGADO_VIEJO(x[2]) and not _SEC_VIEJO(x[0], x[2])))   # sorted porque el texto nuevo ordena distinto
 revisar("24° Civil. cada alerta de regla no encontrada del 24° se cambió por la de la secretaria", len(_r24) > 0 and
-        sum(1 for x in ref.execute(QA) if _SEC_VIEJO(x[0], x[2]) and x[2] == NO_ENCONTRADA) == sum(1 for x in c.execute(QA) if _SEC_NUEVO(x[0], x[2]) and x[2] == RT.VV_SECRETARIA),
+        sum(1 for x in ref.execute(QA) if _SEC_VIEJO(x[0], x[2]) and x[2] == _VV_VIEJO) == sum(1 for x in c.execute(QA) if _SEC_NUEVO(x[0], x[2]) and x[2] == RT.VV_SECRETARIA),
         str(sorted(_r24)))
 revisar("las alertas que se sacaron de la referencia son solo de las preguntas 2, 4, 5 y 11, y hay una recomendación por cada pregunta 5",
         sum(1 for x in ref.execute(QA) if x[2] == "Fecha del vale vista provisoria. Depende de la pregunta 5 al abogado.")

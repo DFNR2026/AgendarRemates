@@ -18,7 +18,7 @@ MODELO = "claude-haiku-5-5"
 VERSION_INSTRUCCIONES = "vv-2"
 CARPETA_RESPUESTAS = RAIZ / "ia_respuestas" / "vale_vista"
 HORA_CIERRE_SUPUESTA = "14:00"          # pregunta 3 al abogado
-NO_ENCONTRADA = "La IA no encontró la regla del vale vista. Revísala en el aviso."
+NO_ENCONTRADA = "El aviso no dice cuándo se entrega el vale vista. Pregúntalo en el tribunal."   # 10 de Noviembre. Antes culpaba a la IA, pero en 23 de 23 avisos revisados el aviso de verdad no lo dice
 
 REGLAS = ["dias_habiles_antes", "horas_antes", "dia_anterior", "dia_anterior_sabado_a_viernes", "dia_anterior_sabado_a_habil",
           "viernes_anterior", "martes_o_jueves_anterior", "en_el_remate", "fecha_fija", "sin_dato", "otra"]
