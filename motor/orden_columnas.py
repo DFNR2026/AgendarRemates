@@ -36,7 +36,15 @@ def texto_por_posicion(geo: dict) -> str | None:
     cortes = []
     for a in sorted(secundarias, key=lambda a: -a[2]):
         fila = [b for b in secundarias if abs(b[2] - a[2]) <= 3]
-        if len({min(bordes, key=lambda x: abs(x - b[1])) for b in fila}) >= 2:
+        # 10 de Noviembre. La franja exige la MISMA sección en dos columnas o más. En B9 del 5 de Noviembre la sección 1612
+        # (vehículos) empezaba a media altura de la columna 6 y la 1616 a la misma altura de la columna 7. Eran dos secciones
+        # distintas que partían por casualidad a la misma altura, no una franja que cruza la página, y la regla mandaba la mitad
+        # de abajo de todas las columnas al final (C-8467-2025 quedó sin comienzo y C-6154-2024 pegado a un remate de vehículo).
+        # En 258 páginas con cornisas, las 3 franjas reales (F15 de los domingos) repiten la sección 1309 en 5 o 6 columnas.
+        por_seccion = {}
+        for b in fila:
+            por_seccion.setdefault(str(b[0]).strip(), set()).add(min(bordes, key=lambda x: abs(x - b[1])))
+        if max(len(v) for v in por_seccion.values()) >= 2:
             techo = max(b[2] + b[4] for b in fila) + 2
             # Un título ancho (dos columnas o más) justo encima de esa fila pertenece a la franja nueva
             # (ej. "MUNDO LABORAL - CLASIFICADOS EMPLEO Y CAPACITACIÓN", 4 columnas de ancho).

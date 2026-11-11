@@ -36,7 +36,8 @@ FECHA_NUM = re.compile(r"\b(\d{1,2})/(\d{1,2})/\s?(\d{4})\b")
 # "a las 13:15 horas", "13:45 hrs.", "a las 11.30 horas", "a las 11:00,", "A Las 15:05 Horas", "10:30 HRS"
 HORA = re.compile(r"(?:\ba(?:\s+las)?\s+)?\b(\d{1,2})[:.]\s?(\d{2})\b(?:\s*(?:horas|hrs?)\b\.?)?", re.I)
 # Palabras que anuncian el remate
-VERBO = re.compile(r"\b(?:se\s+)?(?:rematar[áa]n?|remata|subastar[áa]n?|se\s+subasta|remate|subasta|llamado\s+con\s+fecha)\b", re.I)
+# 10 de Noviembre. Se agrega "rematase" y "remátese" ("Rit N° C-10-2025, rematase el día 20 de Noviembre de 2026", Juzgado de Letras de Peñaflor).
+VERBO = re.compile(r"\b(?:se\s+)?(?:rematar[áa]n?|rem[aá]t[ae]se|remata|subastar[áa]n?|se\s+subasta|remate|subasta|llamado\s+con\s+fecha)\b", re.I)
 
 
 def _fechas(texto):

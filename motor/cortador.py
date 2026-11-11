@@ -99,11 +99,13 @@ INICIO = re.compile(
     r"|(?:(?<=\. )|(?<=\.’ )|(?<=\.” )|(?<=\.\) )|^)(?:"                    # o un encabezado de tribunal al comenzar una oración
     rf"(?:ANTE\s+(?:EL\s+)?)?{ORDINAL}\s+(?:JUZGADO|TRIBUNAL|JUZ)"
     rf"|EXTRACTO\.?\s+{ORDINAL}\s+(?:Juzgado|Tribunal)\b"   # F2-03 (1 de Noviembre). "Toro Barrera’. EXTRACTO. VIGÉSIMO PRIMER Juzgado Civil" escondía C-18510-2019 dentro de C-15893-2024 (27-10 aviso 81). Solo con Juzgado o Tribunal sin mayúsculas, porque con JUZGADO la regla de abajo ya corta después de "EXTRACTO. " y moverlo cambiaba el texto de unos 100 avisos
-    r"|JUZGADO\s+(?:DE\s+)?(?:COBRANZA|LETRAS|FAMILIA)"
+    r"|(?:ANTE\s+(?:EL\s+)?)?JUZGADO\s+(?:DE\s+)?(?:COBRANZA|LETRAS|FAMILIA)"   # 10 de Noviembre. "Cerda/Cerda. ANTE EL JUZGADO LETRAS PEÑAflor" iba pegado al aviso de un juez partidor y se descartaba con él (C-10-2025, 2, 4 y 5 de Noviembre)
     r"|EXTRACTO\s+(?:PARTICI|NOTIFICACI)"
-    r"|(?:EXTRACTO\.?\s+)?ANTE\s+(?:(?:EL|LA)\s+)?(?:SEÑORA?\s+)?JUEZ"          # EXTRACTO. ANTE EL SEÑOR JUEZ Árbitro (pegado al 30° Civil, visto el 2026-10-06)
+    r"|(?:EXTRACTO\.?\s+)?ANTE\s+(?:(?:EL|LA)\s+)?(?:SEÑORA?\s+)?(?:JUEZ|[ÁA]RBITR[OA]\b)"   # 10 de Noviembre. "Secretaría. ANTE ÁRBITRO DANIEL STEINmetz Reyes, partición" iba pegado a C-7314-2015 del 30° Civil y le borraba la fecha (7 de Noviembre, aviso 133)
+    #          # EXTRACTO. ANTE EL SEÑOR JUEZ Árbitro (pegado al 30° Civil, visto el 2026-10-06)
     r"|(?:[A-ZÁÉÍÓÚÑ]+\s+){1,4}REMATA\b"                                  # COMUNA PROVIDENCIA REMATA (partidor sin rol, visto el 2026-10-11)
     r"|JUEZA?\s+[ÁA]RBITR[OA]\b"                                          # JUEZ ÁRBITRO ARTURO GÓMEZ Tomás (pegado a Cobranza, visto el 2026-10-06)
+    r"|EXTRACTO\s*:\s*JUEZA?\s+(?:PARTIDOR|[ÁA]RBITR[OA])\b"                # "Secretaría del Tribunal. EXTRACTO: JUEZ PARTIDOR, RAÚL Toro González" con dos puntos iba pegado a C-10-2025 de Peñaflor (3 de Noviembre, aviso 77)
     r"|JUEZ\s+PARTIDOR\b"                                                  # JUEZ PARTIDOR, CRISTIÁN LESCOT Jerez, rematará (sin rol, visto el 2026-10-14)
     r"|(?:PRIMER|SEGUNDO|TERCER)\s+LLAMADO\b"                              # TERCER LLAMADO - AVISO DE REmate (sin rol, visto el 2026-10-14)
     r")")

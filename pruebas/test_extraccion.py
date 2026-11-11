@@ -233,6 +233,11 @@ _r = _fh("REMATE: DÉCIMO SEGUNDO JUZgado Civil Santiago, Huérfanos 1409, 4° p
          "2026-11-06", "2026-11-25", "13:45", "error_escritura", "año mal impreso 20026 (C-10957-2025, 12° Civil) con alerta de error de escritura")
 if not any("imprime mal el año del remate (25 de noviembre de 20026). Se tomó 2026" in t for _, t in _r["alertas"]):
     fallas.append(f"fecha. texto de la alerta de año mal impreso {_r['alertas']}")
+_fh("ANTE EL JUZGADO LETRAS PEÑAflor, ubicado en Maria Ester Garay 135, Peñaflor, en proceso cumplimiento laboral, caratulado ’Varas / Maestranza Abitech SpA’, "
+    "Rit N° C-10-2025, rematase el día 20 de Noviembre de 2026 a las 12:00 horas, los derechos", "2026-11-03", "2026-11-20", "12:00", None,
+    "verbo rematase (C-10-2025, Juzgado de Letras de Peñaflor)")
+_fh("Huérfanos 1409, 5° piso. Remátese 11 de noviembre de 2026, a las 13:30 horas, mediante plataforma Zoom", "2026-10-15", "2026-11-11", "13:30", None,
+    "verbo remátese (C-18936-2024, edición del 15 de Octubre)")
 for c, n in aciertos.items():
     print(f"{c:12} aciertos {n} de {len(banco)} (mínimo {MINIMOS[c]})")
     if n < MINIMOS[c]: fallas.append(f"{c} bajó a {n} aciertos")

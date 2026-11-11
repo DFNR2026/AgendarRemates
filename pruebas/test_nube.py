@@ -98,8 +98,12 @@ _SEC_NUEVO = lambda o, t: o in _o24 and t in (RT.VV_SECRETARIA, RT.MOD_SECRETARI
 # tenían fecha ahora la tienen. Aviso 75 (18° Civil, "El 27 de octubre de 2026, a las 09,00 horas, mediante videoconferencia ... se
 # rematará", la fecha va antes del verbo). Aviso 143 (juez árbitro, descartado, "con fecha 20 octubre a las 15:30 hrs." sin año).
 # En la referencia se pone solo esa fecha y sus alertas se revisan aparte, una por una. Todo lo demás debe seguir idéntico.
-_FECHA_NUEVA = {(75, 1): "2026-10-27", (143, 1): "2026-10-20"}
+# Mismo 10 de Noviembre, noche. Verbo "Remátese" (aviso 82, C-18936-2024, "Remátese 11 de noviembre de 2026, a las 13:30 horas"). Con la
+# fecha, su vale vista del día anterior ya se puede calcular y deja de estar en rojo por falta de fecha.
+_FECHA_NUEVA = {(75, 1): "2026-10-27", (143, 1): "2026-10-20", (82, 1): "2026-11-11"}
 viejo = [x[:8] + (_FECHA_NUEVA[x[:2]],) if x[:2] in _FECHA_NUEVA and x[8] is None else x for x in viejo]
+_VV_NUEVO = {(82, 1): ("calculado", "2026-10-19", "2026-11-10 13:00")}
+viejo = [x[:2] + _VV_NUEVO[x[:2]] + x[5:] if x[:2] in _VV_NUEVO and x[2:5] == ("revisar", None, None) else x for x in viejo]
 _oF = {o for o, s in _FECHA_NUEVA}
 revisar("147 remates del 18 de Octubre", len(nuevo) == 147, str(len(nuevo)))
 revisar("vale vista, dirección y fecha iguales aviso por aviso a la carga con Haiku del 20 de Octubre", nuevo == viejo,
@@ -112,10 +116,12 @@ revisar("alertas del 18 iguales a la carga con Haiku (salvo las respuestas del a
 _alF = lambda con: {o: sorted((t, x) for oo, t, x in con.execute(QA) if oo == o) for o in sorted(_oF)}
 _SIN_FECHA = ("revisar_lectura", "No se encontró la fecha del remate.")
 _CAMBIO_F = {75: ("revisar_lectura", "No se encontró la hora del remate junto a la fecha."),
-             143: ("error_escritura", "El aviso no dice el año del remate (20 octubre). Se tomó 2026 porque es la primera vez que ese día ocurre desde la edición del diario.")}
-revisar("avisos 75 y 143 del 18. la única alerta que cambia es la de fecha no encontrada, por la de su lectura nueva",
-        _alF(c) == {o: sorted([x for x in v if x != _SIN_FECHA] + [_CAMBIO_F[o]]) for o, v in _alF(ref).items()}
-        and all(_SIN_FECHA in v for v in _alF(ref).values()), str(_alF(c)))
+             143: ("error_escritura", "El aviso no dice el año del remate (20 octubre). Se tomó 2026 porque es la primera vez que ese día ocurre desde la edición del diario."),
+             82: None}
+_ROJO_SIN_FECHA = lambda x: x[0] == "revisar_lectura" and x[1].startswith("Límite del programa. El programa no encontró la fecha del remate.")
+revisar("avisos 75, 82 y 143 del 18. solo cambian la alerta de fecha no encontrada (por la de su lectura nueva) y, en el 82, el rojo del vale vista por falta de fecha",
+        _alF(c) == {o: sorted([x for x in v if x != _SIN_FECHA and not (o == 82 and _ROJO_SIN_FECHA(x))] + ([_CAMBIO_F[o]] if _CAMBIO_F[o] else [])) for o, v in _alF(ref).items()}
+        and all(_SIN_FECHA in v for v in _alF(ref).values()) and any(_ROJO_SIN_FECHA(x) for x in _alF(ref)[82]), str(_alF(c))[:600])
 revisar("24° Civil. cada alerta de regla no encontrada del 24° se cambió por la de la secretaria", len(_r24) > 0 and
         sum(1 for x in ref.execute(QA) if _SEC_VIEJO(x[0], x[2]) and x[2] == _VV_VIEJO) == sum(1 for x in c.execute(QA) if _SEC_NUEVO(x[0], x[2]) and x[2] == RT.VV_SECRETARIA),
         str(sorted(_r24)))

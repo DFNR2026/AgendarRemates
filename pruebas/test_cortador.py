@@ -177,5 +177,45 @@ print(f"\n=== 2026-10-27 (F2-03) ===\n{c27}")
 if not all(c27.values()):
     fallas += 1
 
+# 10 de Noviembre (aprobado por Diego). Cuatro arreglos, cada uno con su mutación en la bitácora del 10. Capturas del 5 y del 7 de
+# Noviembre copiadas a banco_pruebas.
+# 1. motor\\orden_columnas.py. En B9 del 5 de Noviembre las secciones 1612 y 1616 empezaban a la misma altura en dos columnas vecinas
+#    y se tomaban por una franja que cruza la página. C-8467-2025 quedaba sin comienzo y C-6154-2024 pegado a un remate de vehículo.
+# 2. "EXTRACTO: JUEZ PARTIDOR" con dos puntos no cortaba.
+# 3. "ANTE EL JUZGADO LETRAS PEÑAflor" no cortaba y C-10-2025 se descartaba junto al aviso del juez partidor de antes.
+# 4. "ANTE ÁRBITRO DANIEL STEINmetz" no cortaba y le borraba la fecha a C-7314-2015 del 30° Civil (7 de Noviembre).
+a05 = desde_captura("2026-11-05", RAIZ / "banco_pruebas" / "2026-11-05")[2]
+c05 = {
+    "98 avisos": len(a05) == 98,
+    "C-8467-2025 con su comienzo": any(a.rol == "8467" and a.texto.startswith("REMATE: ANTE 1° JUZGADO CIVIL de Santiago") and a.texto.endswith("Secretaria.") for a in a05),
+    "C-6154-2024 en su propio aviso": any(a.rol == "6154" and a.texto.startswith("1° JUZGADO CIVIL SANTIAGO, Huérfanos 1409, Piso 16, se rematará") for a in a05),
+    "ningún aviso trae remates de vehículos ni notificaciones de otra sección": not any("CHANGAN" in a.texto or "posesión efectiva" in a.texto for a in a05),
+    "ningún aviso empieza en minúscula": not any(a.revisar.startswith("el aviso empieza en minúscula") for a in a05),
+    "Peñaflor en su propio aviso": any(a.rol == "10" and a.texto.startswith("ANTE EL JUZGADO LETRAS PEÑAflor") and a.texto.endswith("Secretaría del Tribunal.") for a in a05),
+    "el juez partidor de antes de Peñaflor termina en su carátula": any(a.texto.startswith("JUEZ PARTIDOR CRISTIAN LAUbrie") and a.texto.endswith("’Pignac Con Pignac’.") for a in a05),
+    "EXTRACTO con dos puntos del juez partidor aparte": any(a.texto.startswith("EXTRACTO: JUEZ PARTIDOR, RAÚL Toro") for a in a05),
+}
+print(f"\n=== 2026-11-05 (orden de columnas, EXTRACTO con dos puntos y ANTE EL JUZGADO LETRAS) ===\n{c05}")
+if not all(c05.values()):
+    fallas += 1
+a07 = desde_captura("2026-11-07", RAIZ / "banco_pruebas" / "2026-11-07")[2]
+c07 = {
+    "141 avisos": len(a07) == 141,
+    "C-7314-2015 termina en su secretaría": any(a.rol == "7314" and a.texto.endswith("Rol C-7314-2015. Secretaría.") for a in a07),
+    "el árbitro de partición aparte": any(a.texto.startswith("ANTE ÁRBITRO DANIEL STEINmetz") for a in a07),
+}
+print(f"\n=== 2026-11-07 (ANTE ÁRBITRO) ===\n{c07}")
+if not all(c07.values()):
+    fallas += 1
+# La franja real sigue leyéndose como franja. F15 del 11 de Octubre repite la sección 1309 en 6 columnas a media página.
+import json as _json
+from motor.orden_columnas import texto_por_posicion
+_t15 = texto_por_posicion(_json.loads((RAIZ / "banco_pruebas" / "2026-10-11" / "F15_VC4MEM0M.geo.json").read_text(encoding="utf-8")))
+import hashlib as _hl
+_h15 = _hl.sha256(_t15.encode("utf-8")).hexdigest()[:16]
+print(f"\n=== F15 del 11 de Octubre, franja real === huella {_h15}")
+if _h15 != "0d5d087f2625895e":   # igual que con el código anterior al arreglo
+    fallas += 1
+
 print("\nRESULTADO.", "TODO OK" if not fallas else f"{fallas} ediciones con diferencias")
 sys.exit(1 if fallas else 0)

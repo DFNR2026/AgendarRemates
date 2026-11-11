@@ -1,0 +1,120 @@
+{
+ "fecha": "2026-11-07",
+ "leida_en": "2026-11-07T06:30:44",
+ "segundos": 51,
+ "union_texto": "salto",
+ "cuerpos": {
+  "A": "2026/11/07 n=14",
+  "B": "2026/11/07 n=12",
+  "C": "2026/11/07 n=10",
+  "D": "2026/11/07 n=12"
+ },
+ "paginas_leidas": 48,
+ "paginas_con_remates": [
+  {
+   "pagina": "D4",
+   "id": "MU4MIU1C",
+   "archivo": "D04_MU4MIU1C.txt",
+   "cornisas": 1,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 34898,
+   "sha256": "90fa3a4b6e8bbfc02433185bbcc9799f73d90ed171705ba18d71d092dd72c95c"
+  },
+  {
+   "pagina": "D5",
+   "id": "MU4MIU1D",
+   "archivo": "D05_MU4MIU1D.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 38831,
+   "sha256": "df0bdf4c0bc5dfad6130f7b72b6eed9edd578b239f990b926ca6b48e915b4f80"
+  },
+  {
+   "pagina": "D6",
+   "id": "MU4MIU1E",
+   "archivo": "D06_MU4MIU1E.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 37565,
+   "sha256": "b017032b07d00db0702d244de661dd4d06a3b54b7135f29810ea726a780df5b4"
+  },
+  {
+   "pagina": "D7",
+   "id": "MU4MIU1F",
+   "archivo": "D07_MU4MIU1F.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 38091,
+   "sha256": "9c7bbcf7547be074f0cf6bd2637152218467015e7cd4055d1a4a388bce99fbab"
+  },
+  {
+   "pagina": "D8",
+   "id": "MU4MIU1G",
+   "archivo": "D08_MU4MIU1G.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 37777,
+   "sha256": "77084a1fc6d5b68211da9f3c1f01968eb3d3cae8c6fcb46a957707650d6f75c3"
+  },
+  {
+   "pagina": "D9",
+   "id": "MU4MIU1H",
+   "archivo": "D09_MU4MIU1H.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 37949,
+   "sha256": "4e9fd0b52d8b55da68b805b8452b85689d48ac707f75364463e67ea389a20c6a"
+  },
+  {
+   "pagina": "D10",
+   "id": "MU4MIU1I",
+   "archivo": "D10_MU4MIU1I.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 37293,
+   "sha256": "f4c036d8cb65e9d28ef5912bff633535505b82ce02d4cb3de464a5a6f5fd5fa1"
+  },
+  {
+   "pagina": "D11",
+   "id": "MU4MIU1J",
+   "archivo": "D11_MU4MIU1J.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 38504,
+   "sha256": "d4653300944535275c3067e79e76ee0af70344025120d8de948b7fc9fb7ac4a7"
+  },
+  {
+   "pagina": "D12",
+   "id": "MU4MIU1K",
+   "archivo": "D12_MU4MIU1K.txt",
+   "cornisas": 7,
+   "salidas": [],
+   "entradas": [],
+   "caracteres": 36790,
+   "sha256": "0b87785509f14c58115e2fe81ba377e5e671539b8ffd352e45d5dd5a1b7f759f"
+  }
+ ],
+ "rollos": [
+  [
+   "D4",
+   "D5",
+   "D6",
+   "D7",
+   "D8",
+   "D9",
+   "D10",
+   "D11",
+   "D12"
+  ]
+ ],
+ "alarmas": [],
+ "notas": []
+}
