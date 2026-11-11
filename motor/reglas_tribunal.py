@@ -9,11 +9,16 @@ presenciales. Siempre se contrasta con el aviso.
 11° Juzgado Civil de Santiago (Diego, 6 de Noviembre de 2026). El secretario confirmó que el vale vista es nominativo a la orden
 del tribunal, que se entrega el mismo día del remate y que se lleva fotocopia de la cédula por ambos lados. Diego decidió que, si
 el aviso no dice cuándo, va en el mismo remate como en el 24°. Sus avisos dicen "al momento de efectuarse el llamado a remate".
+14° Juzgado Civil de Santiago (Diego, 11 de Noviembre de 2026). Diego fue presencialmente y el encargado del mesón de atención
+de público le dijo que sus remates "son a la antigua", siempre presenciales, y que el vale vista se entrega el mismo día, antes de
+que empiece el remate. Calza con sus bases (C-15380-2025, el Secretario revisa las garantías en la audiencia). Se aplica igual que
+la del 24°, para el vale vista y para la modalidad.
 Nada de esto cambia la lectura de los demás tribunales."""
 from motor.vale_vista import NO_ENCONTRADA
 
 TRIB_24 = "24° Juzgado Civil de Santiago"
 TRIB_11 = "11° Juzgado Civil de Santiago"
+TRIB_14 = "14° Juzgado Civil de Santiago"
 VV_SECRETARIA = ("Regla de la secretaria del 24° Civil. El vale vista se entrega en el mismo remate, porque el aviso no dice "
                  "cuándo se entrega.")
 VV_SECRETARIA_ROJO = ("No se pudo leer la regla del vale vista del aviso. Se usa la regla de la secretaria del 24° Civil, que dice "
@@ -33,8 +38,11 @@ def es_24(tribunal) -> bool:
 
 
 # Textos por tribunal para la regla del vale vista. El 24° es la secretaria y el 11° el secretario.
-_QUIEN = {TRIB_24: ("la secretaria", "de la secretaria"), TRIB_11: ("el secretario", "del secretario")}
-_NUM = {TRIB_24: "24°", TRIB_11: "11°"}
+_QUIEN = {TRIB_24: ("la secretaria", "de la secretaria"), TRIB_11: ("el secretario", "del secretario"),
+          TRIB_14: ("el encargado de mesón", "del encargado de mesón")}
+_NUM = {TRIB_24: "24°", TRIB_11: "11°", TRIB_14: "14°"}
+# Tribunales que dijeron que sus remates son siempre presenciales (24° el 6 de Noviembre, 14° el 11 de Noviembre).
+_MOD_PRESENCIAL = (TRIB_24, TRIB_14)
 
 
 def textos_vv(tribunal):
@@ -81,12 +89,37 @@ def _vale_vista(b: dict, fecha_remate, hora_remate, VV_SECRETARIA, VV_SECRETARIA
     return b                                                   # el aviso dice lo mismo que la secretaria
 
 
-def modalidad_24(ex: dict) -> dict:
-    """Datos traducidos de un aviso (motor.procesar_edicion.traducir) -> con la modalidad de la secretaria aplicada."""
+def tiene_regla_modalidad(tribunal) -> bool:
+    return (tribunal or "").strip() in _MOD_PRESENCIAL
+
+
+def textos_modalidad(tribunal):
+    """(sin dato, contradicción con {} para el texto de la modalidad del aviso). Los del 24° son los mismos de siempre."""
+    t = (tribunal or "").strip()
+    if t == TRIB_24:
+        return MOD_SECRETARIA, MOD_SECRETARIA_CONTRA
+    q = f"{_QUIEN[t][0]} del {_NUM[t]} Civil"
+    return (f"El aviso no dice si el remate es por Zoom o presencial. {q[0].upper() + q[1:]} dijo que sus remates son siempre presenciales.",
+            "El aviso dice que el remate es {}, pero " + q + " dijo que sus remates son siempre presenciales. Confirma en el tribunal.")
+
+
+def _aplicar_modalidad(ex: dict, sin, contra) -> dict:
     v = (ex.get("modalidad") or {}).get("valor")
     if v == "sin_dato":
-        al = [a for a in ex["alertas"] if a[1] != MOD_SIN_DATO] + [("condicion_especial", MOD_SECRETARIA)]
+        al = [a for a in ex["alertas"] if a[1] != MOD_SIN_DATO] + [("condicion_especial", sin)]
         return {**ex, "modalidad": {"valor": "presencial", "cita": None}, "alertas": al}
     if v in _MOD_TXT:
-        return {**ex, "alertas": ex["alertas"] + [("contradiccion", MOD_SECRETARIA_CONTRA.format(_MOD_TXT[v]))]}
+        return {**ex, "alertas": ex["alertas"] + [("contradiccion", contra.format(_MOD_TXT[v]))]}
     return ex
+
+
+def modalidad_tribunal(ex: dict) -> dict:
+    """Datos traducidos de un aviso (motor.procesar_edicion.traducir) -> con la modalidad del tribunal aplicada (24° y 14°)."""
+    if not tiene_regla_modalidad(ex.get("tribunal")):
+        return ex
+    return _aplicar_modalidad(ex, *textos_modalidad(ex.get("tribunal")))
+
+
+def modalidad_24(ex: dict) -> dict:
+    """Se mantiene por las pruebas y db\\migrar_24_civil.py. Aplica la modalidad de la secretaria del 24°."""
+    return _aplicar_modalidad(ex, MOD_SECRETARIA, MOD_SECRETARIA_CONTRA)

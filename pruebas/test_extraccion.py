@@ -256,6 +256,25 @@ if any(t == "error_escritura" for t, _ in _r["alertas"]):
     fallas.append("fecha. el resguardo dejó además la alerta de fecha anterior a la edición")
 _fh("REMATE. ANTE EL 28° JUZGADO CIvil Santiago, Huérfanos 1409, se subastará el día 06 de noviembre de 2024, a las 13:10 horas, por videoconferencia",
     "2026-10-28", "2024-11-06", "13:10", "error_escritura", "resguardo. aviso mal impreso sin otra fecha futura sigue con su alerta (C-18503-2019, 28° Civil)")
+# 11 de Noviembre. Punto D. Hora con coma, hora sin minutos y año con punto. Textos reales salvo los marcados.
+_fh("REMATE ANTE 27° JUZGADO CIVIL Santiago, Huérfanos 1409, piso 13 se rematará el 24 de noviembre de 2026, a las 10,00 horas, inmueble consistente en Departamento",
+    "2026-11-05", "2026-11-24", "10:00", None, "hora con coma (27° Civil del 5 de Noviembre)")
+_fh("Inversiones Saylo Limitada’ se rematará vía plataforma zoom 17 de noviembre de 2026, 12 horas, inmueble de propiedad de la demandada",
+    "2026-10-21", "2026-11-17", "12:00", None, "hora sin minutos, '2026, 12 horas' (21 de Octubre aviso 51)")
+_fh("REMATE: 9° JUZGADO CIVIL SANtiago, Huérfanos N° 1409, Piso 3, se rematará el 10 noviembre 2026 a las 12 hrs., vía plataforma zoom",
+    "2026-10-24", "2026-11-10", "12:00", None, "hora sin minutos, 'a las 12 hrs.' (9° Civil del 24 de Octubre)")
+_fh("se rematará el 10 de noviembre de 2026 a las 12:30 horas. Plazo de 13 horas.", "2026-10-24", "2026-11-10", "12:30", None,
+    "la hora con minutos gana a la hora sin minutos (inventado a propósito)")
+_fh("se rematará el 10 de noviembre de 2026, debiendo presentar el vale vista con 13 horas de antelación.", "2026-10-24", "2026-11-10", None, "revisar_lectura",
+    "un plazo en horas no es la hora del remate (inventado a propósito)")
+_fh("se rematará el 10 de noviembre de 2026, con un plazo de 24 horas para pagar.", "2026-10-24", "2026-11-10", None, "revisar_lectura",
+    "24 horas no es una hora del día (inventado a propósito)")
+_r = _fh("Santiago, remátese el 14 de octubre del 2.026 a las 15.00 horas, mediante videoconferencia", "2026-10-10", "2026-10-14", "15:00", None,
+         "año con punto 2.026 (aviso del 10 de Octubre)")
+if _r["alertas"]:
+    fallas.append(f"fecha. el año con punto dejó alertas {_r['alertas']}")
+_fh("se rematará el 15 de octubre, 5.001 metros cuadrados, a las 12:00 horas", "2026-10-10", "2026-10-15", "12:00", "error_escritura",
+    "una superficie de 5.001 metros no es un año (inventado a propósito)")
 for c, n in aciertos.items():
     print(f"{c:12} aciertos {n} de {len(banco)} (mínimo {MINIMOS[c]})")
     if n < MINIMOS[c]: fallas.append(f"{c} bajó a {n} aciertos")

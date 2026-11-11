@@ -145,8 +145,8 @@ def extraer_avisos(avisos: list, fecha: str) -> dict:
     """{orden: datos traducidos} para todos los avisos del cortador."""
     from motor import reglas_tribunal as RT
     out = {a.orden: traducir(extraer(a.texto, fecha)) for a in avisos}
-    # 24° Civil (Diego, 6 de Noviembre). La secretaria dice que sus remates son siempre presenciales.
-    return {k: (RT.modalidad_24(v) if RT.es_24(v.get("tribunal")) else v) for k, v in out.items()}
+    # 24° Civil (Diego, 6 de Noviembre) y 14° Civil (Diego, 11 de Noviembre). Sus remates son siempre presenciales.
+    return {k: RT.modalidad_tribunal(v) for k, v in out.items()}
 
 
 def agregar_vale_vista(avisos: list, extraido: dict, fecha: str, cliente=None) -> dict:
@@ -171,7 +171,7 @@ def agregar_vale_vista(avisos: list, extraido: dict, fecha: str, cliente=None) -
             resumen["sin_ia"] += 1; resumen["errores"].append(f"aviso {a.orden}. {' '.join(g.get('errores') or ['Faltan lecturas de la IA.'])[:200]}"); continue
         res = V.resolver(g["lecturas"], a.texto, (ex.get("fecha_remate") or {}).get("valor"), (ex.get("hora_remate") or {}).get("valor"), fecha)
         ex["vale_vista"] = bloque_vale_vista(res)
-        if RT.tiene_regla_vv(ex.get("tribunal")):   # regla confirmada por el tribunal, 24° y 11° Civil (Diego, 6 de Noviembre)
+        if RT.tiene_regla_vv(ex.get("tribunal")):   # regla confirmada por el tribunal, 24° y 11° Civil (6 de Noviembre) y 14° (11 de Noviembre)
             ex["vale_vista"] = RT.vale_vista_secretaria(ex["vale_vista"], (ex.get("fecha_remate") or {}).get("valor"), (ex.get("hora_remate") or {}).get("valor"), ex.get("tribunal"))
             res = {**res, "color": ex["vale_vista"]["color"]}
         resumen["leidos"] += 1
@@ -239,7 +239,7 @@ def retomar_vale_vista(con, fecha: str, cliente=None) -> dict:
             f, h, n_rem = con.execute("SELECT fecha_remate, hora_remate, COUNT(*) FROM remates WHERE aviso_id = ?", (aviso_id,)).fetchone()
             res = V.resolver(g["lecturas"], texto, f, h, fecha)
             b = bloque_vale_vista(res)
-            if RT.tiene_regla_vv(tribunal):        # regla confirmada por el tribunal, 24° y 11° Civil (Diego, 6 de Noviembre)
+            if RT.tiene_regla_vv(tribunal):        # regla confirmada por el tribunal, 24° y 11° Civil (6 de Noviembre) y 14° (11 de Noviembre)
                 b = RT.vale_vista_secretaria(b, f, h, tribunal)
                 res = {**res, "color": b["color"]}
             con.execute("UPDATE remates SET vv_regla = ?, vv_regla_texto = ?, vv_desde = ?, vv_desde_origen = ?, vv_hasta = ?, vv_estado = ? "

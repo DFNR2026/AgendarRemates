@@ -24,17 +24,20 @@ _DIA_SEM = r"(?:lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo)\s+
 # 10 de Noviembre. El día puede venir pegado a la palabra anterior ("rematará19 noviembre 2026", C-23164-2024 del 10° Civil, 24 al 27
 # de Octubre). Por eso antes del día solo se exige que no haya otro dígito, y no un corte de palabra. Medido en 2.138 avisos, cambian 4.
 # 10 de Noviembre. El día puede traer el signo de ordinal ("próximo 1° de Diciembre de 2026", C-316-2024 del 11° Civil, 9 y 10 de Noviembre).
-FECHA_TEXTO = re.compile(rf"(?<!\d)(\d{{1,2}})[°º]?\s+(?:de\s+)?({_MES})\s*,?\s+(?:de\s+|del\s+)?(?:a[ñn]o\s+)?(\d{{4}})\b", re.I)
+# 11 de Noviembre. También el año escrito con punto ("14 de octubre del 2.026", aviso del 10 de Octubre). Solo la forma 2.0xx.
+FECHA_TEXTO = re.compile(rf"(?<!\d)(\d{{1,2}})[°º]?\s+(?:de\s+)?({_MES})\s*,?\s+(?:de\s+|del\s+)?(?:a[ñn]o\s+)?(\d{{4}}|2\.0\d\d)\b", re.I)
 # 10 de Noviembre (decisión de Diego). Fecha sin año ("el día 19 de noviembre a las 13:00 horas", C-6843-2024 del 10° Civil y C-8664-2025
 # del 9° Civil) o con el año mal impreso ("25 de noviembre de 20026", C-10957-2025 del 12° Civil). Solo se usan si el aviso no trae
 # ninguna fecha completa de remate. El año se toma de la primera vez que ese día ocurre desde la edición, así un remate de enero
 # publicado en diciembre queda en enero del año siguiente. Siempre con alerta de error de escritura.
-FECHA_SIN_ANIO = re.compile(rf"(?<!\d)(\d{{1,2}})[°º]?\s+(?:de\s+)?({_MES})\b(?!\s*,?\s+(?:de\s+|del\s+)?(?:a[ñn]o\s+)?\d{{4}})", re.I)
+FECHA_SIN_ANIO = re.compile(rf"(?<!\d)(\d{{1,2}})[°º]?\s+(?:de\s+)?({_MES})\b(?!\s*,?\s+(?:de\s+|del\s+)?(?:a[ñn]o\s+)?(?:\d{{4}}|2\.0\d\d))", re.I)
 FECHA_ANIO_MALO = re.compile(rf"(?<!\d)(\d{{1,2}})[°º]?\s+(?:de\s+)?({_MES})\s*,?\s+(?:de\s+|del\s+)?(?:a[ñn]o\s+)?(\d{{5,6}})\b", re.I)
 # "11/11/2026", "27/10/ 2026"
 FECHA_NUM = re.compile(r"\b(\d{1,2})/(\d{1,2})/\s?(\d{4})\b")
 # "a las 13:15 horas", "13:45 hrs.", "a las 11.30 horas", "a las 11:00,", "A Las 15:05 Horas", "10:30 HRS"
-HORA = re.compile(r"(?:\ba(?:\s+las)?\s+)?\b(\d{1,2})[:.]\s?(\d{2})\b(?:\s*(?:horas|hrs?)\b\.?)?", re.I)
+# 11 de Noviembre. También la hora escrita con coma ("a las 10,00 horas", 27° Civil del 5 y 6 de Noviembre, "09,00 horas" del 18° Civil).
+HORA = re.compile(r"(?:\ba(?:\s+las)?\s+)?\b(\d{1,2})[:.,]\s?(\d{2})\b(?:\s*(?:horas|hrs?)\b\.?)?", re.I)
+HORA_SIN_MINUTOS = re.compile(r"(?:\ba\s+las\s+)?(?<![\d:.,])\b(\d{1,2})\s*(?:horas|hrs?)\b\.?", re.I)
 # Palabras que anuncian el remate
 # 11 de Noviembre. Se agrega el infinitivo "rematar" ("se dispuso rematar el día 1 de diciembre de 2026", C-17087-2016 del 2° Civil).
 # Sin él la fecha se tomaba del "remate" siguiente, que era la de la tasación. En todas las capturas cambian 6 textos y nada más.
@@ -47,7 +50,7 @@ def _fechas(texto):
     out = []
     for m in FECHA_TEXTO.finditer(texto):
         try:
-            d = dt.date(int(m.group(3)), MESES[m.group(2).lower()], int(m.group(1)))
+            d = dt.date(int(m.group(3).replace(".", "")), MESES[m.group(2).lower()], int(m.group(1)))
         except ValueError:
             continue
         out.append((m.start(), m.end(), d.isoformat(), m.group(0)))
@@ -84,6 +87,12 @@ def _hora_tras(texto, desde, hasta):
         tiene_marca = m.group(0).lower().startswith("a") or re.search(r"(?:horas|hrs?)\.?$", m.group(0), re.I)
         if 0 <= h <= 23 and 0 <= mi <= 59 and tiene_marca:
             return f"{h:02d}:{mi:02d}", m.group(0).strip()
+    # 11 de Noviembre. Si no hay hora con minutos, vale la hora sin minutos con "horas" o "hrs" detrás ("2026, 12 horas" del 23° Civil y
+    # del 21 de Octubre aviso 51, "a las 12 hrs." del 9° y del 21° Civil). No vale si sigue un plazo ("13 horas de antelación").
+    for m in HORA_SIN_MINUTOS.finditer(texto, desde, hasta):
+        h = int(m.group(1))
+        if 0 <= h <= 23 and not re.match(r"\s*(?:de\s+(?:anticipaci|antelaci)|antes)", texto[m.end():m.end() + 25], re.I):
+            return f"{h:02d}:00", m.group(0).strip()
     return None, None
 
 

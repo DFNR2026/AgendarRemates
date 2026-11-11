@@ -272,6 +272,22 @@ if RT.vale_vista_secretaria(v, F, H, "23° Juzgado Civil de Santiago") != v:
     fallas.append("Un tribunal sin regla confirmada no debe cambiar")
 if RT.vale_vista_secretaria(bl("sin_dato", "sin_dato"), F, H, RT.TRIB_24) != RT.vale_vista_24(bl("sin_dato", "sin_dato"), F, H):
     fallas.append("24° Civil. la regla general debe dar lo mismo que la del 24°")
+# Regla del 14° Civil (11 de Noviembre). El encargado del mesón le dijo a Diego que el vale vista se entrega el mismo día antes del
+# remate y que sus remates son siempre presenciales. Mismo cálculo que el 24°, con sus propios textos, y también la modalidad.
+b = RT.vale_vista_secretaria(bl("sin_dato", "sin_dato"), F, H, RT.TRIB_14)
+if not (b["regla"] == "en_el_remate" and b["color"] == "verde" and b["vv_hasta"] == f"{F} {H}" and b["alertas"][-1][1].startswith("Regla del encargado de mesón del 14° Civil.")):
+    fallas.append(f"14° Civil. aviso que no dice nada debe quedar en el remate con la regla del encargado de mesón {b}")
+_m = RT.modalidad_tribunal({"tribunal": RT.TRIB_14, "modalidad": {"valor": "sin_dato", "cita": None}, "alertas": [("revisar_lectura", RT.MOD_SIN_DATO)]})
+if not (_m["modalidad"]["valor"] == "presencial" and _m["alertas"] == [("condicion_especial", RT.textos_modalidad(RT.TRIB_14)[0])]):
+    fallas.append(f"14° Civil. modalidad sin dato debe quedar presencial con la alerta del encargado de mesón {_m}")
+_m = RT.modalidad_tribunal({"tribunal": RT.TRIB_14, "modalidad": {"valor": "zoom", "cita": "zoom"}, "alertas": []})
+if not (_m["modalidad"]["valor"] == "zoom" and _m["alertas"] and _m["alertas"][0][0] == "contradiccion" and "por Zoom" in _m["alertas"][0][1]):
+    fallas.append(f"14° Civil. si el aviso dice Zoom, manda el aviso y se alerta {_m}")
+_m = RT.modalidad_tribunal({"tribunal": RT.TRIB_11, "modalidad": {"valor": "sin_dato", "cita": None}, "alertas": []})
+if _m["modalidad"]["valor"] != "sin_dato":
+    fallas.append("11° Civil. no tiene regla de modalidad y no debe cambiar")
+if RT.textos_modalidad(RT.TRIB_24) != (RT.MOD_SECRETARIA, RT.MOD_SECRETARIA_CONTRA):
+    fallas.append("24° Civil. los textos de la modalidad deben seguir iguales")
 
 # Forma del vale vista y cómo llenarlo (pedido de Diego, 6 de Noviembre). Frases reales de los avisos.
 from motor import forma_vale_vista as FV

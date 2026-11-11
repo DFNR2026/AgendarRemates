@@ -105,6 +105,9 @@ from motor.procesar_edicion import agregar_vale_vista, cargar_edicion
 from motor import vale_vista as V
 from pruebas.medir_vale_vista import cargar as cargar_medicion, clasificar
 _, _, _, esperado = cargar_medicion("14")
+# CORRECCIÓN del 11 de Noviembre (noche). El 33 es del 14° Civil. El banco lo anotó sin dato antes de la regla del 14° (el encargado del
+# mesón le dijo a Diego que el vale vista se entrega el mismo día antes del remate). Ahora se espera la entrega en el remate.
+esperado[33] = {**esperado[33], "color": "verde", "desde": f"{esperado[33]['fecha']} {esperado[33]['hora']}", "hasta": f"{esperado[33]['fecha']} {esperado[33]['hora']}"}
 COLOR_BD = ("CASE WHEN r.vv_estado = 'calculado' THEN 'verde' WHEN r.vv_estado = 'revisar' AND r.vv_hasta IS NOT NULL THEN 'ambar' "
             "WHEN r.vv_estado = 'revisar' THEN 'rojo' WHEN r.vv_estado = 'sin_dato' THEN 'sin_dato' END")
 
@@ -425,8 +428,8 @@ B14 = crear(Path(tmp.name) / "banco14.db")
 ex = extraer_avisos(avisos, "2026-10-14"); agregar_vale_vista(avisos, ex, "2026-10-14")
 guardar_edicion(B14, edicion, paginas, avisos, ex, "2026-10-16T00:00:00", metodo="codigo")
 regs = registros_de_edicion(B14, "2026-10-14")
-revisar("paso 6. 14-10 da 5 registros, los 2 rojos y los 3 sin dato (27 y 28 dejaron de ser rojos el 18 de Octubre, el 61 se descartó el 21, 2, 34 y 37 el 11 de Noviembre)",
-        [(r["orden"], r["color"]) for r in regs] == [(9, "rojo"), (13, "rojo"), (33, "sin_dato"), (50, "sin_dato"), (59, "sin_dato")], str([r["orden"] for r in regs]))
+revisar("paso 6. 14-10 da 4 registros, los 2 rojos y los 2 sin dato (27 y 28 dejaron de ser rojos el 18 de Octubre, el 61 se descartó el 21, 2, 34 y 37 el 11 de Noviembre, el 33 del 14° Civil esa noche)",
+        [(r["orden"], r["color"]) for r in regs] == [(9, "rojo"), (13, "rojo"), (50, "sin_dato"), (59, "sin_dato")], str([r["orden"] for r in regs]))
 revisar("paso 6. el grupo del banco es el mismo de la alerta de la base",
         all(r["grupo"] == rojos[r["orden"]].split(". ")[0] for r in regs if r["color"] == "rojo"))
 revisar("paso 6. cada registro trae texto, dos lecturas, motivos técnicos, huella, ruta y revisión vacía",
@@ -436,7 +439,7 @@ CB = Path(tmp.name) / "banco_rojos"
 x1 = registrar(regs, CB, "t1")
 x2 = registrar(regs, CB, "t2")
 lineas = (CB / "rojos_2026-10.jsonl").read_text(encoding="utf-8").splitlines()
-revisar("paso 6. registrar dos veces no duplica", (x1["nuevos"], x2["nuevos"], x2["repetidos"], len(lineas)) == (5, 0, 5, 5), f"{x1} {x2} {len(lineas)}")
+revisar("paso 6. registrar dos veces no duplica", (x1["nuevos"], x2["nuevos"], x2["repetidos"], len(lineas)) == (4, 0, 4, 4), f"{x1} {x2} {len(lineas)}")
 # El mismo texto en otra edición queda marcado como republicación de la primera
 otra = [dict(r, edicion="2026-10-15") for r in regs[:2]]
 x3 = registrar(otra, CB, "t3")
