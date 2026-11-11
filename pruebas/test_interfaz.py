@@ -222,6 +222,19 @@ revisar("ficha. Dinero y Entrega del vale vista van en planilla con sus filas",
         all(f'<td class="k">{k}</td>' in html for k in ("MÍNIMO", "GARANTÍA", "VALE VISTA", "TIPO", "FECHA", "LLEGADA"))
         and 'aria-label="Dinero del remate"' in html and 'aria-label="Entrega del vale vista"><tbody>' in html
         and '<div class="vvmonto">${E(it.monto)}</div>${pesosHTML(it)}' in html)
+# Botón Revisar ficha en Buscar remates (pedido de Diego, 10 de Noviembre). Va al lado de Agregar al calendario y abre la misma ficha
+# de siempre sin agendar nada. Esa vista no lleva la casilla de vale vista entregado ni Quitar del calendario. Una causa que ya está
+# en el calendario abre su ficha normal. Probado además con la página corriendo en node con datos de una copia (bitácora del 10).
+_res = html[html.index("function tarjetaRes("):html.index("function renderRes(")]
+_fic = html[html.index("function fichaHTML("):html.index("function irAFicha(")]
+revisar("buscador. cada tarjeta lleva Revisar ficha, junto a Agregar al calendario o a Ya está en tu calendario",
+        _res.count("Revisar ficha</button>") == 2 and 'data-acc="fichaRes" data-rid="${it.remate_id}"' in _res
+        and 'data-acc="ficha" data-k="b${it.bien_id}"' in _res and _res.index('data-acc="agendar"') < _res.index('data-acc="fichaRes"'))
+revisar("buscador. Revisar ficha no agenda nada (solo redibuja el centro) y la ficha vista no trae casilla de entregado ni Quitar",
+        "else if(a==='fichaRes'){" in html and "/api/" not in html[html.index("else if(a==='fichaRes'){"):html.index("else if(a==='cerrarFicha')")]
+        and "UI.vista=it;UI.verFicha=true;renderCentro();irAFicha();" in html and "fichaHTML(it,!!UI.vista)" in html
+        and "${vista?'':`<label class=\"chk\"" in _fic and "${vista?'':`<div class=\"fila\" style=\"justify-content:flex-start\"><button" in _fic
+        and "NO ESTÁ EN TU CALENDARIO" in _fic)
 # Estilo A de Diego (5 de Noviembre). Cada causa agendada muestra sus datos en planilla, con la dirección.
 _tarj = html[html.index("function renderIzq("):html.index("function iso(")]
 # CORRECCIÓN del 5 de Noviembre, noche (pedido de Diego). La tarjeta se simplifica. Vale vista, monto y avisos quedan solo en la ficha.
