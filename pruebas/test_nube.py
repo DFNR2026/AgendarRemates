@@ -105,6 +105,27 @@ viejo = [x[:8] + (_FECHA_NUEVA[x[:2]],) if x[:2] in _FECHA_NUEVA and x[8] is Non
 _VV_NUEVO = {(82, 1): ("calculado", "2026-10-19", "2026-11-10 13:00")}
 viejo = [x[:2] + _VV_NUEVO[x[:2]] + x[5:] if x[:2] in _VV_NUEVO and x[2:5] == ("revisar", None, None) else x for x in viejo]
 _oF = {o for o, s in _FECHA_NUEVA}
+# CORRECCIÓN del 11 de Noviembre (grupo 3, aprobado por Diego). Revisiones menos estrictas del vale vista y lectura por código de frases
+# fijas. Catorce propiedades del 18 de Octubre que en la referencia estaban en rojo ahora tienen fecha, cada una leída y comprobada contra su
+# frase el 11 de Noviembre (bitácora del 11). Pierden solo su alerta roja de falla de la IA, y el 91 (martes y jueves del 21° Civil)
+# gana la recomendación del martes. Además el 75 (18° Civil) calcula su vale vista con la fecha leída el 10 de Noviembre.
+_VV_GRUPO3 = {(27, 1): ("calculado", "2026-11-04 08:30", "2026-11-04 12:30", "dias_habiles_antes"),
+              (32, 1): ("calculado", "2026-11-03 08:30", "2026-11-03 12:30", "dias_habiles_antes"),
+              (45, 1): ("calculado", "2026-11-03 09:00", "2026-11-03 14:00", "dias_habiles_antes"),
+              (59, 1): ("calculado", "2026-11-04 08:00", "2026-11-04 14:00", "lunes_o_miercoles_anterior"),
+              (63, 1): ("calculado", "2026-10-30 12:00", "2026-10-30 13:00", "viernes_anterior"),
+              (74, 1): ("calculado", "2026-10-19", "2026-11-02 12:00", "dia_anterior"),
+              (75, 1): ("calculado", "2026-10-19", "2026-10-22", "dias_habiles_antes"),
+              (77, 1): ("calculado", "2026-10-19", "2026-11-09", "dias_habiles_antes"),
+              (79, 1): ("calculado", "2026-10-19", "2026-11-02", "dias_habiles_antes"),
+              (81, 1): ("calculado", "2026-10-19", "2026-11-12", "dias_habiles_antes"),
+              (91, 1): ("calculado", "2026-11-05 10:00", "2026-11-05 12:00", "martes_o_jueves_anterior"),
+              (97, 1): ("calculado", "2026-10-29 10:00", "2026-10-29 12:30", "jueves_anterior"),
+              (98, 1): ("calculado", "2026-11-05 10:00", "2026-11-05 12:30", "jueves_anterior"),
+              (124, 1): ("calculado", "2026-10-19", "2026-11-02 13:30", "horas_antes")}
+viejo = [x[:2] + _VV_GRUPO3[x[:2]] + x[6:] if x[:2] in _VV_GRUPO3 and x[2:5] == ("revisar", None, None) else x for x in viejo]
+_oG = {o for o, s in _VV_GRUPO3}
+_FALLA_IA = lambda o, t: o in _oG and t.startswith("Falla de la IA.")
 revisar("147 remates del 18 de Octubre", len(nuevo) == 147, str(len(nuevo)))
 revisar("vale vista, dirección y fecha iguales aviso por aviso a la carga con Haiku del 20 de Octubre", nuevo == viejo,
         str([x for x in zip(nuevo, viejo) if x[0] != x[1]][:2]))
@@ -112,7 +133,9 @@ QA = ("SELECT a.orden, al.tipo, al.texto FROM alertas al JOIN avisos a ON a.id =
       "WHERE e.fecha = '2026-10-18' ORDER BY 1, 2, 3")
 revisar("alertas del 18 iguales a la carga con Haiku (salvo las respuestas del abogado y la regla del 24° Civil)",
         [x for x in c.execute(QA).fetchall() if not _ABOGADO_NUEVO(x[2]) and not _SEC_NUEVO(x[0], x[2]) and x[0] not in _oF]
-        == sorted(_tr(x) for x in ref.execute(QA).fetchall() if not _ABOGADO_VIEJO(x[2]) and not _SEC_VIEJO(x[0], x[2]) and x[0] not in _oF))   # sorted porque el texto nuevo ordena distinto
+        == sorted(_tr(x) for x in ref.execute(QA).fetchall() if not _ABOGADO_VIEJO(x[2]) and not _SEC_VIEJO(x[0], x[2]) and x[0] not in _oF and not _FALLA_IA(x[0], x[2])))
+revisar("grupo 3. las 14 propiedades que ganan fecha tenían una alerta roja de falla de la IA y ya no la tienen",
+        all(any(_FALLA_IA(o, x[2]) for x in ref.execute(QA) if x[0] == o) for o in _oG) and not any(_FALLA_IA(x[0], x[2]) for x in c.execute(QA)))   # sorted porque el texto nuevo ordena distinto
 _alF = lambda con: {o: sorted((t, x) for oo, t, x in con.execute(QA) if oo == o) for o in sorted(_oF)}
 _SIN_FECHA = ("revisar_lectura", "No se encontró la fecha del remate.")
 _CAMBIO_F = {75: ("revisar_lectura", "No se encontró la hora del remate junto a la fecha."),
@@ -120,13 +143,13 @@ _CAMBIO_F = {75: ("revisar_lectura", "No se encontró la hora del remate junto a
              82: None}
 _ROJO_SIN_FECHA = lambda x: x[0] == "revisar_lectura" and x[1].startswith("Límite del programa. El programa no encontró la fecha del remate.")
 revisar("avisos 75, 82 y 143 del 18. solo cambian la alerta de fecha no encontrada (por la de su lectura nueva) y, en el 82, el rojo del vale vista por falta de fecha",
-        _alF(c) == {o: sorted([x for x in v if x != _SIN_FECHA and not (o == 82 and _ROJO_SIN_FECHA(x))] + ([_CAMBIO_F[o]] if _CAMBIO_F[o] else [])) for o, v in _alF(ref).items()}
+        _alF(c) == {o: sorted([x for x in v if x != _SIN_FECHA and not (o == 82 and _ROJO_SIN_FECHA(x)) and not _FALLA_IA(o, x[1])] + ([_CAMBIO_F[o]] if _CAMBIO_F[o] else [])) for o, v in _alF(ref).items()}
         and all(_SIN_FECHA in v for v in _alF(ref).values()) and any(_ROJO_SIN_FECHA(x) for x in _alF(ref)[82]), str(_alF(c))[:600])
 revisar("24° Civil. cada alerta de regla no encontrada del 24° se cambió por la de la secretaria", len(_r24) > 0 and
         sum(1 for x in ref.execute(QA) if _SEC_VIEJO(x[0], x[2]) and x[2] == _VV_VIEJO) == sum(1 for x in c.execute(QA) if _SEC_NUEVO(x[0], x[2]) and x[2] == RT.VV_SECRETARIA),
         str(sorted(_r24)))
 revisar("las alertas que se sacaron de la referencia son solo de las preguntas 2, 4, 5 y 11, y hay una recomendación por cada pregunta 5",
-        sum(1 for x in ref.execute(QA) if x[2] == "Fecha del vale vista provisoria. Depende de la pregunta 5 al abogado.")
+        sum(1 for x in ref.execute(QA) if x[2] == "Fecha del vale vista provisoria. Depende de la pregunta 5 al abogado.") + 1      # + el 91 del grupo 3
         == sum(1 for x in c.execute(QA) if _ABOGADO_NUEVO(x[2])))
 # CORRECCIÓN del 21 de Octubre. Antes se comparaba el total de cambios de las dos bases, y eso dependía de lo cargado antes del 18
 # en interfaz_prueba.db (que se rehízo con el descarte de tribunales no civiles y pasó de 8 a 7). Ahora se comparan solo los

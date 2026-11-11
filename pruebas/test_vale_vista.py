@@ -84,8 +84,13 @@ if x27["color"] == "rojo" or x27.get("vv_hasta") != "2026-10-29 13:00":
 # Y "calificar" sin el llamado sigue en rojo (la corrección es solo para esa frase).
 f_cal = "Los vales vista serán calificados en la audiencia de remate."   # trae "audiencia", así que solo la regla de calificar la deja en rojo
 r_cal = {**r27, "frase_regla": f_cal}
-if V.resolver([r_cal, r_cal], t27 + " " + f_cal, "2026-10-29", "13:00", "2026-10-14")["color"] != "rojo":
+# 11 de Noviembre (grupo 3). El aviso 27 trae además la frase buena y ahora el código la lee. La lectura de la IA con la frase mala sigue
+# rechazada, y el resultado final es la entrega en el remate que dice el aviso.
+if V._resolver_lecturas([r_cal, r_cal], t27 + " " + f_cal, "2026-10-29", "13:00", "2026-10-14")["color"] != "rojo":
     fallas.append("'calificados' sin el llamado no quedó en rojo")
+_xc = V.resolver([r_cal, r_cal], t27 + " " + f_cal, "2026-10-29", "13:00", "2026-10-14")
+if not (_xc.get("leido_por_codigo") and _xc["regla"] == "en_el_remate" and _xc["vv_hasta"] == "2026-10-29 13:00"):
+    fallas.append(f"aviso 27 con la frase mala de la IA no quedó leído por código en el remate {_xc.get('regla')} {_xc.get('vv_hasta')}")
 # 10 de Noviembre (aprobado por Diego). Las instrucciones congeladas le dicen a la IA que esa frase da sin_dato (ejemplo 9). Si la IA
 # responde sin_dato y el aviso trae la frase exacta, el código la lee como entrega en el remate y cita la oración completa.
 # Antes salía el mensaje falso "El aviso no dice cuándo" (C-23164-2024 y C-6843-2024 del 10° Civil, 7 avisos de 28 con la frase).
@@ -103,8 +108,12 @@ for _nombre, _t in (("sin la frase", _t_sin), ("con calificados en la audiencia"
 # Día de la semana. Aviso 34 del 14-10 ("el día viernes anterior") leído como día anterior da el miércoles. Debe quedar en rojo.
 x34 = next(x for x in banco if x["n"] == 34)
 r34 = {**ideal(x34["vale_vista"]), "regla": "dia_anterior"}
-if V.resolver([r34, r34], av[34].texto, x34["fecha_remate"]["valor"], x34["hora_remate"]["valor"], "2026-10-14")["color"] != "rojo":
+if V._resolver_lecturas([r34, r34], av[34].texto, x34["fecha_remate"]["valor"], x34["hora_remate"]["valor"], "2026-10-14")["color"] != "rojo":
     fallas.append("Aviso 34 leído como día anterior (viernes en la frase, miércoles en el cálculo) no quedó en rojo")
+# 11 de Noviembre (grupo 3). Con la lectura de la IA rechazada, el código lee "el día viernes anterior" y da el viernes del banco.
+_x34 = V.resolver([r34, r34], av[34].texto, x34["fecha_remate"]["valor"], x34["hora_remate"]["valor"], "2026-10-14")
+if not (_x34.get("leido_por_codigo") and _x34["vv_hasta"] == x34["vale_vista"]["vv_hasta"]):
+    fallas.append(f"Aviso 34 no quedó con el viernes del banco por la lectura del código {_x34.get('vv_hasta')} {x34['vale_vista']['vv_hasta']}")
 t56 = av[56].texto
 x56 = next(x for x in banco if x["n"] == 56)
 r56 = ideal(x56["vale_vista"])
@@ -302,6 +311,107 @@ if not (c11["tipo"] == "endosable" and c11["alertas"]):
 cm = FV.como_llenar("2° Juzgado Civil de Santiago", None)
 if not (cm["tipo_txt"].startswith("Sin dato") and cm["rut"] == "60.306.002-4" and cm["a_nombre_de"] == "Segundo Juzgado Civil de Santiago"):
     fallas.append(f"Causa a mano. sin aviso debe decir sin dato y traer el RUT de la tabla {cm}")
+
+# --- 11 de Noviembre. Grupo 3, aprobado por Diego. Revisiones menos estrictas y lectura por código de frases fijas --------------------
+# Frases reales de los avisos de la base del 10 de Noviembre. Cada regla tiene su mutación anotada en la bitácora del 11.
+def _L(regla, frase, **k):
+    d = {"regla": regla, "dias": None, "horas": None, "fecha": None, "hora_desde": None, "hora_hasta": None, "frase_regla": frase, "frases_extra": [], "contradiccion": None}
+    d.update(k); return d
+def _ok(nombre, res, hasta, codigo=None):
+    bien = res.get("vv_hasta") == hasta and (codigo is None or bool(res.get("leido_por_codigo")) == codigo)
+    if not bien:
+        fallas.append(f"grupo 3. {nombre} dio {res.get('vv_hasta')} {res.get('color')} {res.get('motivos')}")
+VV = "Para participar se debe acompañar vale vista a la orden del Tribunal por el 10% del mínimo. "
+# R1. Día hábil anterior y día anterior son la misma regla (29° Civil, C-1857-2025, una lectura con dias 1 y la otra sin).
+_f29 = "Dicho vale vista deberá acompañarse materialmente a las dependencias del Tribunal hasta las 12:00 hrs. del día hábil anterior a la subasta, y si dicho día fuera sábado, hasta las 12:00 hrs. del viernes anterior a la subasta."
+_t29 = VV + _f29 + " Fin."
+_ok("R1. dos lecturas de la familia del día anterior", V.resolver([_L("dia_anterior_sabado_a_viernes", _f29, dias=1, hora_hasta="12:00"),
+     _L("dia_anterior_sabado_a_viernes", _f29, hora_hasta="12:00")], _t29, "2026-11-23", "15:30", "2026-10-31"), "2026-11-20 12:00", False)
+_ok("R1. día hábil anterior contra día anterior", V.resolver([_L("dias_habiles_antes", _f29, dias=1, hora_hasta="12:00"),
+     _L("dia_anterior", _f29, hora_hasta="12:00")], _t29, "2026-11-25", "15:30", "2026-10-31"), "2026-11-24 12:00", False)
+_ok("R1. día hábil anterior en singular sin número cuenta 1", V.resolver([_L("dias_habiles_antes", _f29, hora_hasta="12:00")] * 2, _t29, "2026-11-25", "15:30", "2026-10-31"), "2026-11-24 12:00", False)
+_f18 = "Debiendo cada postor entregar dicho documento materialmente en el mesón del tribunal con a lo menos 3 días hábiles de anticipación a la fecha del remate."
+_x = V._resolver_lecturas([_L("dias_habiles_antes", _f18), _L("dias_habiles_antes", _f18)], VV + _f18, "2026-11-26", "10:30", "2026-11-04")
+if _x["color"] != "rojo" or not any("Faltan los días" in m for m in _x["motivos"]):
+    fallas.append(f"grupo 3. R1. 'días hábiles' en plural sin número no puede contar 1 día {_x.get('vv_hasta')} {_x['motivos']}")
+# R2. Una lectura copió mal la frase y la otra está bien citada (17° Civil, C-3440-2023).
+_f17 = "Postores acompañar vale vista a la orden del Tribunal por el 10% mínimo subasta que deberán entregar a Sra. Secretaria Subrogante antes de las 12:00 hrs. día anterior a subasta."
+_ok("R2. vale la lectura bien citada", V.resolver([_L("dia_anterior", "deberán entregar a Sra. Secretaria Subrogante antes de las 12:00 hrs. día anterior a subasta", hora_hasta="12:00"),
+     _L("dia_anterior", "deberán acompañar vale vista a la orden del Tribunal antes de las 12:00 hrs. día anterior a subasta", hora_hasta="12:00")],
+     _f17, "2026-12-17", "10:30", "2026-11-05"), "2026-12-16 12:00", False)
+_ok("R2. vale la lectura bien citada aunque venga segunda", V.resolver([_L("dia_anterior", "deberán acompañar vale vista a la orden del Tribunal antes de las 12:00 hrs. día anterior a subasta", hora_hasta="12:00"),
+     _L("dia_anterior", "deberán entregar a Sra. Secretaria Subrogante antes de las 12:00 hrs. día anterior a subasta", hora_hasta="12:00")],
+     _f17, "2026-12-17", "10:30", "2026-11-05"), "2026-12-16 12:00", False)
+_x = V.resolver([_L("dia_anterior", "una frase que no está", hora_hasta="12:00"), _L("dia_anterior", "otra frase que no está", hora_hasta="12:00")], _f17, "2026-12-17", "10:30", "2026-11-05")
+if _x.get("vv_hasta") and not _x.get("leido_por_codigo"):
+    fallas.append("grupo 3. R2. dos lecturas mal citadas no pueden dar fecha por la IA")
+# R3. Días nombrados en la excepción del sábado (29°) o "en caso de que" (8° Civil) no cuentan. El jueves del 22° leído como día anterior sigue rechazado.
+_ok("R3. 'viernes' de la excepción del sábado", V._resolver_lecturas([_L("dias_habiles_antes", _f29, dias=1, hora_hasta="12:00")] * 2, _t29, "2026-11-11", "15:00", "2026-10-24"), "2026-11-10 12:00")
+_f8 = "La recepción de los vales vista de garantía se hará únicamente el día hábil anterior a la fecha de la subasta, desde las 9:00 hasta las 14:00 horas, día Viernes en caso de que el día fijado para la subasta sea un Lunes, al Secretario del Tribunal en forma presencial."
+_ok("R3. 'día Viernes en caso de que'", V._resolver_lecturas([_L("dias_habiles_antes", _f8, dias=1, hora_desde="09:00", hora_hasta="14:00")] * 2, VV + _f8, "2026-11-25", "15:45", "2026-11-06"), "2026-11-24 14:00")
+_fPA = "el que deberá hacerse llegar a la Secretaría del Tribunal de lunes a viernes en horario de 10:00 a 14:00 horas, a más tardar el día anterior a la fecha del remate."
+_ok("R3. 'de lunes a viernes'", V._resolver_lecturas([_L("dia_anterior", _fPA, hora_desde="10:00", hora_hasta="14:00")] * 2, VV + _fPA, "2026-11-18", "11:30", "2026-11-03"), "2026-11-17 14:00")
+_f22 = "La entrega material del Vale Vista deberá verificarse el día jueves inmediatamente anterior a la fecha de la subasta, entre las 10:00 y las 12:30 horas."
+if V._resolver_lecturas([_L("dia_anterior", _f22, hora_desde="10:00", hora_hasta="12:30")] * 2, VV + _f22, "2026-11-23", "11:30", "2026-11-06")["color"] != "rojo":
+    fallas.append("grupo 3. R3. el jueves del 22° Civil leído como día anterior debe seguir rechazado")
+_f24 = "El vale vista deberá ser presentado en la secretaría del tribunal, el día lunes precedente a la fecha fijada para la realización de la subasta y si este fuere feriado, el día martes inmediatamente siguiente al feriado, entre las 12:00 y 14:00 horas."
+if V._resolver_lecturas([_L("dia_anterior", _f24, hora_desde="12:00", hora_hasta="14:00")] * 2, VV + _f24, "2026-11-11", "15:00", "2026-10-30")["color"] != "rojo":
+    fallas.append("grupo 3. R3. 'lunes precedente' leído como día anterior da el martes y debe seguir rechazado (C-7384-2022, 24° Civil)")
+# R5. Fecha fija sin año o con guiones (23° Civil).
+_f23a = "Postores, salvo ejecutante, deberán entregar en dependencias del Tribunal, el 23 de noviembre entre las 9:00 y 11:00 horas, vale vista a la orden del Tribunal por 10% del mínimo."
+_ok("R5. fecha fija sin año", V.resolver([_L("fecha_fija", _f23a, fecha="2026-11-23", hora_desde="09:00", hora_hasta="11:00")] * 2, _f23a, "2026-11-25", "12:00", "2026-11-08"), "2026-11-23 11:00", False)
+_f23b = "La entrega de la garantía se efectuará el lunes 23-11-2026 entre las 9:00 y las 11:00 horas."
+_ok("R5. fecha fija con guiones", V.resolver([_L("fecha_fija", _f23b, fecha="2026-11-23", hora_desde="09:00", hora_hasta="11:00")] * 2, VV + _f23b, "2026-11-25", "13:30", "2026-11-10"), "2026-11-23 11:00", False)
+# R6. Una entrega por horas que cae fuera del horario del tribunal no se acepta (19° Civil, C-11560-2013, "13 horas de antelación").
+_f19 = "deberán acompañar a la causa un escrito acompaña documento acompañando copia del vale vista, a más tardar con 13 horas de antelación al día de la subasta."
+_x = V._resolver_lecturas([_L("horas_antes", "a más tardar con 13 horas de antelación al día de la subasta", horas=13)] * 2, _f19, "2026-12-04", "10:30", "2026-11-02")
+if _x.get("vv_hasta") or not any("fuera del horario" in m for m in _x["motivos"]):
+    fallas.append(f"grupo 3. R6. 13 horas antes da las 21.30 y no puede aceptarse {_x.get('vv_hasta')}")
+# Lectura por código. Haiku no tiene estas reglas en su lista o las lee mal. Lecturas de la IA que no pasan, para que entre el código.
+_MAL = [_L("otra", None), _L("otra", None)]
+def _cod(nombre, texto, fr, hr, ed, hasta, regla):
+    res = V.resolver(_MAL, texto, fr, hr, ed)
+    _ok(nombre, res, hasta, True)
+    if res.get("regla") != regla:
+        fallas.append(f"grupo 3. {nombre} quedó con la regla {res.get('regla')}")
+_cod("código. jueves inmediatamente anterior (22° Civil)", VV + _f22, "2026-11-23", "11:30", "2026-11-06", "2026-11-19 12:30", "jueves_anterior")
+_cod("código. jueves feriado se corre al día hábil anterior", VV + _f22, "2026-05-25", "11:30", "2026-05-01", "2026-05-20 12:30", "jueves_anterior")
+_cod("código. 3 días hábiles de anticipación (18° Civil)", VV + _f18, "2026-11-26", "10:30", "2026-11-04", "2026-11-23", "dias_habiles_antes")
+_f27 = "mediante vale vista a nombre del Vigésimo Séptimo Juzgado Civil de Santiago, el que deberá ser entregado materialmente en la Secretaría del tribunal hasta el día lunes de la semana anterior a efectuarse la subasta, y completar el formulario."
+_cod("código. lunes de la semana anterior (27° Civil), remate miércoles 25", _f27, "2026-11-25", "13:00", "2026-11-08", "2026-11-16", "semana_anterior")
+_cod("código. lunes de la semana anterior feriado", _f27, "2026-10-21", "13:00", "2026-10-01", "2026-10-09", "semana_anterior")
+_cod("código. viernes de la semana anterior (27° Civil), remate lunes 23", _f27.replace("día lunes", "día viernes"), "2026-11-23", "12:00", "2026-11-02", "2026-11-20", "semana_anterior")
+_f13 = "Interesados deberán consignar garantía 10% del mínimo, mediante vale vista a nombre 13° Juzgado Civil de Santiago, Rut 60.306.013-K entregado en Secretaría Tribunal lunes o miércoles anterior al remate en horario de 08:00 a 12:00 horas y de 13:00 a 14:00 horas."
+_x = V.resolver(_MAL, _f13, "2026-12-01", "13:45", "2026-11-10")
+_ok("código. lunes o miércoles anterior con dos tramos (13° Civil)", _x, "2026-11-30 14:00", True)
+if _x.get("vv_desde") != "2026-11-30 08:00":
+    fallas.append(f"grupo 3. código. lunes o miércoles, el horario debe ir de 8.00 a 14.00 {_x.get('vv_desde')}")
+_cod("código. lunes o miércoles con el lunes feriado", _f13, "2026-10-13", "13:45", "2026-10-01", "2026-10-07 14:00", "lunes_o_miercoles_anterior")
+_f15 = "Para tales efectos, los postores deberán comparecer al Tribunal el día viernes anterior al día de la subasta, de 12:00 a 13:00 horas, a fin de entregar el vale vista."
+_cod("código. el día viernes anterior (15° Civil)", VV + _f15, "2026-11-19", "13:30", "2026-11-02", "2026-11-13 13:00", "viernes_anterior")
+_f21 = "deberá acompañar materialmente vale vista endosable a la orden del tribunal equivalente al 20% del precio mínimo, para lo cual deberán asistir a las dependencias del Tribunal los días martes y jueves, anterior a la realización de la subasta, según correspondiere, entre las 10:00 y las 12:00 horas."
+_cod("código. martes y jueves, anterior (21° Civil)", _f21, "2026-11-30", "12:00", "2026-10-30", "2026-11-26 12:00", "martes_o_jueves_anterior")
+_f10 = "Todo postor participar subasta debe acompañar materialmente vale vista endosable a la orden tribunal equivalente 10% precio mínimo fijado subasta. Vales vista recepcionados serán calificados momento hacerse llamado remate. Secretario."
+_cod("código. calificados momento llamado, abreviado (10° Civil)", _f10, "2026-11-19", "13:00", "2026-10-25", "2026-11-19 13:00", "en_el_remate")
+_f30 = "Los interesados en participar de la subasta junto al vale vista, deberán entregar copia digitalizada de su carnet de identidad, con al menos veinticuatro horas de anticipación a la fecha fijada para el remate, a fin de verificar la garantía."
+_cod("código. veinticuatro horas de anticipación (30° Civil)", _f30, "2026-11-24", "12:30", "2026-10-28", "2026-11-23 12:30", "horas_antes")
+_f19b = "Sin perjuicio de lo anterior, deberán acompañar un escrito con copia del Vale Vista el cual deberá ser ingresado por OJV y ser entregado materialmente en el Tribunal, a más tardar a las 13:00 horas del día anterior a la subasta."
+_cod("código. a más tardar a las 13 horas del día anterior (19° Civil)", _f19b, "2026-12-02", "13:30", "2026-10-25", "2026-12-01 13:00", "dia_anterior")
+# Lo que el código NO debe leer.
+if V.leer_por_codigo(VV + _f22 + " " + _f15) is not None:
+    fallas.append("grupo 3. código. un aviso con dos frases distintas de la lista no se lee")
+if V.leer_por_codigo("Caución únicamente a través de cupón de pago en Banco Estado, a lo menos con 5 días hábiles de anticipación al remate.") is not None:
+    fallas.append("grupo 3. código. sin vale vista en el aviso (Casablanca, solo cupón) no se lee")
+if V.leer_por_codigo(VV + "El vale vista será devuelto el jueves inmediatamente anterior a la fecha de la subasta.") is not None:
+    fallas.append("grupo 3. código. una frase de devolución no se lee")
+_sd = {**_L("sin_dato", None)}
+_x = V.resolver([_sd, dict(_sd)], VV + "El tribunal fijará la entrega.", "2026-11-19", "13:00", "2026-10-25")
+if _x["color"] != "sin_dato":
+    fallas.append("grupo 3. un aviso que no dice cuándo sigue sin dato")
+_x = V.resolver([_L("dias_habiles_antes", _f18, dias=3, contradiccion="hasta las 12 hrs del día hábil anterior"), _L("dias_habiles_antes", _f18, dias=3, contradiccion="hasta las 12 hrs del día hábil anterior")],
+                VV + _f18 + " Garantía hasta las 12 hrs del día hábil anterior a la fecha fijada.", "2026-11-26", "10:30", "2026-11-04")
+if _x.get("vv_hasta") or _x.get("leido_por_codigo"):
+    fallas.append("grupo 3. un aviso con dos plazos no se toca")
 print("\n".join(fallas) if fallas else f"{medidos} avisos del 14 de Octubre y casos en rojo revisados.")
 print("RESULTADO.", "FALLAS" if fallas else "TODO OK")
 sys.exit(1 if fallas else 0)

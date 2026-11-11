@@ -23,6 +23,10 @@ NO_ENCONTRADA = "El aviso no dice cuándo se entrega el vale vista. Pregúntalo 
 REGLAS = ["dias_habiles_antes", "horas_antes", "dia_anterior", "dia_anterior_sabado_a_viernes", "dia_anterior_sabado_a_habil",
           "viernes_anterior", "martes_o_jueves_anterior", "en_el_remate", "fecha_fija", "sin_dato", "otra"]
 
+# 11 de Noviembre (grupo 3, aprobado por Diego). Reglas que Haiku no tiene en su lista y que solo lee el código, desde frases fijas de
+# ciertos tribunales (leer_por_codigo). No se agregan a REGLAS para no cambiar lo que se le pide a Haiku.
+REGLAS_CODIGO = ["jueves_anterior", "lunes_o_miercoles_anterior", "semana_anterior"]
+
 INSTRUCCIONES = """Eres un lector de avisos de remates judiciales de Chile publicados en El Mercurio. Tu única tarea es encontrar CUÁNDO debe entregarse el vale vista (o la garantía o caución) para participar en el remate, y clasificar esa regla. No calculas fechas. Copias frases exactas del aviso.
 
 Responde con el formato JSON pedido. Campos.
@@ -101,7 +105,9 @@ def habil_antes(d):
 
 # --- Cálculo del desde y el hasta -----------------------------------------------------------------------------
 # CORRECCIÓN de Diego (18 de Octubre). "calificados al momento de hacerse el llamado al remate" es entrega en el remate.
-_CALIFICA_LLAMADO = re.compile(r"calificad[oa]s?\s+al\s+momento\s+de\s+(?:hacerse|efectuarse|realizarse)\s+el\s+llamado", re.I)
+# 11 de Noviembre (grupo 3). También la forma abreviada del 10° Civil, "calificados momento hacerse llamado remate" y "calificados al
+# momento del llamado al remate" (C-8884-2025 y C-12009-2025). Es la misma frase de la decisión de Diego del 18 de Octubre.
+_CALIFICA_LLAMADO = re.compile(r"calificad[oa]s?\s+(?:al\s+)?momento\s+(?:de\s+)?(?:(?:hacerse|efectuarse|realizarse)\s+)?(?:el\s+|del\s+)?llamado", re.I)
 
 
 def calcular(r: dict, fecha_remate: str, hora_remate: str | None, fecha_edicion: str) -> dict:
@@ -125,7 +131,7 @@ def calcular(r: dict, fecha_remate: str, hora_remate: str | None, fecha_edicion:
         out.update(vv_desde=desde_est, vv_desde_origen="estimado_dia_siguiente_edicion", vv_hasta=hasta); return out
     if regla == "dias_habiles_antes":
         d = d0
-        for _ in range(r["dias"]): d = habil_antes(d)
+        for _ in range(r.get("dias") or 1): d = habil_antes(d)        # sin número solo pasa verificar con "día hábil" en singular
     elif regla in ("dia_anterior", "dia_anterior_sabado_a_viernes", "dia_anterior_sabado_a_habil"):
         d = d0 - dt.timedelta(days=1)
         if not habil(d):
@@ -156,6 +162,26 @@ def calcular(r: dict, fecha_remate: str, hora_remate: str | None, fecha_edicion:
                 while d.weekday() not in dias or not habil(d): d -= dt.timedelta(days=1)
                 out["preguntas"].append(12)
             out["corrido_feriado"] = True
+    elif regla in ("jueves_anterior", "lunes_o_miercoles_anterior"):
+        # 11 de Noviembre. "el día jueves inmediatamente anterior" (22° y 21° Civil) y "lunes o miércoles anterior al remate" (13° Civil).
+        # Un jueves feriado se corre al día hábil anterior, como el viernes del 15° Civil. Lunes o miércoles feriado, al lunes o
+        # miércoles hábil anterior, como el martes y jueves. Supuestos confirmados por Diego el 11 de Noviembre.
+        dias = (3,) if regla == "jueves_anterior" else (0, 2)
+        d = d0 - dt.timedelta(days=1)
+        while d.weekday() not in dias: d -= dt.timedelta(days=1)
+        if not habil(d):
+            if regla == "jueves_anterior":
+                d = habil_antes(d)
+            else:
+                while d.weekday() not in dias or not habil(d): d -= dt.timedelta(days=1)
+            out["corrido_feriado"] = True
+    elif regla == "semana_anterior":
+        # 11 de Noviembre. "hasta el día lunes (o viernes) de la semana anterior a efectuarse la subasta" (27° Civil). Es ese día de la
+        # semana calendario anterior a la del remate. Remate el miércoles 25 de Noviembre da el lunes 16. Feriado, al día hábil anterior.
+        lunes = d0 - dt.timedelta(days=d0.weekday() + 7)
+        d = lunes + dt.timedelta(days=0 if r.get("dia") == "lunes" else 4)
+        if not habil(d):
+            d = habil_antes(d); out["corrido_feriado"] = True
     elif regla == "fecha_fija":
         d = dt.date.fromisoformat(r["fecha"])
     else:
@@ -208,7 +234,22 @@ _PALABRAS = {
     "martes_o_jueves_anterior": [r"martes", r"jueves"],
     "en_el_remate": [r"llamado|momento|acto|audiencia|d[íi]a del remate|al remate|en el remate|la subasta"],
     "fecha_fija": [],
+    "jueves_anterior": [r"jueves"],
+    "lunes_o_miercoles_anterior": [r"lunes", r"mi[ée]rcoles"],
+    "semana_anterior": [r"semana\s+anterior"],
 }
+# 11 de Noviembre (grupo 3). Día anterior, día hábil anterior y las dos variantes del sábado calculan siempre el mismo día (comprobado en
+# los 729 días de 2026 y 2027). Haiku las confunde entre sí en una misma lectura, así que se comparan y revisan como una sola.
+_FAMILIA = {"dias_habiles_antes", "dia_anterior", "dia_anterior_sabado_a_viernes", "dia_anterior_sabado_a_habil"}
+
+
+def _familia(r: dict) -> bool:
+    return r.get("regla") in _FAMILIA and (r.get("regla") != "dias_habiles_antes" or r.get("dias") in (1, None))
+
+
+def _es_cita(motivo: str) -> bool:
+    """Motivos que solo dicen que una frase copiada por la IA no está escrita así en el aviso."""
+    return motivo.startswith(("Frase extra no encontrada", "La frase de contradicción no está", "La frase de la regla no está", "La IA no entregó la frase"))
 _DEVOLUCION = re.compile(r"devoluci|devuelt|restitu|retir", re.I)
 _DETECTOR = re.compile(r"antelaci|anticipaci|a\s+m[áa]s\s+tardar|hasta\s+las|d[íi]a\s+(?:h[áa]bil\s+)?anterior|d[íi]a\s+precedente|viernes|martes", re.I)
 _DIA_SEMANA = {"lunes": 0, "martes": 1, "miércoles": 2, "miercoles": 2, "jueves": 3, "viernes": 4}
@@ -230,12 +271,12 @@ def detector_reglas(texto: str) -> list:
     return hallados
 
 
-def verificar(r: dict, texto: str) -> dict:
+def verificar(r: dict, texto: str, fecha_edicion: str | None = None) -> dict:
     """Revisa una respuesta de la IA contra el texto del aviso.
     Devuelve {ok, motivos [..], frase_regla, frases_extra, contradiccion} con las frases tal como están en el aviso."""
     motivos = []
     regla = r.get("regla")
-    if regla not in REGLAS:
+    if regla not in REGLAS and regla not in REGLAS_CODIGO:
         return {"ok": False, "motivos": [f"Regla desconocida ({regla})."]}
     if regla == "otra":
         motivos.append("La IA dice que la regla no calza con ninguna conocida.")
@@ -273,7 +314,8 @@ def verificar(r: dict, texto: str) -> dict:
     todo = " ".join([frase] + extras)
     if _DEVOLUCION.search(frase):
         motivos.append("La frase habla de devolución o retiro, no de entrega.")
-    for patron in _PALABRAS[regla]:
+    familia = _familia(r)
+    for patron in ([r"anterior|precedente|previo"] if familia else _PALABRAS[regla]):
         if not re.search(patron, todo, re.I):
             motivos.append(f"La frase no trae las palabras propias de la regla {regla}.")
             break
@@ -285,11 +327,11 @@ def verificar(r: dict, texto: str) -> dict:
         # entrega minutos antes de empezar, en el llamado. Por eso esa frase exacta pasa (_CALIFICA_LLAMADO). Las demás
         # frases con "calificar" o sin verbo de entrega siguen en rojo.
         motivos.append("La frase no dice que el vale vista se entregue en el remate (solo cuándo se califica).")
-    if regla == "dia_anterior" and re.search(r"h[áa]bil", frase, re.I):
-        motivos.append("La frase dice día hábil, no día anterior.")
     if regla == "dias_habiles_antes":
         n = r.get("dias")
-        if not isinstance(n, int) or n < 1:
+        if n is None and familia and re.search(r"\bd[íi]a\s+h[áa]bil", todo, re.I) and not re.search(r"d[íi]as\s+h[áa]biles", todo, re.I):
+            pass                                        # "el día hábil anterior" sin número es 1 (familia del día anterior)
+        elif not isinstance(n, int) or n < 1:
             motivos.append("Faltan los días hábiles.")
         elif n > 1 and not _numero_en(n, todo):
             motivos.append(f"El número de días ({n}) no está en la frase.")
@@ -301,7 +343,18 @@ def verificar(r: dict, texto: str) -> dict:
             motivos.append(f"El número de horas ({n}) no está en la frase.")
     if regla == "fecha_fija":
         from motor.extraccion import _fechas
-        if not r.get("fecha") or r["fecha"] not in {f[2] for f in _fechas(todo)}:
+        escrita = {f[2] for f in _fechas(todo)}
+        # 11 de Noviembre (grupo 3). También vale escrita sin año ("el 23 de noviembre", con el año de la regla del remate) o con guiones
+        # ("el lunes 23-11-2026"), las dos del 23° Civil.
+        if fecha_edicion:
+            from motor.extraccion import _fechas_sin_anio
+            escrita |= {f[2] for f in _fechas_sin_anio(todo, fecha_edicion)}
+        for m in re.finditer(r"(?<!\d)(\d{1,2})-(\d{1,2})-(\d{4})(?!\d)", todo):
+            try:
+                escrita.add(dt.date(int(m.group(3)), int(m.group(2)), int(m.group(1))).isoformat())
+            except ValueError:
+                pass
+        if not r.get("fecha") or r["fecha"] not in escrita:
             motivos.append("La fecha fija no está escrita en la frase.")
     for campo in ("hora_desde", "hora_hasta"):
         v = r.get(campo)
@@ -319,10 +372,92 @@ def verificar(r: dict, texto: str) -> dict:
 def _clave_lectura(r: dict) -> tuple:
     """Lo que debe coincidir entre las dos lecturas. La regla y sus datos. No el largo de la frase copiada, que varía
     entre lecturas sin cambiar nada (14-10, avisos 5, 10, 14, 15, 34 y 43). Las dos frases igual se verifican."""
+    if _familia(r):
+        return ("dia_anterior", None, None, None, r.get("hora_desde"), r.get("hora_hasta"))
     return (r.get("regla"), r.get("dias"), r.get("horas"), r.get("fecha"), r.get("hora_desde"), r.get("hora_hasta"))
 
 
+# --- Lectura por código de frases fijas (11 de Noviembre, grupo 3, aprobado por Diego) ------------------------------------------
+# Solo se usa cuando la lectura de Haiku no pasó las revisiones, y nunca en un aviso que no dice cuándo ni en uno con dos plazos.
+# Si el aviso trae dos frases distintas de esta lista, no se lee nada. Medido sobre las 544 propiedades con remate futuro del 10 de
+# Noviembre. Cada frase es de un tribunal que la escribe siempre igual.
+_FRASES_CODIGO = [
+    ("jueves_anterior", re.compile(r"(?<!martes\sy\s)\bjueves\s+(?:inmediatamente\s+)?anterior", re.I)),                       # 22° y 21° Civil
+    ("dias_habiles_antes", re.compile(r"\b(\d|un|uno|dos|tres|cuatro|cinco)\s+d[íi]as?\s+h[áa]bil(?:es)?\s+(?:(?:de\s+)?anticipaci[óo]n|anterior)", re.I)),  # 18° Civil
+    ("semana_anterior", re.compile(r"\b(lunes|viernes)\s+de\s+la\s+semana\s+anterior", re.I)),                                   # 27° Civil
+    ("lunes_o_miercoles_anterior", re.compile(r"\blunes\s+o\s+mi[ée]rcoles\s+anterior", re.I)),                                  # 13° Civil
+    ("viernes_anterior", re.compile(r"\b(?:el\s+d[íi]a|los\s+d[íi]as)\s+viernes\s+anterior", re.I)),                            # 15° Civil
+    ("martes_o_jueves_anterior", re.compile(r"\bmartes\s+y\s+jueves,?\s+anterior", re.I)),                                       # 21° Civil
+    ("en_el_remate", re.compile(r"calificad[oa]s?\s+(?:al\s+)?momento\s+(?:de\s+)?(?:(?:hacerse|efectuarse|realizarse)\s+)?(?:el\s+|del\s+)?llamado", re.I)),  # 10° Civil
+    ("horas_antes", re.compile(r"(?:al|a\s+lo)\s+menos\s+(?:con\s+)?(\d+|veinticuatro|cuarenta\s+y\s+ocho|setenta\s+y\s+dos)\s+(?:horas|hrs?\.?)\s+(?!h[áa]bil)de\s+(?:anticipaci|antelaci)", re.I)),  # 30° Civil
+    ("dia_anterior", re.compile(r"(?:a\s+m[áa]s\s+tardar\s+a\s+las|antes\s+de\s+las)\s+\d{1,2}(?:[:.]\d{2})?\s*(?:horas|hrs?\.?)\s+(?:del\s+)?d[íi]a\s+anterior", re.I)),  # 19° y 17° Civil
+]
+_NUM_PALABRA = {"un": 1, "uno": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5, "veinticuatro": 24, "cuarenta y ocho": 48, "setenta y dos": 72}
+_H = r"(\d{1,2})(?:\s?[:.]\s?(\d{2}))?"
+
+
+def _hhmm(h, m):
+    return f"{int(h):02d}:{m or '00'}"
+
+
+def _horario(frase: str):
+    """(hora_desde, hora_hasta) que da la frase, o (None, None). Con dos tramos ("de 08:00 a 12:00 horas y de 13:00 a 14:00 horas")
+    va desde el comienzo del primero hasta el final del segundo."""
+    m = re.search(rf"(?:entre|en\s+horario\s+de)\s+(?:las\s+)?{_H}.{{0,12}}?(?:y|a)\s+(?:las\s+)?{_H}.{{0,12}}?(?:y|,)\s+(?:de\s+)?{_H}\s+a\s+{_H}", frase, re.I)
+    if m:
+        return _hhmm(m.group(1), m.group(2)), _hhmm(m.group(7), m.group(8))
+    for p in (rf"entre\s+(?:las\s+)?{_H}\s*(?:horas|hrs?\.?)?\s+(?:y|a)\s+(?:las\s+)?{_H}", rf"\bde\s+{_H}\s+a\s+{_H}\s*(?:horas|hrs)",
+              rf"desde\s+(?:las\s+)?{_H}.{{0,40}}?hasta\s+(?:las\s+)?{_H}"):
+        m = re.search(p, frase, re.I)
+        if m:
+            return _hhmm(m.group(1), m.group(2)), _hhmm(m.group(3), m.group(4))
+    m = re.search(rf"(?:hasta|antes\s+de|a\s+m[áa]s\s+tardar\s+a)\s+las\s+{_H}", frase, re.I)
+    return (None, _hhmm(m.group(1), m.group(2))) if m else (None, None)
+
+
+def leer_por_codigo(texto: str) -> dict | None:
+    """Lectura del código para una de las frases fijas de _FRASES_CODIGO, con la oración completa como cita. None si no hay ninguna,
+    si hay dos distintas o si la frase no tiene "vale vista" en los 400 caracteres anteriores."""
+    hallados = []
+    for regla, patron in _FRASES_CODIGO:
+        for m in patron.finditer(texto):
+            if _DEVOLUCION.search(texto[max(0, m.start() - 80):m.end()]):
+                continue
+            if not re.search(r"vale\s+(?:a\s+la\s+)?vista", texto[max(0, m.start() - 400):m.end()], re.I):
+                continue
+            hallados.append((regla, m))
+    if len({(regla, m.group(0).lower()) for regla, m in hallados}) != 1:
+        return None
+    regla, m = hallados[0]
+    a = texto.rfind(". ", 0, m.start()); a = a + 2 if a >= 0 else 0
+    b = texto.find(". ", m.end()); b = b + 1 if b >= 0 else len(texto)
+    frase = texto[a:b].strip()
+    hd, hh = (None, None) if regla == "en_el_remate" else _horario(frase)
+    r = {"regla": regla, "dias": None, "horas": None, "fecha": None, "hora_desde": hd, "hora_hasta": hh, "frase_regla": frase,
+         "frases_extra": [], "contradiccion": None}
+    if regla == "dias_habiles_antes":
+        x = m.group(1); r["dias"] = int(x) if x.isdigit() else _NUM_PALABRA[x.lower()]
+    if regla == "horas_antes":
+        x = m.group(1); r["horas"] = int(x) if x.isdigit() else _NUM_PALABRA[re.sub(r"\s+", " ", x.lower())]
+    if regla == "semana_anterior":
+        r["dia"] = m.group(1).lower()
+    return r
+
+
 def resolver(lecturas: list, texto: str, fecha_remate: str | None, hora_remate: str | None, fecha_edicion: str) -> dict:
+    """Une las dos lecturas, verifica y calcula. Si la lectura de la IA no pasa las revisiones, prueba la lectura por código de las
+    frases fijas (11 de Noviembre). Devuelve el bloque vale_vista del banco nivel 2 más color, motivos y preguntas."""
+    res = _resolver_lecturas(lecturas, texto, fecha_remate, hora_remate, fecha_edicion)
+    if res["vv_hasta"] or res["color"] == "sin_dato" or any("dos plazos" in m for m in res["motivos"]) or len(lecturas) < 2:
+        return res
+    r = leer_por_codigo(texto)
+    if r is None:
+        return res
+    otro = _resolver_lecturas([r, r], texto, fecha_remate, hora_remate, fecha_edicion)
+    return {**otro, "leido_por_codigo": True} if otro["vv_hasta"] else res
+
+
+def _resolver_lecturas(lecturas: list, texto: str, fecha_remate: str | None, hora_remate: str | None, fecha_edicion: str) -> dict:
     """Une las dos lecturas, verifica y calcula. Devuelve el bloque vale_vista en el formato del banco nivel 2
     más color, motivos y preguntas."""
     base = {"regla": None, "cita": None, "citas_extra": [], "vv_desde": None, "vv_desde_origen": None, "vv_hasta": None,
@@ -348,8 +483,13 @@ def resolver(lecturas: list, texto: str, fecha_remate: str | None, hora_remate: 
             fin = fin + 1 if fin >= 0 else len(texto)
             r = {**r, "regla": "en_el_remate", "frase_regla": texto[ini:fin].strip()}
             lecturas = [r, r]
-    v = verificar(r, texto)
-    v2 = verificar(lecturas[1], texto)
+    v = verificar(r, texto, fecha_edicion)
+    v2 = verificar(lecturas[1], texto, fecha_edicion)
+    # 11 de Noviembre (grupo 3). Si las dos lecturas dicen lo mismo y una sola falla porque copió mal una frase, vale la bien citada.
+    if not v["ok"] and v2["ok"] and v["motivos"] and all(_es_cita(m) for m in v["motivos"]):
+        r, v, v2 = lecturas[1], v2, v
+    if v["ok"] and not v2["ok"] and v2["motivos"] and all(_es_cita(m) for m in v2["motivos"]):
+        v2 = v
     if v["ok"] and not v2["ok"]:
         v = {**v, "ok": False, "motivos": ["Segunda lectura. " + m for m in v2["motivos"]]}
     base.update(regla=r["regla"], cita=v.get("frase_regla"), citas_extra=v.get("frases_extra") or [], contradiccion=v.get("contradiccion"))
@@ -370,6 +510,10 @@ def resolver(lecturas: list, texto: str, fecha_remate: str | None, hora_remate: 
     if r["regla"] == "fecha_fija" and c["vv_hasta"][:10] < fecha_edicion:
         base["motivos"].append("La fecha de entrega es anterior a la edición. Posible error de escritura del aviso.")
         base["vv_estado"] = "revisar"; return base
+    if r["regla"] == "horas_antes" and len(c["vv_hasta"]) > 10 and not ("08:00" <= c["vv_hasta"][11:] <= "15:00"):
+        # 11 de Noviembre (grupo 3). "13 horas de antelación" de C-11560-2013 daba las 21.30, con el tribunal cerrado.
+        base["motivos"].append(f"La entrega quedaría a las {c['vv_hasta'][11:]}, fuera del horario del tribunal.")
+        base["vv_estado"] = "revisar"; return base
     if c["vv_hasta"][:10] > fecha_remate:
         base["motivos"].append("La entrega quedaría después del remate."); base["vv_estado"] = "revisar"; return base
     # F1-01 (30 de Octubre). Red de seguridad. Ninguna entrega puede quedar en un fin de semana o feriado (salvo en el mismo
@@ -380,7 +524,12 @@ def resolver(lecturas: list, texto: str, fecha_remate: str | None, hora_remate: 
     # La frase nombra un día de la semana y el cálculo cae en otro (6-10 aviso 80, "el día jueves inmediatamente anterior"
     # leído como día anterior dio viernes, un día TARDE). Solo lunes a viernes, porque sábado y domingo aparecen en las
     # excepciones ("si recayere en día sábado", 14-10 aviso 21) y la entrega nunca cae en fin de semana.
-    nombrados = {_DIA_SEMANA[w.lower()] for w in re.findall(r"\b(lunes|martes|mi[ée]rcoles|jueves|viernes)\b", base["cita"] or "", re.I)}
+    # 11 de Noviembre (grupo 3). No cuentan "de lunes a viernes" ni los días que van dentro de una excepción ("y si dicho día fuera sábado,
+    # hasta las 12:00 hrs. del viernes anterior", "día Viernes en caso de que el día fijado para la subasta sea un Lunes", "y si este fuere
+    # feriado, el día martes"). Sin esto se rechazaban lecturas buenas del 29°, del 8° y de Punta Arenas.
+    cita_dias = re.sub(r"de\s+lunes\s+a\s+viernes", " ", base["cita"] or "", flags=re.I)
+    cita_dias = re.sub(r"(?:d[íi]a\s+\w+\s+)?(?:,?\s*y\s+)?(?:\bsi\b|en\s+caso\s+(?:de\s+)?que?)(?:[^.]|\.(?!\s+(?-i:[A-ZÁÉÍÓÚ])))*", " ", cita_dias, flags=re.I)
+    nombrados = {_DIA_SEMANA[w.lower()] for w in re.findall(r"\b(lunes|martes|mi[ée]rcoles|jueves|viernes)\b", cita_dias, re.I)}
     if nombrados and not c.get("corrido_feriado") and dt.date.fromisoformat(c["vv_hasta"][:10]).weekday() not in nombrados:
         base["motivos"].append("La frase nombra un día de la semana distinto al que da el cálculo.")
         base["vv_estado"] = "revisar"; return base

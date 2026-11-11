@@ -36,8 +36,10 @@ FECHA_NUM = re.compile(r"\b(\d{1,2})/(\d{1,2})/\s?(\d{4})\b")
 # "a las 13:15 horas", "13:45 hrs.", "a las 11.30 horas", "a las 11:00,", "A Las 15:05 Horas", "10:30 HRS"
 HORA = re.compile(r"(?:\ba(?:\s+las)?\s+)?\b(\d{1,2})[:.]\s?(\d{2})\b(?:\s*(?:horas|hrs?)\b\.?)?", re.I)
 # Palabras que anuncian el remate
+# 11 de Noviembre. Se agrega el infinitivo "rematar" ("se dispuso rematar el día 1 de diciembre de 2026", C-17087-2016 del 2° Civil).
+# Sin él la fecha se tomaba del "remate" siguiente, que era la de la tasación. En todas las capturas cambian 6 textos y nada más.
 # 10 de Noviembre. Se agrega "rematase" y "remátese" ("Rit N° C-10-2025, rematase el día 20 de Noviembre de 2026", Juzgado de Letras de Peñaflor).
-VERBO = re.compile(r"\b(?:se\s+)?(?:rematar[áa]n?|rem[aá]t[ae]se|remata|subastar[áa]n?|se\s+subasta|remate|subasta|llamado\s+con\s+fecha)\b", re.I)
+VERBO = re.compile(r"\b(?:se\s+)?(?:rematar(?:[áa]n?)?|rem[aá]t[ae]se|remata|subastar[áa]n?|se\s+subasta|remate|subasta|llamado\s+con\s+fecha)\b", re.I)
 
 
 def _fechas(texto):
@@ -147,6 +149,17 @@ def fecha_y_hora(texto: str, fecha_edicion: str | None = None) -> dict:
         alertas.append(("revisar_lectura", "No se encontró la fecha del remate."))
         return resultado
     ini, fin, valor, cita = elegida
+    if fecha_edicion and valor < fecha_edicion:
+        # 11 de Noviembre (decisión de Diego). Resguardo. Una fecha anterior a la edición no se toma en silencio si el aviso trae otra
+        # fecha futura con su hora, que no sea de la entrega del vale vista. Se toma la futura y queda una alerta roja que nombra la
+        # descartada. Nació de C-17087-2016 del 2° Civil, donde se tomaba la fecha del informe de tasación. En todas las capturas
+        # salta 0 veces con el verbo rematar ya agregado. Una fecha del aviso mal impresa y sin otra fecha futura sigue como antes.
+        otras = [(i, f, v, c) for i, f, v, c in fechas if v >= fecha_edicion and _hora_tras(texto, f, f + 80)[0]
+                 and not re.search(r"entreg|present", texto[max(0, i - 120):i], re.I)]
+        if otras:
+            alertas.append(("revisar_lectura", f"El aviso trae una fecha anterior a la edición ({fecha_palabras(valor)}) donde se esperaba la del remate. "
+                            f"Se tomó la fecha futura con hora ({fecha_palabras(otras[0][2])}). Revisa el aviso."))
+            ini, fin, valor, cita = otras[0]
     resultado["fecha_remate"] = {"valor": valor, "cita": cita}
     if ini > 0 and texto[ini - 1].isalpha():
         # 10 de Noviembre. Diego quiere ver todo error de escritura del aviso, aunque sea menor.

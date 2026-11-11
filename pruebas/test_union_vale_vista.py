@@ -126,8 +126,10 @@ r4 = guardar_edicion(C4, edicion, paginas, avisos, ex, "2026-10-16T00:00:00", me
 # 21 de Octubre. Decisión de Diego, tribunales no civiles descartados. En el 14-10 son el 56 (verde, acierto) y el 61 (rojo, acierto), revisado con el código anterior. Antes 57 leídos, 4 saltados, 53 aciertos y 57 con bloque.
 revisar("paso 4. 55 avisos leídos, 6 saltados (4 partidores y 2 de Cobranza Laboral), 0 sin IA", (rv["leidos"], rv["saltados"], rv["sin_ia"]) == (55, 6, 0), str(rv))
 cuenta, colores = medir_base(C4)
-revisar("paso 4. desde la base. 51 aciertos, 4 no leídos (rojo), 0 equivocados, igual que la medición",
-        cuenta == {"acierto": 51, "no_leido": 4}, str(cuenta))
+# CORRECCIÓN del 11 de Noviembre (grupo 3, aprobado por Diego). Los avisos 2, 34 y 37 del 14-10 pasan de rojo a la fecha exacta del banco
+# (2 y 37 por las revisiones menos estrictas, 34 por la lectura por código de "el día viernes anterior"). Antes 51 aciertos y 4 no leídos.
+revisar("paso 4. desde la base. 54 aciertos, 1 no leído (rojo), 0 equivocados, igual que la medición",
+        cuenta == {"acierto": 54, "no_leido": 1}, str(cuenta))
 revisar("paso 4. colores en la base iguales a los de resolver() (por aviso)", colores == rv["colores"], f"{colores} {rv['colores']}")
 revisar("paso 4. 55 avisos visibles con bloque, ninguno se perdió", sum(colores.values()) == 55 and None not in colores)
 revisar("paso 4. citas del vale vista con método ia y todas verificadas, las del código siguen con codigo",
@@ -141,9 +143,9 @@ rojos = dict(C4.execute(f"SELECT a.orden, al.texto FROM alertas al JOIN avisos a
 # 18 de Octubre. Los avisos 27 y 28 ("calificados al momento de hacerse el llamado") ya no son rojos. CORRECCIÓN de Diego,
 # esa frase SÍ es entrega en el remate. Eran 8 rojos y quedan 6.
 # 21 de Octubre. El 61 (Cobranza Laboral) quedó descartado. Eran 6 rojos y quedan 5.
-revisar("decisión 5, paso 2a. grupos de los 5 rojos del 14 de Octubre (9 error del aviso, los demás falla de la IA)",
-        {k: v.split(". ")[0] for k, v in rojos.items()} == {2: "Falla de la IA", 9: "Error del aviso", 13: "Falla de la IA",
-                                                           34: "Falla de la IA", 37: "Falla de la IA"},
+# 11 de Noviembre (grupo 3). El 2, el 34 y el 37 ya no son rojos. Eran 5 rojos y quedan 2.
+revisar("decisión 5, paso 2a. grupos de los 2 rojos del 14 de Octubre (9 error del aviso, 13 falla de la IA)",
+        {k: v.split(". ")[0] for k, v in rojos.items()} == {9: "Error del aviso", 13: "Falla de la IA"},
         str({k: v.split(". ")[0] for k, v in rojos.items()}))
 revisar("decisión 5, paso 2a. ninguna alerta roja muestra nombres internos (dia_anterior, en_el_remate, _)", not [v for v in rojos.values() if "_" in v])
 revisar("paso 4. una alerta condicion_especial de pregunta al abogado por cada remate en ámbar",
@@ -187,7 +189,7 @@ for nombre, cli in (("sin cliente", None), ("cliente que falla", ClienteCaido())
 if (RAIZ / "capturas" / "2026-10-14" / "navegacion.json").exists():
     C6 = crear(Path(tmp.name) / "captura.db")
     r6 = cargar_edicion(C6, "2026-10-14", "2026-10-16T00:00:00")
-    revisar("captura 14-10. cargar_edicion da 51 aciertos, 4 no leídos, 0 equivocados (21 de Octubre, antes 53)", medir_base(C6)[0] == {"acierto": 51, "no_leido": 4}, str(r6.get("vale_vista")))
+    revisar("captura 14-10. cargar_edicion da 54 aciertos, 1 no leído, 0 equivocados (11 de Noviembre, grupo 3, antes 51)", medir_base(C6)[0] == {"acierto": 54, "no_leido": 1}, str(r6.get("vale_vista")))
     C6.close()
 else:
     print("AVISO capturas\\2026-10-14 no está en este equipo. Se omite la revisión desde la captura.")
@@ -331,7 +333,7 @@ ex = extraer_avisos(avisos, "2026-10-14"); agregar_vale_vista(avisos, ex, "2026-
 guardar_edicion(F14, edicion, paginas, avisos, ex, "2026-10-16T00:00:00", metodo="codigo")
 revisar("decisión 8, paso 4. 14-10 retomado queda igual que cargado con la IA (remates, alertas, citas y edición)", foto(R14) == foto(F14),
         str([k for k in foto(R14) if foto(R14)[k] != foto(F14)[k]]))
-revisar("decisión 8, paso 4. 14-10 retomado da 51 aciertos, 4 no leídos, 0 equivocados (21 de Octubre, antes 53)", medir_base(R14)[0] == {"acierto": 51, "no_leido": 4}, str(rr))
+revisar("decisión 8, paso 4. 14-10 retomado da 54 aciertos, 1 no leído, 0 equivocados (11 de Noviembre, grupo 3, antes 51)", medir_base(R14)[0] == {"acierto": 54, "no_leido": 1}, str(rr))
 antes = foto(R14); rr2 = retomar_vale_vista(R14, "2026-10-14")
 revisar("decisión 8, paso 4. retomar dos veces no duplica nada", foto(R14) == antes and rr2["pendientes_antes"] == 0, str(rr2))
 
@@ -423,9 +425,8 @@ B14 = crear(Path(tmp.name) / "banco14.db")
 ex = extraer_avisos(avisos, "2026-10-14"); agregar_vale_vista(avisos, ex, "2026-10-14")
 guardar_edicion(B14, edicion, paginas, avisos, ex, "2026-10-16T00:00:00", metodo="codigo")
 regs = registros_de_edicion(B14, "2026-10-14")
-revisar("paso 6. 14-10 da 8 registros, los 5 rojos y los 3 sin dato (27 y 28 dejaron de ser rojos el 18 de Octubre, el 61 se descartó el 21)",
-        [(r["orden"], r["color"]) for r in regs] == [(2, "rojo"), (9, "rojo"), (13, "rojo"), (33, "sin_dato"),
-                                                    (34, "rojo"), (37, "rojo"), (50, "sin_dato"), (59, "sin_dato")], str([r["orden"] for r in regs]))
+revisar("paso 6. 14-10 da 5 registros, los 2 rojos y los 3 sin dato (27 y 28 dejaron de ser rojos el 18 de Octubre, el 61 se descartó el 21, 2, 34 y 37 el 11 de Noviembre)",
+        [(r["orden"], r["color"]) for r in regs] == [(9, "rojo"), (13, "rojo"), (33, "sin_dato"), (50, "sin_dato"), (59, "sin_dato")], str([r["orden"] for r in regs]))
 revisar("paso 6. el grupo del banco es el mismo de la alerta de la base",
         all(r["grupo"] == rojos[r["orden"]].split(". ")[0] for r in regs if r["color"] == "rojo"))
 revisar("paso 6. cada registro trae texto, dos lecturas, motivos técnicos, huella, ruta y revisión vacía",
@@ -435,7 +436,7 @@ CB = Path(tmp.name) / "banco_rojos"
 x1 = registrar(regs, CB, "t1")
 x2 = registrar(regs, CB, "t2")
 lineas = (CB / "rojos_2026-10.jsonl").read_text(encoding="utf-8").splitlines()
-revisar("paso 6. registrar dos veces no duplica", (x1["nuevos"], x2["nuevos"], x2["repetidos"], len(lineas)) == (8, 0, 8, 8), f"{x1} {x2} {len(lineas)}")
+revisar("paso 6. registrar dos veces no duplica", (x1["nuevos"], x2["nuevos"], x2["repetidos"], len(lineas)) == (5, 0, 5, 5), f"{x1} {x2} {len(lineas)}")
 # El mismo texto en otra edición queda marcado como republicación de la primera
 otra = [dict(r, edicion="2026-10-15") for r in regs[:2]]
 x3 = registrar(otra, CB, "t3")
