@@ -144,7 +144,7 @@ async function api(ruta,cuerpo){
 function aviso(t,bien){const d=document.getElementById('toast');d.textContent=t;d.classList.toggle('bien',!!bien);d.classList.remove('oculto');clearTimeout(aviso.t);aviso.t=setTimeout(()=>d.classList.add('oculto'),7000);}
 async function cargar(){try{EST=await api('/api/estado');render();}catch(e){aviso('No se pudo leer la agenda. '+e.message);return;}
   if(!UF||UF.dia!==EST.hoy)api('/api/uf').then(u=>{UF={...u,dia:EST.hoy};render();}).catch(()=>{});}   // UF del día (5 de Noviembre), sin internet la agenda abre igual
-async function hacer(ruta,cuerpo){try{const r=await api(ruta,cuerpo);await cargar();if(UI.panel==='buscar')await buscar();if(UI.dia)await cargarDia(false);return r;}catch(e){aviso(e.message);return null;}}
+async function hacer(ruta,cuerpo){try{const r=await api(ruta,cuerpo);await cargar();if(UI.panel==='buscar')await buscar();if(UI.dia)await cargarDia(false);if(UI.panel==='historial')await cargarHist();return r;}catch(e){aviso(e.message);return null;}}
 
 function fmtCLP(n){return '$'+Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
 function leerUF(t){if(!t)return null;const n=Number(String(t).replace(/[$\s]/g,'').replace(/\./g,'').replace(',','.'));return isFinite(n)&&n>0?n:null;}
@@ -206,7 +206,7 @@ function ufHTML(it){return it.uf?`<div class="ufbox" style="align-self:stretch;t
 // --- Columna izquierda ---------------------------------------------------------------------------------------------
 function renderIzq(){
   const ag=EST.agenda;   // 11 de Noviembre. Sin el filtro por tribunal (pedido de Diego)
-  let h=`<div class="fila"><h2 class="tit">Causas agendadas</h2><span class="cuenta">${ag.length}</span></div>`;
+  let h=`<div class="fila"><h2 class="tit">Causas agendadas</h2><span style="display:flex;gap:8px;align-items:center"><button class="btn2" data-acc="historial" title="Lo que agendaste y quitaste, con la fecha y hora">Historial</button><span class="cuenta">${ag.length}</span></span></div>`;
   for(const q of EST.quitados) h+=`<div class="aviso-pub"><b>Una causa que quitaste volvió a publicarse</b><span>${E(q.titulo)}. ${E(q.texto)}</span><div class="fila"><button class="btn2" data-acc="reagendar" data-rid="${q.remate_id}">Volver a agendar</button><button class="btn2" data-acc="ignorarq" data-bien="${q.bien_id}">No, gracias</button></div></div>`;
   if(!ag.length) h+=`<p class="peq gris">Todavía no tienes causas agendadas. Usa la lupa para buscar remates y agregarlos.</p>`;
   for(const it of ag){const k=clave(it);
@@ -353,6 +353,12 @@ async function cargarDia(ir){const D=UI.dia;if(!D)return;const q=new URLSearchPa
 function diaHTML(){const D=UI.dia;if(!D)return '';const r=D.res;
   return `<section class="ficha" id="dia" aria-label="Remates del día"><div class="fila" style="align-items:flex-start"><div><div style="font-size:13px;font-weight:700;color:var(--suave)">Remates del día</div><h2 style="margin:0;font-size:28px;font-weight:800">${E(diaLargo(D.d,EST.hoy))}</h2></div><button class="btn2" style="min-height:44px" data-acc="cerrarDia" aria-label="Cerrar los remates del día">✕ Cerrar</button></div>
     ${modF(D.mod,'d')}${!r?'<p class="peq gris">Buscando...</p>':`<div class="gris" style="font-size:12px">${r.total===1?'1 remate':r.total+' remates'}${r.total>r.mostrados?`, se muestran los primeros ${r.mostrados}`:''}</div>${r.total?'':'<p class="peq gris">No hay remates ese día con esta modalidad.</p>'}<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px">${r.resultados.map(tarjetaRes).join('')}</div>`}</section>`;}
+function histHTML(x){const q=x.accion==='quitada';
+  return `<article class="tarjeta"${q?' style="border-left:4px solid var(--rojo)"':' style="border-left:4px solid var(--ok)"'}><div class="fila"><span class="peq" style="font-weight:800;color:${q?'var(--rojo)':'var(--ok)'}">${q?'QUITADA':'AGENDADA'}${x.tipo==='manual'?' · A MANO':''}</span><span class="gris" style="font-size:12px">${E(x.cuando_txt)}</span></div>
+    <div class="rol" style="color:var(--cafe)">${E(x.rol||'Sin rol')}</div>${x.caratula?`<div class="car">${E(x.caratula)}</div>`:''}<div class="peq gris">${E(x.tribunal||'Sin tribunal')}</div>
+    ${x.direccion?`<div class="peq"><span class="gris">Dirección</span> ${E(x.direccion)}</div>`:''}<div class="peq"><span class="gris">Remate</span> ${x.fecha_remate?E(diaLargo(String(x.fecha_remate).slice(0,10),EST.hoy)):'Sin fecha'}</div>
+    ${x.puede_volver?(x.tipo==='manual'?`<button class="btn2" style="align-self:flex-start;min-height:40px" data-acc="restaurarM" data-h="${x.id}">Volver a agendar</button>`:`<button class="btn2" style="align-self:flex-start;min-height:40px" data-acc="agendar" data-rid="${x.remate_id}">Volver a agendar</button>`):''}</article>`;}
+async function cargarHist(){try{UI.hist=(await api('/api/historial')).historial;}catch(e){aviso(e.message);UI.hist=[];}if(UI.panel==='historial')renderPanel();}
 /* Campo del buscador con su X para limpiarlo (Diego, 22 de Octubre). La X aparece solo cuando hay algo escrito. */
 function campoF(n,lab){const v=UI.f[n]||'';return `<label class="lab">${lab}<span class="limpiable"><input class="campo" data-filtro="${n}" value="${E(v)}"><button type="button" class="borrar" data-acc="limpiar" data-campo="${n}" aria-label="Borrar ${lab.toLowerCase()}" ${v?'':'hidden'}>✕</button></span></label>`;}
 function renderPanel(){
@@ -368,6 +374,11 @@ function renderPanel(){
     <label class="lab">Edición<select class="campo" data-filtro="edicion"><option value="">Todas las ediciones</option>${EST.ediciones.map(e=>`<option value="${e}" ${f.edicion===e?'selected':''}>${E(EST.ediciones_txt[e])}</option>`).join('')}</select></label>
     <label class="chk"><input type="checkbox" data-filtro="pasados" ${f.pasados?'checked':''}>Incluir remates que ya pasaron</label>
     <button class="btn2" style="border-style:dashed;min-height:44px" data-acc="manual">+ Agregar una causa a mano</button><div id="res" style="display:flex;flex-direction:column;gap:12px"></div>`;}
+  else if(UI.panel==='historial'){const H=UI.hist;   // 11 de Noviembre (Diego). Historial de causas agendadas y quitadas
+    h=`<div class="fila"><h2 class="tit">Historial</h2><button class="x44" data-acc="cerrar" aria-label="Cerrar historial">✕</button></div>
+    <p class="peq gris" style="margin:0">Cada vez que agendas o quitas una causa, con la fecha y hora exacta. Lo más nuevo arriba.</p>
+    ${!H?'<p class="peq gris">Cargando...</p>':!H.length?'<p class="peq gris">Todavía no hay nada en el historial.</p>':H.map(histHTML).join('')}
+    ${H&&H.some(x=>x.reconstruido)?'<p class="gris" style="font-size:12px">Lo anterior al 11 de Noviembre se armó con lo que ya estaba guardado. De cada causa quitada antes de esa fecha solo quedó la última vez, y las causas a mano quitadas no quedaban registradas.</p>':''}`;}
   else if(UI.panel==='manual'){const F=UI.form;const c=(n,t,lab,ph)=>`<label class="lab">${lab}<input class="campo" type="${t}" data-form="${n}" value="${E(F[n])}" ${ph?`placeholder="${E(ph)}"`:''}></label>`;
     h=`<div class="fila"><h2 class="tit">Causa a mano</h2><button class="x44" data-acc="buscar" aria-label="Volver al buscador">←</button></div>
     <div class="peq" style="color:var(--tinta2)">Para una causa que no salió en El Mercurio o que el programa no leyó. En el calendario queda marcada como agregada a mano.</div>
@@ -388,6 +399,8 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-acc]
   else if(a==='buscar'){if(!UI.fIni){UI.fIni=true;UI.f.edicion=EST.ediciones[0]||'';}   // abre con la última edición cargada (Diego, 11 de Noviembre)
     UI.panel='buscar';renderPanel();if(!UI.res)await buscar();}
   else if(a==='cerrar'){UI.panel=null;renderPanel();}
+  else if(a==='historial'){UI.panel='historial';UI.hist=null;renderPanel();await cargarHist();}
+  else if(a==='restaurarM'){await hacer('/api/restaurar_manual',{historial_id:+b.dataset.h});}
   else if(a==='limpiar'){const n=b.dataset.campo,i=document.querySelector(`input[data-filtro="${n}"]`);UI.f[n]='';if(i){i.value='';i.focus();}b.hidden=true;clearTimeout(espera);await buscar();}
   else if(a==='manual'){UI.panel='manual';UI.err='';renderPanel();}
   else if(a==='papAbrir'){UI.pap=[{k,min:true,monto:''}];renderCentro();}

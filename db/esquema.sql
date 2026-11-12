@@ -212,6 +212,27 @@ CREATE TABLE IF NOT EXISTS agenda_quitados (
   ultima_edicion  TEXT NOT NULL
 );
 
+-- 6d. HISTORIAL DE CAUSAS AGENDADAS (pedido de Diego, 11 de Noviembre). Cada vez que se agenda o se quita una causa queda una
+-- fila con la fecha y hora exacta y una foto de la causa (rol, tribunal, carátula, dirección, día del remate), para encontrar una
+-- causa quitada sin querer. datos_manual guarda la causa a mano completa (JSON) para poder volver a agendarla.
+-- reconstruido = 1 son las filas armadas el 11 de Noviembre con lo que ya estaba guardado (antes no había historial).
+CREATE TABLE IF NOT EXISTS agenda_historial (
+  id            INTEGER PRIMARY KEY,
+  cuando        TEXT NOT NULL,
+  accion        TEXT NOT NULL CHECK (accion IN ('agendada','quitada')),
+  tipo          TEXT NOT NULL CHECK (tipo IN ('remate','manual')),
+  bien_id       INTEGER,
+  remate_id     INTEGER,
+  manual_id     INTEGER,
+  rol           TEXT,
+  tribunal      TEXT,
+  caratula      TEXT,
+  direccion     TEXT,
+  fecha_remate  TEXT,
+  datos_manual  TEXT,
+  reconstruido  INTEGER NOT NULL DEFAULT 0 CHECK (reconstruido IN (0,1))
+);
+
 -- 7. FERIADOS. Para calcular reglas como "el viernes anterior, o el día hábil anterior si es feriado".
 CREATE TABLE IF NOT EXISTS feriados (
   fecha   TEXT PRIMARY KEY,                         -- AAAA-MM-DD

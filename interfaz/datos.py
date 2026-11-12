@@ -3,8 +3,10 @@ por aquí. El servidor (interfaz\\servidor.py) solo traduce pedidos web a estas 
 Decisiones de Diego del 18 de Octubre en ESTADO_PROYECTO.md y en la bitácora del 18.
 """
 import datetime as dt
+import json
 import math
 import re
+import sqlite3
 from db.carga import normalizar
 from db.crear_base import aviso_feriados
 from motor import forma_vale_vista as FV
@@ -510,22 +512,134 @@ def _ahora():
     return dt.datetime.now().isoformat(timespec="seconds")
 
 
+# --- Historial de causas agendadas (pedido de Diego, 11 de Noviembre) -------------------------------------------------
+def _foto_remate(con, bien_id, remate_id=None):
+    """Rol, tribunal, carátula, dirección y día del remate de una propiedad, de su publicación más nueva (o del remate dado)."""
+    cur = con.cursor()
+    cur.row_factory = sqlite3.Row
+    if remate_id is None:
+        f = con.execute("SELECT remate_id FROM v_buscador WHERE bien_id = ? ORDER BY edicion DESC, remate_id DESC LIMIT 1", (bien_id,)).fetchone()
+        remate_id = f[0] if f else None
+    f = cur.execute("SELECT * FROM v_buscador WHERE remate_id = ? ORDER BY edicion DESC LIMIT 1", (remate_id,)).fetchone() if remate_id else None
+    if not f:
+        return {"remate_id": remate_id}
+    dirc = ", ".join(x for x in (f["direccion"], f["comuna"]) if x) or None
+    return {"remate_id": remate_id, "rol": rol_texto(f["tipo_id"], f["rol"], f["anio"]), "tribunal": f["tribunal"],
+            "caratula": f["caratula"], "direccion": dirc, "fecha_remate": f["fecha_remate"]}
+
+
+def _foto_manual(con, manual_id):
+    cur = con.cursor()
+    cur.row_factory = sqlite3.Row
+    f = cur.execute("SELECT * FROM agenda_manual WHERE id = ?", (manual_id,)).fetchone()
+    if not f:
+        return None
+    d = {k: f[k] for k in f.keys()}
+    return {"rol": rol_texto(None, d["rol"], d["anio"]), "tribunal": d["tribunal"], "caratula": d["caratula"],
+            "direccion": d["direccion"], "fecha_remate": d["fecha_remate"], "datos_manual": json.dumps(d, ensure_ascii=False)}
+
+
+def _anotar(con, accion, cuando=None, bien_id=None, remate_id=None, manual_id=None, foto=None, reconstruido=0):
+    if foto is None:
+        foto = _foto_manual(con, manual_id) if manual_id is not None else _foto_remate(con, bien_id, remate_id)
+    foto = foto or {}
+    con.execute("INSERT INTO agenda_historial(cuando, accion, tipo, bien_id, remate_id, manual_id, rol, tribunal, caratula, direccion, "
+                "fecha_remate, datos_manual, reconstruido) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (cuando or _ahora(), accion, "manual" if manual_id is not None else "remate", bien_id, foto.get("remate_id", remate_id),
+                 manual_id, foto.get("rol"), foto.get("tribunal"), foto.get("caratula"), foto.get("direccion"), foto.get("fecha_remate"),
+                 foto.get("datos_manual"), reconstruido))
+
+
+def reconstruir_historial(con):
+    """Una sola vez (marca en meta). Antes del 11 de Noviembre no había historial. Se arma con lo que ya estaba guardado.
+    Las causas agendadas con su fecha de agregado, las causas a mano con la suya y las quitadas con la última vez que se quitaron."""
+    if con.execute("SELECT 1 FROM meta WHERE clave = 'historial_reconstruido'").fetchone():
+        return 0
+    with con:
+        n = 0
+        for b, r, c in con.execute("SELECT bien_id, remate_base_id, agregado_en FROM agenda").fetchall():
+            _anotar(con, "agendada", c, bien_id=b, remate_id=r, reconstruido=1); n += 1
+        for m, c in con.execute("SELECT id, agregado_en FROM agenda_manual").fetchall():
+            _anotar(con, "agendada", c, manual_id=m, reconstruido=1); n += 1
+        for b, c in con.execute("SELECT bien_id, quitado_en FROM agenda_quitados").fetchall():
+            _anotar(con, "quitada", c, bien_id=b, reconstruido=1); n += 1
+        con.execute("INSERT OR REPLACE INTO meta(clave, valor) VALUES ('historial_reconstruido', ?)", (_ahora(),))
+    return n
+
+
+def historial(con):
+    """Lo más nuevo arriba. En la última vez que se quitó una causa que hoy no está agendada va el botón para volver a agendarla."""
+    cur = con.cursor()
+    cur.row_factory = sqlite3.Row
+    filas = [dict(f) for f in cur.execute("SELECT * FROM agenda_historial ORDER BY cuando DESC, id DESC")]
+    agendados = {r[0] for r in con.execute("SELECT bien_id FROM agenda")}
+    manuales = {r[0] for r in con.execute("SELECT id FROM agenda_manual")}
+    vistos, out = set(), []
+    for f in filas:
+        clave = ("m", f["manual_id"]) if f["tipo"] == "manual" else ("b", f["bien_id"])
+        f["cuando_txt"] = _cuando_txt(f["cuando"])
+        f["puede_volver"] = False
+        if clave not in vistos:
+            vistos.add(clave)
+            ahora = (f["manual_id"] in manuales) if f["tipo"] == "manual" else (f["bien_id"] in agendados)
+            f["puede_volver"] = f["accion"] == "quitada" and not ahora and (bool(f["datos_manual"]) if f["tipo"] == "manual" else bool(f["remate_id"]))
+        f.pop("datos_manual", None)
+        out.append(f)
+    return {"historial": out}
+
+
+def _cuando_txt(c):
+    """'Miércoles 11 de Noviembre de 2026 a las 23:10'."""
+    try:
+        d = dt.datetime.fromisoformat(c)
+    except (TypeError, ValueError):
+        return c or ""
+    dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+    meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    return f"{dias[d.weekday()]} {d.day} de {meses[d.month - 1]} de {d.year} a las {d:%H:%M}"
+
+
+def restaurar_manual(con, historial_id):
+    """Vuelve a agendar una causa a mano quitada, tal como estaba (con su mismo número si está libre)."""
+    f = con.execute("SELECT datos_manual, manual_id FROM agenda_historial WHERE id = ? AND tipo = 'manual' AND accion = 'quitada'", (historial_id,)).fetchone()
+    if not f or not f[0]:
+        raise ErrorDato("No hay datos guardados para volver a agendar esa causa.")
+    d = json.loads(f[0])
+    cols = [c[1] for c in con.execute("PRAGMA table_info(agenda_manual)")]
+    d = {k: v for k, v in d.items() if k in cols}
+    if con.execute("SELECT 1 FROM agenda_manual WHERE id = ?", (d.get("id"),)).fetchone():
+        d.pop("id", None)
+    d["agregado_en"] = _ahora()
+    with con:
+        cur = con.execute(f"INSERT INTO agenda_manual({', '.join(d)}) VALUES ({', '.join('?' * len(d))})", list(d.values()))
+        _anotar(con, "agendada", manual_id=cur.lastrowid)
+    return {"manual_id": cur.lastrowid}
+
+
 def agendar(con, remate_id):
     f = con.execute("SELECT bien_id FROM remates WHERE id = ?", (remate_id,)).fetchone()
     if not f or f[0] is None:
         raise ErrorDato("Ese remate no tiene una propiedad identificada y no se puede agendar. Agrégalo a mano.")
     with con:
-        con.execute("INSERT OR IGNORE INTO agenda(bien_id, remate_base_id, agregado_en) VALUES (?,?,?)", (f[0], remate_id, _ahora()))
+        cur = con.execute("INSERT OR IGNORE INTO agenda(bien_id, remate_base_id, agregado_en) VALUES (?,?,?)", (f[0], remate_id, _ahora()))
         con.execute("DELETE FROM agenda_quitados WHERE bien_id = ?", (f[0],))
+        if cur.rowcount:      # 11 de Noviembre. Historial, solo si de verdad se agregó
+            _anotar(con, "agendada", bien_id=f[0], remate_id=remate_id)
     return {"bien_id": f[0]}
 
 
 def quitar(con, bien_id=None, manual_id=None):
     with con:
         if manual_id is not None:
+            foto = _foto_manual(con, manual_id)
+            if foto:            # 11 de Noviembre. Historial con la causa completa, para poder volver a agendarla
+                _anotar(con, "quitada", manual_id=manual_id, foto=foto)
             con.execute("DELETE FROM agenda_manual WHERE id = ?", (manual_id,))
             return {}
         ult = con.execute("SELECT MAX(edicion) FROM v_buscador WHERE bien_id = ?", (bien_id,)).fetchone()[0]
+        rb = con.execute("SELECT remate_base_id FROM agenda WHERE bien_id = ?", (bien_id,)).fetchone()
+        if rb:
+            _anotar(con, "quitada", bien_id=bien_id)
         con.execute("DELETE FROM agenda WHERE bien_id = ?", (bien_id,))
         if ult:
             con.execute("INSERT OR REPLACE INTO agenda_quitados(bien_id, quitado_en, ultima_edicion) VALUES (?,?,?)", (bien_id, _ahora(), ult))
@@ -578,6 +692,7 @@ def agregar_manual(con, datos):
                            (datos.get("direccion") or "").strip() or None, fecha,
                            (datos.get("hora") or "").strip() or None, _MOD.get(datos.get("mod"), "sin_dato"), vd, vh,
                            (datos.get("monto") or "").strip() or None, _ahora()))
+        _anotar(con, "agendada", manual_id=cur.lastrowid)
     return {"manual_id": cur.lastrowid}
 
 
@@ -589,6 +704,7 @@ def reemplazar_manual(con, manual_id, remate_id):
     r = agendar(con, remate_id)
     with con:
         con.execute("UPDATE agenda SET vv_entregado = ?, remate_asistido = ? WHERE bien_id = ?", (m[0], m[1], r["bien_id"]))
+        _anotar(con, "quitada", manual_id=manual_id)     # 11 de Noviembre. Cambiada por la publicada, queda en el historial
         con.execute("DELETE FROM agenda_manual WHERE id = ?", (manual_id,))
     return r
 

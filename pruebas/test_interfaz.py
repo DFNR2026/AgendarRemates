@@ -443,6 +443,62 @@ revisar("costas. la ficha suma las costas al monto en pesos, hacia arriba", "Mat
 
 despues = sorted(p.name for p in (RAIZ / "ia_respuestas").rglob("*.json"))
 revisar("candado. no se llamó a Haiku (ia_respuestas sin cambios)", antes == despues)
+# 11 de Noviembre (pedido de Diego). Historial de causas agendadas, con la fecha y hora exacta de cuando se quitó. En una copia de la base.
+import sqlite3 as _sqh
+_rh = Path(tmp.name) / "historial.db"
+_src = _sqh.connect(ruta); _dst = _sqh.connect(_rh); _src.backup(_dst); _dst.close(); _src.close()
+_ch = crear(_rh)
+_ch.execute("DELETE FROM agenda"); _ch.execute("DELETE FROM agenda_manual"); _ch.execute("DELETE FROM agenda_quitados"); _ch.execute("DELETE FROM agenda_historial")
+_ch.execute("DELETE FROM meta WHERE clave = 'historial_reconstruido'"); _ch.commit()
+_rems = [r[0] for r in _ch.execute("SELECT remate_id FROM v_buscador WHERE bien_id IS NOT NULL GROUP BY bien_id ORDER BY remate_id LIMIT 3")]
+# Lo que había antes del historial. Una agendada, una a mano y una quitada.
+_ch.execute("INSERT INTO agenda(bien_id, remate_base_id, agregado_en) SELECT bien_id, id, '2026-11-05T21:12:17' FROM remates WHERE id = ?", (_rems[0],))
+_ch.execute("INSERT INTO agenda_quitados(bien_id, quitado_en, ultima_edicion) SELECT bien_id, '2026-11-06T13:09:26', '2026-10-14' FROM remates WHERE id = ?", (_rems[1],))
+_ch.commit()
+D.agregar_manual(_ch, {"fecha": "2026-11-18", "rol": "8034", "anio": "2020", "trib": "2° Juzgado Civil de Santiago", "direccion": "calle Carlos Condell 696", "monto": "56 UF"})
+_ch.execute("DELETE FROM agenda_historial"); _ch.commit()
+revisar("historial. se arma una sola vez con lo que ya estaba guardado", D.reconstruir_historial(_ch) == 3 and D.reconstruir_historial(_ch) == 0)
+_h = D.historial(_ch)["historial"]
+revisar("historial. lo reconstruido conserva las fechas guardadas y lo más nuevo va arriba",
+        [(x["accion"], x["cuando"], x["reconstruido"]) for x in _h][1:] == [("quitada", "2026-11-06T13:09:26", 1), ("agendada", "2026-11-05T21:12:17", 1)]
+        and _h[1]["cuando_txt"] == "Viernes 6 de Noviembre de 2026 a las 13:09" and _h[1]["puede_volver"] and not _h[2]["puede_volver"], str(_h))
+D.agendar(_ch, _rems[2]); D.agendar(_ch, _rems[2])
+_bien2 = _ch.execute("SELECT bien_id FROM remates WHERE id = ?", (_rems[2],)).fetchone()[0]
+D.quitar(_ch, bien_id=_bien2)
+_h = D.historial(_ch)["historial"]
+revisar("historial. agendar dos veces la misma deja una sola fila y quitarla deja la hora exacta",
+        [x["accion"] for x in _h if x["bien_id"] == _bien2] == ["quitada", "agendada"] and _re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d", _h[0]["cuando"])
+        and _h[0]["rol"] and _h[0]["tribunal"] and _h[0]["puede_volver"] and _h[0]["remate_id"] == _rems[2] and not _h[1]["puede_volver"], str(_h[:2]))
+D.agendar(_ch, _rems[2]); D.quitar(_ch, bien_id=_bien2)
+_h = D.historial(_ch)["historial"]
+revisar("historial. quitada dos veces, el botón va solo en la última", [x["puede_volver"] for x in _h if x["bien_id"] == _bien2] == [True, False, False, False], str([(x["accion"], x["puede_volver"]) for x in _h if x["bien_id"] == _bien2]))
+_ch.execute("INSERT INTO agenda(bien_id, remate_base_id, agregado_en) VALUES (?,?,?)", (_bien2, _rems[2], "2026-11-11T10:00:00")); _ch.commit()
+revisar("historial. si la causa ya está agendada otra vez no ofrece volver a agendarla", not any(x["puede_volver"] for x in D.historial(_ch)["historial"] if x["bien_id"] == _bien2))
+_mid = _ch.execute("SELECT id FROM agenda_manual").fetchone()[0]
+D.agregar_manual(_ch, {"fecha": "2026-12-01", "rol": "1", "anio": "2025", "trib": "3° Juzgado Civil de Santiago"})   # otra causa a mano, para que el número no se repita por casualidad
+D.quitar(_ch, manual_id=_mid)
+_h = D.historial(_ch)["historial"]
+revisar("historial. una causa a mano quitada queda con sus datos y se puede volver a agendar igual",
+        _h[0]["accion"] == "quitada" and _h[0]["tipo"] == "manual" and _h[0]["rol"] == "C-8034-2020" and _h[0]["puede_volver"] and "datos_manual" not in _h[0])
+D.restaurar_manual(_ch, _h[0]["id"])
+_m = _ch.execute("SELECT id, rol, anio, direccion, monto_vv, fecha_remate FROM agenda_manual").fetchall()
+_h = D.historial(_ch)["historial"]
+revisar("historial. al volver a agendarla queda igual, con su mismo número, y el botón desaparece",
+        [x for x in _m if x[1] == "8034"] == [(_mid, "8034", "2020", "calle Carlos Condell 696", "56 UF", "2026-11-18")] and _h[0]["accion"] == "agendada" and not any(x["puede_volver"] for x in _h if x["tipo"] == "manual"), str(_m))
+try:
+    D.restaurar_manual(_ch, 99999); _err_h = False
+except D.ErrorDato:
+    _err_h = True
+revisar("historial. sin datos guardados responde en palabras", _err_h)
+D.reemplazar_manual(_ch, _mid, _rems[1])
+_h = D.historial(_ch)["historial"]
+revisar("historial. cambiar la causa a mano por la publicada deja las dos cosas", [x["accion"] + x["tipo"] for x in _h[:2]] == ["quitadamanual", "agendadaremate"], str([(x["accion"], x["tipo"]) for x in _h[:3]]))
+_ch.close()
+revisar("historial. botón en Causas agendadas, panel con la fecha y hora y volver a agendar", 'data-acc="historial"' in html and "UI.panel==='historial'" in html
+        and "${E(x.cuando_txt)}" in html and 'data-acc="restaurarM"' in html and "x.puede_volver?" in html and "if(UI.panel==='historial')await cargarHist();" in html)
+_srvt = Path(__file__).resolve().parent.parent / "interfaz" / "servidor.py"
+revisar("historial. el servidor lo entrega y lo arma al abrir, después del respaldo", '"/api/historial"' in _srvt.read_text(encoding="utf-8") and '"/api/restaurar_manual"' in _srvt.read_text(encoding="utf-8")
+        and _srvt.read_text(encoding="utf-8").index("respaldar(ruta_base)") < _srvt.read_text(encoding="utf-8").index("D.reconstruir_historial(con)"))
 tmp.cleanup()
 # Descarte encendido otra vez. El aviso de Familia del C-9854-2025 (9 de Octubre, aviso 24) queda descartado y fuera del buscador.
 _CARGA.NO_CIVIL = _NO_CIVIL_REAL

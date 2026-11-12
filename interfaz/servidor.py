@@ -107,6 +107,8 @@ class Manejador(BaseHTTPRequestHandler):
                 hoy = q.get("hoy") or hoy_chile()
                 if u.path == "/api/estado":
                     return self._json(D.estado(con, hoy))
+                if u.path == "/api/historial":         # 11 de Noviembre. Historial de causas agendadas y quitadas
+                    return self._json(D.historial(con))
                 if u.path == "/api/buscar":
                     return self._json(D.buscar(con, hoy, q.get("trib", ""), q.get("rol", ""), q.get("anio", ""),
                                                q.get("edicion", ""), q.get("pasados") == "1", direccion=q.get("dir", ""),
@@ -162,6 +164,7 @@ class Manejador(BaseHTTPRequestHandler):
                     "/api/reemplazar_manual": lambda: D.reemplazar_manual(con, int(p["manual_id"]), int(p["remate_id"])),
                     "/api/ignorar_publicado": lambda: D.ignorar_publicado(con, int(p["manual_id"])),
                     "/api/ignorar_quitado": lambda: D.ignorar_quitado(con, int(p["bien_id"])),
+                    "/api/restaurar_manual": lambda: D.restaurar_manual(con, int(p["historial_id"])),
                 }
                 if u.path not in acciones:
                     return self._json({"ok": False, "error": "No existe esa acción."}, 404)
@@ -183,7 +186,11 @@ def servidor(ruta_base, puerto=8765):
     """Respalda la base una vez al día, la crea o actualiza (agrega las tablas nuevas sin borrar nada) y devuelve el servidor
     listo, sin arrancarlo. El respaldo va antes de crear() para guardar la base tal como estaba (F3-01, 30 de Octubre)."""
     respaldar(ruta_base)
-    crear(ruta_base).close()
+    con = crear(ruta_base)
+    try:
+        D.reconstruir_historial(con)      # 11 de Noviembre. Una sola vez, con lo que ya estaba guardado
+    finally:
+        con.close()
     clase = type("ManejadorBase", (Manejador,), {"ruta_base": Path(ruta_base), "uf_ruta": Path(ruta_base).parent / "uf_guardada.json"})
     return ServidorUnico(("127.0.0.1", puerto), clase)
 

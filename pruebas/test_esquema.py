@@ -27,7 +27,7 @@ def rechaza(con, sql, args=()):
         return True
     return False
 
-ESPERADAS = {"meta", "ediciones", "paginas", "causas", "bienes", "avisos", "remates", "agenda_manual", "agenda_quitados",
+ESPERADAS = {"meta", "ediciones", "paginas", "causas", "bienes", "avisos", "remates", "agenda_manual", "agenda_quitados", "agenda_historial",
              "citas", "alertas", "cambios", "agenda", "feriados"}
 
 with tempfile.TemporaryDirectory() as tmp:
@@ -45,7 +45,8 @@ with tempfile.TemporaryDirectory() as tmp:
     revisar("crear dos veces no duplica feriados", fer1 == fer2 and fer1 > 0, f"({fer1} y {fer2})")
     tablas = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     vistas = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='view'")}
-    revisar("las 14 tablas esperadas (12 más agenda_manual y agenda_quitados, 18 de Octubre)", tablas == ESPERADAS, f"sobran {tablas - ESPERADAS} faltan {ESPERADAS - tablas}")
+    # Corrección 11 de Noviembre. Se suma agenda_historial (historial de causas agendadas y quitadas, pedido de Diego).
+    revisar("las 15 tablas esperadas (12 más agenda_manual y agenda_quitados, 18 de Octubre, y agenda_historial, 11 de Noviembre)", tablas == ESPERADAS, f"sobran {tablas - ESPERADAS} faltan {ESPERADAS - tablas}")
     VISTAS = {"v_buscador", "v_alertas", "v_calendario", "v_entregas_vv", "v_historial_tribunal"}
     revisar("las 5 vistas esperadas", vistas == VISTAS, f"sobran {vistas - VISTAS} faltan {VISTAS - vistas}")
     revisar("versión del esquema", con.execute("SELECT valor FROM meta WHERE clave='version_esquema'").fetchone()[0] == VERSION_ESQUEMA)
