@@ -292,6 +292,7 @@ function formaHTML(it,vista){const f=it.vv_forma;if(!f)return '';
     <tr><td class="k">MONTO</td><td><div class="vvmonto" style="font-size:18px">${E(it.monto)}</div>${pesosHTML(it)}</td></tr>
     <tr><td class="k">TIPO</td><td>${E(f.tipo_txt)}</td></tr>
     <tr><td class="k">A LA ORDEN</td><td>${E(f.orden_txt)}</td></tr>
+    ${f.devolucion_txt?`<tr><td class="k">DEVOLUCIÓN</td><td>${E(f.devolucion_txt)}</td></tr>`:''}
     ${f.llevar?`<tr><td class="k">LLEVAR</td><td>${E(f.llevar)}</td></tr>`:''}
     ${f.cita?`<tr><td class="k">EL AVISO DICE</td><td style="font-size:14px;color:var(--tinta2)">“${E(f.cita)}”</td></tr>`:''}</tbody></table>
     ${(f.alertas||[]).map(a=>`<div class="al rojo">${E(a)}</div>`).join('')}${vista?'':papHTML()}</section>`;}

@@ -13,6 +13,11 @@ from pathlib import Path
 
 _CSV = Path(__file__).resolve().parent.parent / "db" / "tribunales_santiago.csv"
 TRIB_11 = "11° Juzgado Civil de Santiago"
+TRIB_2 = "2° Juzgado Civil de Santiago"
+# 12 de Noviembre (Diego). Devolución del vale vista. No suele venir en el aviso, se sabe preguntando en el tribunal o leyendo las
+# bases. En un remate por videoconferencia el vale vista no se devuelve al terminar, hay que ir a retirarlo.
+# desde "habil_siguiente" es el día hábil siguiente al remate (puesto por Claude, Diego dijo "día posterior al remate en adelante").
+DEVOLUCION = {TRIB_2: {"desde": "habil_siguiente", "horario": ("12:00", "14:00"), "fuente": "regla del 2° Civil que trajo Diego"}}
 SECRETARIO_11_LLEVAR = "Fotocopia de la cédula de identidad por ambos lados (secretario del 11° Civil)."
 TIPO_TXT = {"nominativo": "Nominativo", "endosable": "Endosable", "nominativo_o_endosable": "Nominativo o endosable, sirve cualquiera"}
 ORDEN_TXT = {"tribunal": "A la orden del tribunal", "postor": "A la orden del postor"}
@@ -74,12 +79,18 @@ def como_llenar(tribunal: str | None, texto: str | None) -> dict:
         elif not tipo:
             tipo, de_regla = "nominativo", True
         orden = orden or "tribunal"
+    elif t == TRIB_2:          # 12 de Noviembre (Diego). En el 2° Civil el vale vista es siempre endosable. Ninguno de sus 49 avisos lo dice.
+        if tipo == "nominativo":
+            alertas.append("El aviso dice nominativo, pero en el 2° Civil el vale vista es siempre endosable. Confirma en el tribunal.")
+        elif not tipo:
+            tipo, de_regla = "endosable", True
     nada = "El aviso no lo dice" if texto is not None else "Sin dato, la causa se agregó a mano"
     tipo_txt = TIPO_TXT.get(tipo, nada)
     if de_regla:
-        tipo_txt += " (lo dijo el secretario del 11° Civil)"
+        tipo_txt += " (lo dijo el secretario del 11° Civil)" if t == TRIB_11 else " (siempre endosable en el 2° Civil, el aviso no lo dice)"
     return {"a_nombre_de": fila.get("en_palabras") or (t or "Sin tribunal"),
             "rut": fila.get("rut") or "Sin RUT en la tabla de tribunales",
             "tipo": tipo, "tipo_txt": tipo_txt,
             "orden_txt": ORDEN_TXT.get(orden, nada),
-            "cita": f["cita"], "llevar": SECRETARIO_11_LLEVAR if t == TRIB_11 else None, "alertas": alertas}
+            "cita": f["cita"], "llevar": SECRETARIO_11_LLEVAR if t == TRIB_11 else None, "alertas": alertas,
+            "devolucion": DEVOLUCION.get(t)}

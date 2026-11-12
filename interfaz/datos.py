@@ -36,6 +36,26 @@ def _fecha(iso):
     return dt.date.fromisoformat(iso[:10])
 
 
+def devolucion_txt(con, dev, fecha_remate):
+    """12 de Noviembre (Diego). Cuándo se retira el vale vista. Desde el día hábil siguiente al remate, en el horario del tribunal."""
+    if not dev:
+        return None
+    a, b = dev["horario"]
+    if not fecha_remate:
+        return f"Desde el día hábil siguiente al remate, de {a} a {b} ({dev['fuente']})."
+    fer = {r[0] for r in con.execute("SELECT fecha FROM feriados")}
+    d = _fecha(fecha_remate) + dt.timedelta(days=1)
+    while d.weekday() >= 5 or d.isoformat() in fer:
+        d += dt.timedelta(days=1)
+    return f"Desde el {corta(d.isoformat())} en adelante, de {a} a {b}. Es el día hábil siguiente al remate ({dev['fuente']}, no suele venir en el aviso)."
+
+
+def forma_vv(con, tribunal, texto, fecha_remate):
+    f = FV.como_llenar(tribunal, texto)
+    f["devolucion_txt"] = devolucion_txt(con, f.pop("devolucion"), fecha_remate)
+    return f
+
+
 def corta(iso):
     d = _fecha(iso)
     return f"{DIAC[d.weekday()]} {d.day} {MESC[d.month - 1]}"
@@ -244,7 +264,7 @@ def armar(con, remate_id, extra=None):
         "vv_color": color_vv(f["vv_estado"], f["vv_hasta"]), "vv_regla": f["vv_regla_texto"],
         "vv_llegada": nota_llegada(f["tribunal"], f["vv_desde"], f["vv_desde_origen"], f["vv_regla"], f["hora_remate"]),
         "vv_de_publicacion": f.get("vv_de_publicacion"), "alertas": al,
-        "vv_forma": FV.como_llenar(f["tribunal"], f.get("aviso_texto")),     # cómo llenar el vale vista (Diego, 6 de Noviembre)
+        "vv_forma": forma_vv(con, f["tribunal"], f.get("aviso_texto"), f["fecha_remate"]),     # cómo llenar el vale vista (Diego, 6 de Noviembre)
         "pubs": pubs, "pub_txt": "Publicado en El Mercurio los días " + ", ".join(p["texto"] for p in vigentes) if vigentes else "",
         "edicion": f["edicion"],
     }
@@ -329,7 +349,7 @@ def manuales(con):
             "costas": costas_de_texto(m["monto_vv"]) if uf_de_texto(m["monto_vv"]) else None, "monto_clp": pesos_de_texto(m["monto_vv"]),
             "otro_porcentaje": None, "asumido": False, "vv_desde": vd, "vv_hasta": vh, "vv_txt": texto_vv(vd, vh), "vv_tipo": tipo_vv(vd, vh),
             "vv_llegada": nota_llegada(m["tribunal"], vd, "texto"),
-            "vv_color": "verde" if vh else "rojo", "vv_regla": None, "alertas": al, "vv_forma": FV.como_llenar(m["tribunal"], None), "pubs": [], "pub_txt": "Agregada a mano. No viene de El Mercurio.",
+            "vv_color": "verde" if vh else "rojo", "vv_regla": None, "alertas": al, "vv_forma": forma_vv(con, m["tribunal"], None, m["fecha_remate"]), "pubs": [], "pub_txt": "Agregada a mano. No viene de El Mercurio.",
             "vv_entregado": bool(m["vv_entregado"]), "cambio_fecha": False, "cambios_sin_ver": False, "nuevo_llamado": False,
             "publicado": pub})
     return out

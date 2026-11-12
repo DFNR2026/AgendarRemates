@@ -10,6 +10,7 @@ from db.crear_base import crear
 from motor.procesar_edicion import cargar_edicion
 from motor import republicaciones as RP
 from interfaz import datos as D
+from motor import forma_vale_vista as FV_
 from interfaz.servidor import servidor
 
 # 21 de Octubre. Decisión de Diego, los tribunales no civiles se descartan. El único nuevo llamado real de las ediciones es el
@@ -421,6 +422,16 @@ revisar("modalidad. los sin modalidad llevan borde amarillo", "const sd=!it.moda
 revisar("calendario. un clic en el día muestra sus remates en la zona de la ficha con el subfiltro", 'data-acc="dia" data-d="${d}"' in html and "h+=diaHTML();" in html and "${modF(D.mod,'d')}" in html
         and "else if(a==='dia'){" in html and "fecha:D.d,mod:D.mod" in html and "if(UI.dia)await cargarDia(false);" in html)
 revisar("calendario. Revisar ficha también encuentra los remates de la lista del día", "...(UI.dia&&UI.dia.res&&UI.dia.res.resultados||[])].find(" in html)
+# 12 de Noviembre (Diego). Devolución del vale vista del 2° Civil, desde el día hábil siguiente al remate, de 12:00 a 14:00.
+_cdv = crear(ruta)   # la conexión de arriba ya se cerró
+_dv = {"desde": "habil_siguiente", "horario": ("12:00", "14:00"), "fuente": "regla del 2° Civil que trajo Diego"}
+revisar("devolución. 2° Civil, remate el miércoles 18 de Noviembre, se retira desde el jueves 19", D.devolucion_txt(_cdv, _dv, "2026-11-18").startswith("Desde el Jue. 19 Nov. en adelante, de 12:00 a 14:00."))
+revisar("devolución. remate el viernes, se retira desde el lunes", D.devolucion_txt(_cdv, _dv, "2026-11-20").startswith("Desde el Lun. 23 Nov."))
+revisar("devolución. salta el feriado del 8 de Diciembre", D.devolucion_txt(_cdv, _dv, "2026-12-07").startswith("Desde el Mié. 9 Dic."))
+revisar("devolución. sin fecha del remate lo dice igual y en los demás tribunales no sale", D.devolucion_txt(_cdv, _dv, None).startswith("Desde el día hábil siguiente al remate")
+        and D.forma_vv(_cdv, "3° Juzgado Civil de Santiago", None, "2026-11-18")["devolucion_txt"] is None and "devolucion" not in D.forma_vv(_cdv, FV_.TRIB_2, None, "2026-11-18"))
+revisar("devolución. la ficha la muestra en Cómo llenar el vale vista", '<td class="k">DEVOLUCIÓN</td><td>${E(f.devolucion_txt)}</td>' in html)
+_cdv.close()
 # RUT de los 30 civiles de Santiago, revisados uno por uno en pjud.cl el 11 de Noviembre (pedido de Diego). Ninguno distinto.
 _PJUD = ["60306001-6", "60306002-4", "60306003-2", "60306004-0", "60306005-9", "60306006-7", "60306007-5", "60306008-3", "60309014-4", "60306010-5",
          "60306011-3", "60306012-1", "60306013-K", "60306014-8", "60306062-8", "60306064-4", "60306066-0", "60306056-3", "60306076-8", "61962700-8",

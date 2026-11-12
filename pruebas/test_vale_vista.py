@@ -324,9 +324,23 @@ if not (c11["a_nombre_de"] == "Décimo Primer Juzgado Civil de Santiago" and c11
 c11 = FV.como_llenar(FV.TRIB_11, "Garantía mediante vale vista endosable a la orden del tribunal.")
 if not (c11["tipo"] == "endosable" and c11["alertas"]):
     fallas.append(f"11° Civil. si el aviso dice endosable se deja y se alerta {c11}")
-cm = FV.como_llenar("2° Juzgado Civil de Santiago", None)
-if not (cm["tipo_txt"].startswith("Sin dato") and cm["rut"] == "60.306.002-4" and cm["a_nombre_de"] == "Segundo Juzgado Civil de Santiago"):
+# Corrección 12 de Noviembre. El 2° Civil ahora tiene regla (siempre endosable), así que el caso sin dato se prueba con el 3° Civil.
+cm = FV.como_llenar("3° Juzgado Civil de Santiago", None)
+if not (cm["tipo_txt"].startswith("Sin dato") and cm["rut"] == "60.306.003-2" and cm["a_nombre_de"] == "Tercer Juzgado Civil de Santiago" and cm["devolucion"] is None):
     fallas.append(f"Causa a mano. sin aviso debe decir sin dato y traer el RUT de la tabla {cm}")
+# 12 de Noviembre (Diego). 2° Civil, vale vista siempre endosable y devolución desde el día hábil siguiente al remate de 12:00 a 14:00.
+c2 = FV.como_llenar(FV.TRIB_2, None)
+if not (c2["tipo"] == "endosable" and "siempre endosable en el 2° Civil" in c2["tipo_txt"] and c2["rut"] == "60.306.002-4" and not c2["alertas"]
+        and c2["devolucion"] == {"desde": "habil_siguiente", "horario": ("12:00", "14:00"), "fuente": "regla del 2° Civil que trajo Diego"}):
+    fallas.append(f"2° Civil. sin decirlo el aviso, el vale vista es endosable y trae la devolución {c2}")
+c2 = FV.como_llenar(FV.TRIB_2, "Garantía mediante vale vista nominativo a la orden del tribunal.")
+if not (c2["tipo"] == "nominativo" and c2["alertas"] and "(siempre" not in c2["tipo_txt"]):
+    fallas.append(f"2° Civil. si el aviso dice nominativo se deja y se alerta {c2}")
+c2 = FV.como_llenar(FV.TRIB_2, "Garantía mediante vale vista endosable a la orden del tribunal.")
+if not (c2["tipo"] == "endosable" and not c2["alertas"] and c2["tipo_txt"] == "Endosable" and c2["cita"]):
+    fallas.append(f"2° Civil. si el aviso dice endosable vale la frase del aviso {c2}")
+if FV.como_llenar(FV.TRIB_11, None)["devolucion"] is not None or FV.como_llenar("24° Juzgado Civil de Santiago", "x")["tipo"] is not None:
+    fallas.append("2° Civil. la regla no se pasa a otros tribunales")
 
 # --- 11 de Noviembre. Grupo 3, aprobado por Diego. Revisiones menos estrictas y lectura por código de frases fijas --------------------
 # Frases reales de los avisos de la base del 10 de Noviembre. Cada regla tiene su mutación anotada en la bitácora del 11.
