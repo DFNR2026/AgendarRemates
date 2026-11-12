@@ -100,8 +100,8 @@ class Manejador(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(cuerpo)
                 return
-            if u.path == "/api/uf":
-                return self._json(U.obtener(self.uf_ruta, hoy_chile(), self.uf_abrir))
+            if u.path == "/api/uf":                   # 11 de Noviembre. Con la tabla del SII de los días que vienen
+                return self._json({**U.obtener(self.uf_ruta, hoy_chile(), self.uf_abrir), "tabla": U.tabla_sii(self.uf_ruta, hoy_chile(), self.uf_abrir)})
             con = self._con()
             try:
                 hoy = q.get("hoy") or hoy_chile()
@@ -133,7 +133,7 @@ class Manejador(BaseHTTPRequestHandler):
                     U.guardar_manual(self.uf_ruta, p.get("valor"), hoy_chile())
                 except ValueError as e:
                     raise D.ErrorDato(str(e))
-                return self._json(U.obtener(self.uf_ruta, hoy_chile(), self.uf_abrir))
+                return self._json({**U.obtener(self.uf_ruta, hoy_chile(), self.uf_abrir), "tabla": U.tabla_sii(self.uf_ruta, hoy_chile(), self.uf_abrir)})
             con = self._con()
             try:
                 acciones = {

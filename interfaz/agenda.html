@@ -153,6 +153,9 @@ function fmtUF(n){return '$'+n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})
 function pesosHTML(it){if(!it.uf)return '';
   if(!UF||!UF.valor)return `<div class="pesos gris" style="font-size:12px;font-weight:400">Sin el valor de la UF de hoy. Escríbelo en la ficha.</div>`;
   const h=String(it.vv_hasta||'').slice(0,10);
+  // 11 de Noviembre. Si el SII ya publicó la UF del día del remate (el mínimo se calcula en pesos a ese día), se usa esa, sin marca provisoria.
+  const r=String(it.fecha_remate||'').slice(0,10), sii=!UF.manual&&UF.tabla&&r&&UF.tabla[r];
+  if(sii)return `<div class="pesos">= ${fmtCLP(it.uf*sii)} en pesos<div class="gris" style="font-size:12px;font-weight:400">Con la UF de ${fmtUF(sii)}, la del día del remate (${diaCorto(r)}), publicada por el SII</div></div>`;
   const cuando=UF.manual?'escrita a mano':(h&&h>UF.fecha?`de hoy, provisoria para la entrega del ${diaCorto(h)}`:`del ${diaCorto(UF.fecha)}`);
   return `<div class="pesos">= ${fmtCLP(it.uf*UF.valor)} en pesos<div class="gris" style="font-size:12px;font-weight:400">Con la UF de ${fmtUF(UF.valor)}, ${cuando}</div></div>`;}
 function ufCalc(uf,txt){const n=leerUF(UI.uf)||(UF&&UF.valor);return n?`${txt} × ${fmtCLP(n)} = ${fmtCLP(uf*n)}`:'Pega el valor de la UF para ver el monto en pesos';}

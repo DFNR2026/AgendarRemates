@@ -315,6 +315,28 @@ try:
 except ValueError:
     _rech = True
 revisar("UF. un valor que no es UF en pesos se rechaza", _rech)
+# 11 de Noviembre. Tabla del SII con la UF de los días que vienen (extracto real de la página que Diego guardó).
+SII = (RAIZ / "banco_pruebas" / "uf_sii_2026_extracto.htm").read_text(encoding="utf-8")
+_tab = U.leer_tabla_sii(SII, 2026)
+revisar("UF SII. lee noviembre y diciembre hasta el 9, sin los días vacíos", (len(_tab), _tab["2026-11-18"], _tab["2026-12-09"], "2026-12-10" in _tab, _tab["2026-11-01"]) == (39, 41357.3, 41501.94, False, 41252.94), str(len(_tab)))
+_rsii = Path(tmp.name) / "uf_sii.json"
+pedidas.clear()
+_t1 = U.tabla_sii(_rsii, "2026-11-11", fuente({"www.sii.cl": SII}), _ah)
+_t2 = U.tabla_sii(_rsii, "2026-11-11", fuente({"www.sii.cl": SII}), _ah)
+revisar("UF SII. entrega de hoy en adelante y la busca una sola vez al día", min(_t1) == "2026-11-11" and max(_t1) == "2026-12-09" and _t1 == _t2 and pedidas == ["https://www.sii.cl/valores_y_fechas/uf/uf2026.htm"], str((min(_t1), max(_t1), pedidas)))
+pedidas.clear()
+U.tabla_sii(_rsii, "2026-11-11", fuente({"www.sii.cl": SII}), _ah + _dt.timedelta(hours=3))
+revisar("UF SII. ya leída hoy, no la vuelve a pedir horas después", pedidas == [], str(pedidas))
+revisar("UF SII. solo hasta 45 días desde hoy", max(U.tabla_sii(_rsii, "2026-11-01", fuente({}), _ah)) == "2026-12-09" and max(U.tabla_sii(_rsii, "2026-10-01", fuente({}), _ah + _dt.timedelta(days=1))) <= "2026-11-15")
+pedidas.clear()
+_rsii2 = Path(tmp.name) / "uf_sii2.json"
+_t3 = U.tabla_sii(_rsii2, "2026-12-20", fuente({"www.sii.cl": OSError("sin red")}), _ah)
+revisar("UF SII. en diciembre pide también el año siguiente y sin internet entrega vacío sin caerse", _t3 == {} and pedidas == ["https://www.sii.cl/valores_y_fechas/uf/uf2026.htm", "https://www.sii.cl/valores_y_fechas/uf/uf2027.htm"], str(pedidas))
+pedidas.clear()
+_r3 = Path(tmp.name) / "uf_sii3.json"
+_t4 = U.tabla_sii(_r3, "2026-12-20", fuente({"www.sii.cl": SII}), _ah)
+U.tabla_sii(_r3, "2026-12-20", fuente({"www.sii.cl": SII}), _ah + _dt.timedelta(hours=3))
+revisar("UF SII. una página que no trae el día de hoy no se guarda como leída y se vuelve a pedir", _t4 == {} and len(pedidas) == 4, str(pedidas))
 revisar("UF. la cifra en UF de una causa a mano se lee del monto escrito", (uf_de_texto("56,162976 UF (10% del mínimo de 561,62976 UF)"), uf_de_texto("1.234,5 UF"), uf_de_texto("$7.500.000"), uf_de_texto(None)) == (56.162976, 1234.5, None, None))
 srv.RequestHandlerClass.uf_abrir = staticmethod(fuente({"mindicador.cl": MIND}))
 _get_uf = json.loads(get("/api/uf"))
@@ -324,6 +346,8 @@ revisar("UF. el servidor guarda la escrita a mano y rechaza una mala con su moti
 _tar = html[html.index("function renderIzq("):html.index("function iso(")]
 revisar("UF. la ficha y el buscador muestran el monto en pesos y la ficha el valor de la UF (la tarjeta ya no lleva monto)",
         "${pesosHTML(it)}" not in _tar and html.count("${pesosHTML(it)}") >= 2 and "${ufHTML(it)}<h3>Dinero</h3>" in html and "provisoria para la entrega" in html)
+revisar("UF SII. la página usa la UF del día del remate publicada por el SII y la escrita a mano sigue mandando",
+        "UF.tabla[r]" in html and "publicada por el SII" in html and "sii=!UF.manual&&UF.tabla" in html and "tabla" in json.loads(get("/api/uf")))
 srv.shutdown(); srv.server_close()
 
 despues = sorted(p.name for p in (RAIZ / "ia_respuestas").rglob("*.json"))
