@@ -449,7 +449,7 @@ _rh = Path(tmp.name) / "historial.db"
 _src = _sqh.connect(ruta); _dst = _sqh.connect(_rh); _src.backup(_dst); _dst.close(); _src.close()
 _ch = crear(_rh)
 _ch.execute("DELETE FROM agenda"); _ch.execute("DELETE FROM agenda_manual"); _ch.execute("DELETE FROM agenda_quitados"); _ch.execute("DELETE FROM agenda_historial")
-_ch.execute("DELETE FROM meta WHERE clave = 'historial_reconstruido'"); _ch.commit()
+_ch.commit()
 _rems = [r[0] for r in _ch.execute("SELECT remate_id FROM v_buscador WHERE bien_id IS NOT NULL GROUP BY bien_id ORDER BY remate_id LIMIT 3")]
 # Lo que había antes del historial. Una agendada, una a mano y una quitada.
 _ch.execute("INSERT INTO agenda(bien_id, remate_base_id, agregado_en) SELECT bien_id, id, '2026-11-05T21:12:17' FROM remates WHERE id = ?", (_rems[0],))
@@ -457,11 +457,11 @@ _ch.execute("INSERT INTO agenda_quitados(bien_id, quitado_en, ultima_edicion) SE
 _ch.commit()
 D.agregar_manual(_ch, {"fecha": "2026-11-18", "rol": "8034", "anio": "2020", "trib": "2° Juzgado Civil de Santiago", "direccion": "calle Carlos Condell 696", "monto": "56 UF"})
 _ch.execute("DELETE FROM agenda_historial"); _ch.commit()
-revisar("historial. se arma una sola vez con lo que ya estaba guardado", D.reconstruir_historial(_ch) == 3 and D.reconstruir_historial(_ch) == 0)
-_h = D.historial(_ch)["historial"]
-revisar("historial. lo reconstruido conserva las fechas guardadas y lo más nuevo va arriba",
-        [(x["accion"], x["cuando"], x["reconstruido"]) for x in _h][1:] == [("quitada", "2026-11-06T13:09:26", 1), ("agendada", "2026-11-05T21:12:17", 1)]
-        and _h[1]["cuando_txt"] == "Viernes 6 de Noviembre de 2026 a las 13:09" and _h[1]["puede_volver"] and not _h[2]["puede_volver"], str(_h))
+# Corrección 11 de Noviembre (Diego). El historial parte vacío, nada de lo anterior cuenta. Se quitó el armado con lo ya guardado.
+_ch.close(); _ch = crear(_rh)
+revisar("historial. parte vacío y abrir la base no agrega lo que ya estaba agendado o quitado", _ch.execute("SELECT COUNT(*) FROM agenda_historial").fetchone()[0] == 0
+        and not hasattr(D, "reconstruir_historial") and D.historial(_ch) == {"historial": []})
+revisar("historial. la fecha y hora en palabras", D._cuando_txt("2026-11-06T13:09:26") == "Viernes 6 de Noviembre de 2026 a las 13:09")
 D.agendar(_ch, _rems[2]); D.agendar(_ch, _rems[2])
 _bien2 = _ch.execute("SELECT bien_id FROM remates WHERE id = ?", (_rems[2],)).fetchone()[0]
 D.quitar(_ch, bien_id=_bien2)
@@ -497,8 +497,8 @@ _ch.close()
 revisar("historial. botón en Causas agendadas, panel con la fecha y hora y volver a agendar", 'data-acc="historial"' in html and "UI.panel==='historial'" in html
         and "${E(x.cuando_txt)}" in html and 'data-acc="restaurarM"' in html and "x.puede_volver?" in html and "if(UI.panel==='historial')await cargarHist();" in html)
 _srvt = Path(__file__).resolve().parent.parent / "interfaz" / "servidor.py"
-revisar("historial. el servidor lo entrega y lo arma al abrir, después del respaldo", '"/api/historial"' in _srvt.read_text(encoding="utf-8") and '"/api/restaurar_manual"' in _srvt.read_text(encoding="utf-8")
-        and _srvt.read_text(encoding="utf-8").index("respaldar(ruta_base)") < _srvt.read_text(encoding="utf-8").index("D.reconstruir_historial(con)"))
+revisar("historial. el servidor lo entrega y ya no lo arma al abrir", '"/api/historial"' in _srvt.read_text(encoding="utf-8") and '"/api/restaurar_manual"' in _srvt.read_text(encoding="utf-8")
+        and "reconstruir_historial" not in _srvt.read_text(encoding="utf-8"))
 tmp.cleanup()
 # Descarte encendido otra vez. El aviso de Familia del C-9854-2025 (9 de Octubre, aviso 24) queda descartado y fuera del buscador.
 _CARGA.NO_CIVIL = _NO_CIVIL_REAL

@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS agenda_quitados (
 -- 6d. HISTORIAL DE CAUSAS AGENDADAS (pedido de Diego, 11 de Noviembre). Cada vez que se agenda o se quita una causa queda una
 -- fila con la fecha y hora exacta y una foto de la causa (rol, tribunal, carátula, dirección, día del remate), para encontrar una
 -- causa quitada sin querer. datos_manual guarda la causa a mano completa (JSON) para poder volver a agendarla.
--- reconstruido = 1 son las filas armadas el 11 de Noviembre con lo que ya estaba guardado (antes no había historial).
+-- El historial parte vacío el 11 de Noviembre (decisión de Diego, nada de lo anterior cuenta). reconstruido queda sin uso, en 0.
 CREATE TABLE IF NOT EXISTS agenda_historial (
   id            INTEGER PRIMARY KEY,
   cuando        TEXT NOT NULL,

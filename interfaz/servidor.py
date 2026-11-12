@@ -186,11 +186,7 @@ def servidor(ruta_base, puerto=8765):
     """Respalda la base una vez al día, la crea o actualiza (agrega las tablas nuevas sin borrar nada) y devuelve el servidor
     listo, sin arrancarlo. El respaldo va antes de crear() para guardar la base tal como estaba (F3-01, 30 de Octubre)."""
     respaldar(ruta_base)
-    con = crear(ruta_base)
-    try:
-        D.reconstruir_historial(con)      # 11 de Noviembre. Una sola vez, con lo que ya estaba guardado
-    finally:
-        con.close()
+    crear(ruta_base).close()
     clase = type("ManejadorBase", (Manejador,), {"ruta_base": Path(ruta_base), "uf_ruta": Path(ruta_base).parent / "uf_guardada.json"})
     return ServidorUnico(("127.0.0.1", puerto), clase)
 

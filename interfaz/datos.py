@@ -550,23 +550,6 @@ def _anotar(con, accion, cuando=None, bien_id=None, remate_id=None, manual_id=No
                  foto.get("datos_manual"), reconstruido))
 
 
-def reconstruir_historial(con):
-    """Una sola vez (marca en meta). Antes del 11 de Noviembre no había historial. Se arma con lo que ya estaba guardado.
-    Las causas agendadas con su fecha de agregado, las causas a mano con la suya y las quitadas con la última vez que se quitaron."""
-    if con.execute("SELECT 1 FROM meta WHERE clave = 'historial_reconstruido'").fetchone():
-        return 0
-    with con:
-        n = 0
-        for b, r, c in con.execute("SELECT bien_id, remate_base_id, agregado_en FROM agenda").fetchall():
-            _anotar(con, "agendada", c, bien_id=b, remate_id=r, reconstruido=1); n += 1
-        for m, c in con.execute("SELECT id, agregado_en FROM agenda_manual").fetchall():
-            _anotar(con, "agendada", c, manual_id=m, reconstruido=1); n += 1
-        for b, c in con.execute("SELECT bien_id, quitado_en FROM agenda_quitados").fetchall():
-            _anotar(con, "quitada", c, bien_id=b, reconstruido=1); n += 1
-        con.execute("INSERT OR REPLACE INTO meta(clave, valor) VALUES ('historial_reconstruido', ?)", (_ahora(),))
-    return n
-
-
 def historial(con):
     """Lo más nuevo arriba. En la última vez que se quitó una causa que hoy no está agendada va el botón para volver a agendarla."""
     cur = con.cursor()

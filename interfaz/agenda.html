@@ -377,8 +377,7 @@ function renderPanel(){
   else if(UI.panel==='historial'){const H=UI.hist;   // 11 de Noviembre (Diego). Historial de causas agendadas y quitadas
     h=`<div class="fila"><h2 class="tit">Historial</h2><button class="x44" data-acc="cerrar" aria-label="Cerrar historial">✕</button></div>
     <p class="peq gris" style="margin:0">Cada vez que agendas o quitas una causa, con la fecha y hora exacta. Lo más nuevo arriba.</p>
-    ${!H?'<p class="peq gris">Cargando...</p>':!H.length?'<p class="peq gris">Todavía no hay nada en el historial.</p>':H.map(histHTML).join('')}
-    ${H&&H.some(x=>x.reconstruido)?'<p class="gris" style="font-size:12px">Lo anterior al 11 de Noviembre se armó con lo que ya estaba guardado. De cada causa quitada antes de esa fecha solo quedó la última vez, y las causas a mano quitadas no quedaban registradas.</p>':''}`;}
+    ${!H?'<p class="peq gris">Cargando...</p>':!H.length?'<p class="peq gris">Todavía no hay nada en el historial.</p>':H.map(histHTML).join('')}`;}
   else if(UI.panel==='manual'){const F=UI.form;const c=(n,t,lab,ph)=>`<label class="lab">${lab}<input class="campo" type="${t}" data-form="${n}" value="${E(F[n])}" ${ph?`placeholder="${E(ph)}"`:''}></label>`;
     h=`<div class="fila"><h2 class="tit">Causa a mano</h2><button class="x44" data-acc="buscar" aria-label="Volver al buscador">←</button></div>
     <div class="peq" style="color:var(--tinta2)">Para una causa que no salió en El Mercurio o que el programa no leyó. En el calendario queda marcada como agregada a mano.</div>
