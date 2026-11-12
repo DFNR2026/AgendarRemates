@@ -134,7 +134,7 @@ const SVG={
  nose:s=>`<span style="font-size:${s-3}px;font-weight:800;line-height:1" aria-hidden="true">?</span>`};
 let EST=null;
 const FORM0=()=>({trib:'',rol:'',anio:'',car:'',direccion:'',fecha:'',hora:'',mod:'pres',vd:'',vh:'',monto:''});
-const UI={panel:null,ficha:null,vista:null,verFicha:false,sel:null,off:0,detC:false,detL:false,uf:'',f:{trib:'',rol:'',anio:'',dir:'',edicion:'',pasados:false},res:null,form:FORM0(),err:'',ftrib:''};
+const UI={panel:null,ficha:null,vista:null,verFicha:false,sel:null,off:0,detC:false,detL:false,uf:'',f:{trib:'',rol:'',anio:'',dir:'',edicion:'',pasados:false},res:null,form:FORM0(),err:'',pap:null};
 const clave=it=>it.tipo==='manual'?'m'+it.manual_id:'b'+it.bien_id;
 const item=k=>(EST&&EST.agenda||[]).find(x=>clave(x)===k);
 
@@ -155,9 +155,44 @@ function pesosHTML(it){if(!it.uf)return '';
   const h=String(it.vv_hasta||'').slice(0,10);
   // 11 de Noviembre. Si el SII ya publicó la UF del día del remate (el mínimo se calcula en pesos a ese día), se usa esa, sin marca provisoria.
   const r=String(it.fecha_remate||'').slice(0,10), sii=!UF.manual&&UF.tabla&&r&&UF.tabla[r];
-  if(sii)return `<div class="pesos">= ${fmtCLP(it.uf*sii)} en pesos<div class="gris" style="font-size:12px;font-weight:400">Con la UF de ${fmtUF(sii)}, la del día del remate (${diaCorto(r)}), publicada por el SII</div></div>`;
+  // 11 de Noviembre. En los remates en UF se suman las costas enteras (decisión de Diego).
+  const co=it.costas?`. Incluye ${fmtCLP(it.costas)} de costas`:'';
+  if(sii)return `<div class="pesos">= ${fmtCLP(Math.ceil(ufVV(it)*sii)+(it.costas||0))} en pesos<div class="gris" style="font-size:12px;font-weight:400">Con la UF de ${fmtUF(sii)}, la del día del remate (${diaCorto(r)}), publicada por el SII${co}</div></div>`;
   const cuando=UF.manual?'escrita a mano':(h&&h>UF.fecha?`de hoy, provisoria para la entrega del ${diaCorto(h)}`:`del ${diaCorto(UF.fecha)}`);
-  return `<div class="pesos">= ${fmtCLP(it.uf*UF.valor)} en pesos<div class="gris" style="font-size:12px;font-weight:400">Con la UF de ${fmtUF(UF.valor)}, ${cuando}</div></div>`;}
+  return `<div class="pesos">= ${fmtCLP(Math.ceil(ufVV(it)*UF.valor)+(it.costas||0))} en pesos<div class="gris" style="font-size:12px;font-weight:400">Con la UF de ${fmtUF(UF.valor)}, ${cuando}${co}</div></div>`;}
+/* UF del vale vista sin redondear (la ficha muestra 4 decimales) */
+function ufVV(it){return it.uf_vv||it.uf;}
+/* 11 de Noviembre. Monto mínimo del vale vista en pesos, hacia arriba. UF del día del remate si el SII ya la publicó, o la de hoy, más las costas enteras.
+   En pesos el monto directo. null si no se puede calcular. */
+function montoMin(it){if(!it)return null;
+  if(it.uf){const r=String(it.fecha_remate||'').slice(0,10),v=UF&&(!UF.manual&&UF.tabla&&r&&UF.tabla[r]||UF.valor);return v?Math.ceil(ufVV(it)*v)+(it.costas||0):null;}
+  return it.monto_clp||null;}
+const TIPO_PAP={nominativo:'Nominativo (no endosable)',endosable:'Endosable (no nominativo)'};
+/* Panel Imprimir vale vista (Diego, 11 de Noviembre). Un bloque por vale, con el monto mínimo o uno escrito, y un + para sumar otras causas agendadas. */
+function papHTML(){if(!UI.pap)return '';const usados=UI.pap.map(e=>e.k);
+  const bloques=UI.pap.map((e,i)=>{const it=item(e.k);if(!it)return '';const m=montoMin(it),f=it.vv_forma||{};
+    return `<div class="caja" style="gap:8px"><div class="fila"><b>Vale vista N°${i+1}. Papeleta para ${E(it.rol)} · ${E(it.direccion||'Sin dirección')}</b>${i?`<button class="btn2" data-acc="papQuitar" data-i="${i}">Quitar</button>`:''}</div>
+      <div class="gris" style="font-size:13px">A nombre de ${E(f.a_nombre_de||'sin dato')} · RUT ${E(f.rut||'sin dato')} · Tipo ${TIPO_PAP[f.tipo]||'en blanco, el aviso no lo dice'}</div>
+      <label class="chk"><input type="checkbox" data-pap-min="${i}" ${e.min?'checked':''}>Mantener el monto mínimo (${m?fmtCLP(m):'no se puede calcular, escribe el monto'})</label>
+      ${e.min?'':`<label class="lab">Otro monto en pesos<input class="campo" data-pap-monto="${i}" value="${E(e.monto)}" placeholder="Ej. 3.000.000" inputmode="numeric"></label>`}</div>`;}).join('');
+  const resto=EST.agenda.filter(it=>!usados.includes(clave(it)));
+  return `<div style="display:flex;flex-direction:column;gap:10px;margin-top:6px"><h3>Imprimir vale vista</h3>${bloques}
+    ${resto.length?`<label class="lab">+ Agregar otro vale vista de tus causas agendadas<select class="campo" data-pap-mas><option value="">Elige una causa</option>${resto.map(it=>`<option value="${clave(it)}">${E(it.rol)} · ${E(it.direccion||it.tribunal||'')}</option>`).join('')}</select></label>`:''}
+    <div class="fila" style="justify-content:flex-start;gap:8px"><button class="btn" data-acc="papGenerar">GENERAR DOCX</button><button class="btn2" data-acc="papCerrar">Cancelar</button></div></div>`;}
+/* Lee el monto de cada bloque. Devuelve los vales o un texto de error. */
+function papVales(){const vales=[];
+  for(const e of UI.pap){const it=item(e.k);if(!it)continue;const f=it.vv_forma||{};
+    const monto=e.min?montoMin(it):Number(String(e.monto).replace(/[$.\s]/g,''));
+    if(!monto||!isFinite(monto)||monto<=0)return `Falta el monto del vale vista de ${it.rol}. Escríbelo en pesos.`;
+    if(!e.min){const m=montoMin(it);if(m&&monto<m)return `El monto de ${it.rol} (${fmtCLP(monto)}) es menor que el mínimo (${fmtCLP(m)}).`;}
+    vales.push({a_nombre_de:f.a_nombre_de||'',rut:f.rut||'',monto:Math.ceil(monto),tipo:TIPO_PAP[f.tipo]?f.tipo:'',rol:it.rol});}
+  return vales.length?vales:'No hay vales vista para imprimir.';}
+async function papGenerar(){const v=papVales();if(typeof v==='string'){aviso(v);return;}
+  try{const r=await fetch('/api/papeleta',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vales:v})});
+    if(!r.ok){let m='No pude generar el docx.';try{m=(await r.json()).error||m}catch(er){}throw new Error(m);}
+    const nom=((r.headers.get('Content-Disposition')||'').match(/filename="([^"]+)"/)||[])[1]||'vale_vista.docx';
+    const url=URL.createObjectURL(await r.blob()),a=document.createElement('a');a.href=url;a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);
+    aviso('Listo, se descargó '+nom,true);}catch(er){aviso(er.message);}}
 function ufCalc(uf,txt){const n=leerUF(UI.uf)||(UF&&UF.valor);return n?`${txt} × ${fmtCLP(n)} = ${fmtCLP(uf*n)}`:'Pega el valor de la UF para ver el monto en pesos';}
 /* Día del remate en palabras para la ficha (5 de Noviembre). El año solo si no es el de hoy. */
 function diaLargo(d,hoy){const t=new Date(d+'T12:00');const s=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][t.getDay()]+' '+t.getDate()+' de '+['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][t.getMonth()];return String(hoy||'').slice(0,4)===d.slice(0,4)?s:s+' de '+d.slice(0,4);}
@@ -170,11 +205,8 @@ function ufHTML(it){return it.uf?`<div class="ufbox" style="align-self:stretch;t
 
 // --- Columna izquierda ---------------------------------------------------------------------------------------------
 function renderIzq(){
-  const tribs=[...new Set(EST.agenda.map(it=>it.tribunal||'Sin tribunal'))].sort((a,b)=>a.localeCompare(b,'es',{numeric:true}));
-  if(UI.ftrib&&!tribs.includes(UI.ftrib))UI.ftrib='';   // el tribunal elegido ya no tiene causas agendadas
-  const ag=UI.ftrib?EST.agenda.filter(it=>(it.tribunal||'Sin tribunal')===UI.ftrib):EST.agenda;
-  let h=`<div class="fila"><h2 class="tit">Causas agendadas</h2><span class="cuenta">${UI.ftrib?ag.length+' de '+EST.agenda.length:ag.length}</span></div>`;
-  if(tribs.length>1)h+=`<label class="lab">Filtrar por tribunal<select class="campo" data-ftrib aria-label="Filtrar causas agendadas por tribunal"><option value="">Todos los tribunales</option>${tribs.map(t=>`<option value="${E(t)}" ${UI.ftrib===t?'selected':''}>${E(t)} (${EST.agenda.filter(it=>(it.tribunal||'Sin tribunal')===t).length})</option>`).join('')}</select></label>`;
+  const ag=EST.agenda;   // 11 de Noviembre. Sin el filtro por tribunal (pedido de Diego)
+  let h=`<div class="fila"><h2 class="tit">Causas agendadas</h2><span class="cuenta">${ag.length}</span></div>`;
   for(const q of EST.quitados) h+=`<div class="aviso-pub"><b>Una causa que quitaste volvió a publicarse</b><span>${E(q.titulo)}. ${E(q.texto)}</span><div class="fila"><button class="btn2" data-acc="reagendar" data-rid="${q.remate_id}">Volver a agendar</button><button class="btn2" data-acc="ignorarq" data-bien="${q.bien_id}">No, gracias</button></div></div>`;
   if(!ag.length) h+=`<p class="peq gris">Todavía no tienes causas agendadas. Usa la lupa para buscar remates y agregarlos.</p>`;
   for(const it of ag){const k=clave(it);
@@ -252,8 +284,8 @@ function icoVV(t){const cal='<rect x="3" y="4.5" width="18" height="16" rx="2"><
 const NOM_VV={rango:'Rango de días',dia:'Un día fijo',remate:'En el remate'},TIT_VV={rango:'Rango de días',dia:'Un día fijo',remate:'En el mismo remate'};
 /* Cómo llenar el vale vista (Diego, 6 de Noviembre). Tribunal en palabras, RUT, monto, nominativo o endosable y a la orden de quién,
    con la frase del aviso que lo dice. */
-function formaHTML(it){const f=it.vv_forma;if(!f)return '';
-  return `<section class="caja"><h3>Cómo llenar el vale vista</h3><table class="planilla grande" aria-label="Cómo llenar el vale vista"><tbody>
+function formaHTML(it,vista){const f=it.vv_forma;if(!f)return '';
+  return `<section class="caja"><div class="fila"><h3>Cómo llenar el vale vista</h3>${vista||UI.pap?'':`<button class="btn2" data-acc="papAbrir" data-k="${clave(it)}">Imprimir vale vista</button>`}</div><table class="planilla grande" aria-label="Cómo llenar el vale vista"><tbody>
     <tr><td class="k">A NOMBRE DE</td><td style="font-weight:700">${E(f.a_nombre_de)}</td></tr>
     <tr><td class="k">RUT</td><td>${E(f.rut)}</td></tr>
     <tr><td class="k">MONTO</td><td><div class="vvmonto" style="font-size:18px">${E(it.monto)}</div>${pesosHTML(it)}</td></tr>
@@ -261,7 +293,7 @@ function formaHTML(it){const f=it.vv_forma;if(!f)return '';
     <tr><td class="k">A LA ORDEN</td><td>${E(f.orden_txt)}</td></tr>
     ${f.llevar?`<tr><td class="k">LLEVAR</td><td>${E(f.llevar)}</td></tr>`:''}
     ${f.cita?`<tr><td class="k">EL AVISO DICE</td><td style="font-size:14px;color:var(--tinta2)">“${E(f.cita)}”</td></tr>`:''}</tbody></table>
-    ${(f.alertas||[]).map(a=>`<div class="al rojo">${E(a)}</div>`).join('')}</section>`;}
+    ${(f.alertas||[]).map(a=>`<div class="al rojo">${E(a)}</div>`).join('')}${vista?'':papHTML()}</section>`;}
 /* vista=true muestra la misma ficha para un remate del buscador que NO está en el calendario (botón Revisar ficha, Diego, 10 de Noviembre).
    No agrega nada a la agenda. Va sin la casilla de vale vista entregado y sin Quitar del calendario, porque no hay nada agendado. */
 function fichaHTML(it,vista){const k=clave(it),al=it.alertas||[],grave=al.some(a=>a.clase==='rojo');
@@ -292,7 +324,7 @@ function fichaHTML(it,vista){const k=clave(it),al=it.alertas||[],grave=al.some(a
       ${it.vv_llegada?`<tr><td class="k">LLEGADA</td><td style="font-size:14px">${E(it.vv_llegada)}</td></tr>`:''}</tbody></table>
       ${vista?'':`<label class="chk" style="font-size:15px;margin-top:auto"><input type="checkbox" data-acc="entregado" data-k="${k}" ${it.vv_entregado?'checked':''}>Vale vista entregado</label>`}</section>
   </div>
-  ${formaHTML(it)}
+  ${formaHTML(it,vista)}
   ${it.vv_regla?`<blockquote>“${E(it.vv_regla)}”</blockquote>`:''}
   <div class="dos">${alertas}<section style="display:flex;flex-direction:column;gap:8px"><h3 style="margin:0;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)">Avisos en El Mercurio</h3><div class="gris" style="font-size:14px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Cada aviso publicado')}</section></div>
   ${vista?'':`<div class="fila" style="justify-content:flex-start"><button class="btn2" style="color:var(--rojo);border-color:var(--rojo);min-height:44px" data-acc="quitar" data-k="${k}">Quitar del calendario</button></div>`}</section>`;}
@@ -343,9 +375,13 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-acc]
   else if(a==='cerrar'){UI.panel=null;renderPanel();}
   else if(a==='limpiar'){const n=b.dataset.campo,i=document.querySelector(`input[data-filtro="${n}"]`);UI.f[n]='';if(i){i.value='';i.focus();}b.hidden=true;clearTimeout(espera);await buscar();}
   else if(a==='manual'){UI.panel='manual';UI.err='';renderPanel();}
-  else if(a==='ficha'){UI.vista=null;UI.ficha=k;UI.sel=k;UI.verFicha=true;render();irAFicha();}
+  else if(a==='papAbrir'){UI.pap=[{k,min:true,monto:''}];renderCentro();}
+  else if(a==='papQuitar'){UI.pap.splice(+b.dataset.i,1);renderCentro();}
+  else if(a==='papCerrar'){UI.pap=null;renderCentro();}
+  else if(a==='papGenerar'){await papGenerar();}
+  else if(a==='ficha'){UI.pap=null;UI.vista=null;UI.ficha=k;UI.sel=k;UI.verFicha=true;render();irAFicha();}
   else if(a==='fichaRes'){const it=(UI.res&&UI.res.resultados||[]).find(x=>x.remate_id===+b.dataset.rid);if(!it)return;UI.vista=it;UI.verFicha=true;renderCentro();irAFicha();}   // solo se redibuja el centro, el buscador sigue abierto donde estaba
-  else if(a==='cerrarFicha'){UI.vista=null;UI.verFicha=false;render();}
+  else if(a==='cerrarFicha'){UI.pap=null;UI.vista=null;UI.verFicha=false;render();}
   else if(a==='quitar'){const it=item(k);if(!it)return;if(UI.ficha===k)UI.verFicha=false;await hacer('/api/quitar',it.tipo==='manual'?{manual_id:it.manual_id}:{bien_id:it.bien_id});}
   else if(a==='agendar'||a==='reagendar'){const v=UI.vista;if(v&&v.remate_id===+b.dataset.rid){UI.vista=null;UI.ficha='b'+v.bien_id;UI.sel=UI.ficha;}   // si se agenda lo que se está mirando, la vista pasa a ser su ficha normal
     await hacer('/api/agendar',{remate_id:+b.dataset.rid});}
@@ -364,11 +400,13 @@ document.addEventListener('change',async e=>{const t=e.target;
   else if(t.dataset.form==='mod'){UI.form.mod=t.value;}
   else if('ufIn' in t.dataset){const txt=t.value.trim(),v=leerUF(txt);if(txt&&!v){aviso('Escribe la UF en pesos, por ejemplo 41.274,20.');return;}
     try{UF={...(await api('/api/uf',{valor:v})),dia:EST.hoy};render();}catch(er){aviso(er.message);}}
-  else if('ftrib' in t.dataset){UI.ftrib=t.value;renderIzq();}});
+  else if('papMin' in t.dataset){UI.pap[+t.dataset.papMin].min=t.checked;renderCentro();}
+  else if('papMas' in t.dataset){if(t.value){UI.pap.push({k:t.value,min:true,monto:''});renderCentro();}}});
 let espera=null;
 document.addEventListener('input',e=>{const t=e.target;
   if(t.dataset.filtro&&t.dataset.filtro!=='edicion'&&t.dataset.filtro!=='pasados'){UI.f[t.dataset.filtro]=t.value;const x=t.parentNode.querySelector('.borrar');if(x)x.hidden=!t.value;clearTimeout(espera);espera=setTimeout(buscar,250);}
-  else if(t.dataset.form){UI.form[t.dataset.form]=t.value;}});
+  else if(t.dataset.form){UI.form[t.dataset.form]=t.value;}
+  else if('papMonto' in t.dataset){UI.pap[+t.dataset.papMonto].monto=t.value;}});
 /* Actualización obligatoria al abrir (decisión de Diego, 20 de Octubre). Tapa la agenda hasta terminar.
    Desde el 29 de Octubre (pedido de Diego) solo la primera vez del día. Las siguientes van calladas y solo avisan si llegó algo o falló. */
 function actHoy(){try{return localStorage.getItem('act_ok')}catch(e){return null}}

@@ -2,7 +2,7 @@
 Correr desde D:\\Agendar_Remates con. python -m pruebas.test_interfaz
 Carga en una base temporal las 7 ediciones del banco con las respuestas guardadas. Hoy se fija en el 14 de Octubre de 2026.
 """
-import json, re, sys, tempfile, threading, urllib.request
+import json, math, re, sys, tempfile, threading, urllib.request
 from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
@@ -215,7 +215,8 @@ revisar("cabecera. sin el título Agendar Remates y con los botones chicos",
 revisar("cabecera. Volver a hoy y Mes siguiente van en la cabecera del mes grande y no en una fila propia",
         'data-acc="mesHoy"' not in _cen and 'data-acc="mesHoy"' in _mes and "${g?`<div class=\"nav\">" in _mes)
 # Ficha (6 de Noviembre). Cómo llenar el vale vista, con nombre en palabras, RUT, monto, tipo, a la orden de quién y la frase del aviso.
-revisar("ficha. muestra cómo llenar el vale vista", "${formaHTML(it)}" in html and all(f'<td class="k">{k}</td>' in html for k in ("A NOMBRE DE", "RUT", "MONTO", "TIPO", "A LA ORDEN"))
+# Corrección 11 de Noviembre. formaHTML recibe vista para poner el botón Imprimir vale vista solo en las causas agendadas.
+revisar("ficha. muestra cómo llenar el vale vista", "${formaHTML(it,vista)}" in html and all(f'<td class="k">{k}</td>' in html for k in ("A NOMBRE DE", "RUT", "MONTO", "TIPO", "A LA ORDEN"))
         and "EL AVISO DICE" in html)
 # Ficha (5 de Noviembre). Dinero y Entrega del vale vista también en planilla.
 revisar("ficha. Dinero y Entrega del vale vista van en planilla con sus filas",
@@ -350,7 +351,50 @@ revisar("UF. la ficha y el buscador muestran el monto en pesos y la ficha el val
         "${pesosHTML(it)}" not in _tar and html.count("${pesosHTML(it)}") >= 2 and "${ufHTML(it)}<h3>Dinero</h3>" in html and "provisoria para la entrega" in html)
 revisar("UF SII. la página usa la UF del día del remate publicada por el SII y la escrita a mano sigue mandando",
         "UF.tabla[r]" in html and "publicada por el SII" in html and "sii=!UF.manual&&UF.tabla" in html and "tabla" in json.loads(get("/api/uf")))
+# 11 de Noviembre (pedido de Diego). Imprimir vale vista. Papeleta .docx con la plantilla del banco, uno o varios vales.
+import zipfile as _zf
+def _pap(vales):
+    req = urllib.request.Request(url + "/api/papeleta", data=json.dumps({"vales": vales}).encode(), headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return r.status, r.headers.get("Content-Disposition"), r.read()
+    except urllib.error.HTTPError as er:
+        return er.code, None, er.read()
+_v1 = {"a_nombre_de": "Segundo Juzgado Civil de Santiago", "rut": "60.306.002-4", "monto": 3000000, "tipo": "endosable", "rol": "C-8034-2020"}
+_v2 = {"a_nombre_de": "Décimo Primer Juzgado Civil de Santiago", "rut": "60.306.011-3", "monto": 1749349, "tipo": "", "rol": "C-1-2025"}
+_c, _cd, _b = _pap([_v1, _v2])
+_doc = _zf.ZipFile(io.BytesIO(_b)).read("word/document.xml").decode("utf-8") if _c == 200 else ""
+_txt = _re.sub(r"<[^>]+>", lambda m: "|" if m.group(0) == "</w:p>" else "", _doc).strip()
+revisar("papeleta. el servidor entrega el docx para descargar con el rol en el nombre", _c == 200 and 'filename="VV_C-8034-2020_C-1-2025.docx"' in (_cd or ""), str(_c))
+revisar("papeleta. dos vales con su título N°1 y N°2, las cuatro líneas y dos líneas en blanco entre ellos",
+        _txt.startswith("Vale Vista a nombre de tercero N°1|A Nombre de: Segundo Juzgado Civil de Santiago|RUT: 60.306.002-4|Monto: $3.000.000|Tipo: Endosable (no nominativo)|||Vale Vista a nombre de tercero N°2|"), _txt[:300])
+revisar("papeleta. sin tipo la línea Tipo va en blanco", "Monto: $1.749.349|Tipo: |" in _txt, _txt[-120:])
+revisar("papeleta. mismo formato de la plantilla (viñeta, Arial, etiqueta en negrita subrayada)",
+        _doc.count('<w:pStyle w:val="Listaconvietas"/><w:spacing w:after="120"/></w:pPr>') == 8 and _doc.count('<w:u w:val="single"/>') == 8 and "<w:sectPr" in _doc)
+revisar("papeleta. sin vales responde el error en palabras", _pap([])[0] == 400)
+revisar("papeleta. la plantilla va dentro de interfaz", (RAIZ / "interfaz" / "plantilla_vale_vista.docx").exists())
 srv.shutdown(); srv.server_close()
+# Pantalla. Botón en la caja Cómo llenar el vale vista, solo para causas agendadas. Monto mínimo o uno escrito, y el + con las demás agendadas.
+_fh = html[html.index("function formaHTML("):html.index("function fichaHTML(")]
+revisar("papeleta. botón Imprimir vale vista solo fuera de la vista del buscador", "${vista||UI.pap?'':`<button class=\"btn2\" data-acc=\"papAbrir\"" in _fh and ">Imprimir vale vista</button>" in _fh and "${vista?'':papHTML()}" in _fh)
+revisar("papeleta. pregunta si mantener el monto mínimo o escribir otro, con el + y GENERAR DOCX",
+        "Mantener el monto mínimo" in html and "data-pap-monto" in html and "+ Agregar otro vale vista de tus causas agendadas" in html and ">GENERAR DOCX</button>" in html and "!usados.includes(clave(it))" in html)
+revisar("papeleta. el monto mínimo usa la UF del día del remate y suma las costas enteras",
+        "return v?Math.ceil(ufVV(it)*v)+(it.costas||0):null;" in html and "return it.monto_clp||null;" in html)
+revisar("papeleta. un monto escrito menor que el mínimo se rechaza", "if(m&&monto<m)return" in html)
+revisar("filtro. ya no está Filtrar por tribunal en Causas agendadas", "Filtrar por tribunal" not in html and "ftrib" not in html)
+# Costas (decisión de Diego, 11 de Noviembre). En UF el vale vista es el 10% de las UF más las costas enteras.
+_d = D.dinero({"minimo_monto": 344.0359, "minimo_moneda": "UF", "minimo_costas_clp": 328400, "garantia_porcentaje": 10, "garantia_base": "minimo"})
+revisar("costas. en UF el monto dice las costas y las entrega aparte", _d["monto"] == "34,4036 UF más $328.400 de costas" and _d["costas"] == 328400 and abs(_d["uf_vv"] - 34.40359) < 1e-9, str(_d))
+# Con una UF de $41.302,34 el 10% da los $1.420.949 del ejemplo de Diego.
+revisar("costas. con la UF del ejemplo de Diego da el 10% más las costas",
+        math.ceil(_d["uf_vv"] * 41302.34) == 1420949 and math.ceil(_d["uf_vv"] * 41302.34) + _d["costas"] == 1749349)
+_d = D.dinero({"minimo_monto": 93895646, "minimo_moneda": "CLP", "minimo_costas_clp": 500000, "garantia_porcentaje": 10, "garantia_base": "minimo"})
+revisar("costas. en pesos no se suman y el monto va en número", _d["costas"] is None and _d["monto_clp"] == 9389565 and "costas" not in _d["monto"], str(_d))
+revisar("costas. en las causas a mano se leen del texto", D.costas_de_texto("56,1 UF más $323.600 de costas") == 323600 and D.costas_de_texto("56,1 UF") is None
+        and D.pesos_de_texto("$7.500.000") == 7500000 and D.pesos_de_texto("56,1 UF más $3 de costas") is None)
+# Hacia arriba, igual que el monto de la papeleta, porque es un mínimo.
+revisar("costas. la ficha suma las costas al monto en pesos, hacia arriba", "Math.ceil(ufVV(it)*sii)+(it.costas||0)" in html and "Math.ceil(ufVV(it)*UF.valor)+(it.costas||0)" in html and "de costas`" in html)
 
 despues = sorted(p.name for p in (RAIZ / "ia_respuestas").rglob("*.json"))
 revisar("candado. no se llamó a Haiku (ia_respuestas sin cambios)", antes == despues)

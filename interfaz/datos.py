@@ -3,6 +3,7 @@ por aquí. El servidor (interfaz\\servidor.py) solo traduce pedidos web a estas 
 Decisiones de Diego del 18 de Octubre en ESTADO_PROYECTO.md y en la bitácora del 18.
 """
 import datetime as dt
+import math
 import re
 from db.carga import normalizar
 from db.crear_base import aviso_feriados
@@ -156,6 +157,11 @@ def dinero(f):
     if minimo and f.get("minimo_costas_clp"):
         minimo += f" más ${numero(f['minimo_costas_clp'])} de costas"
     uf = None
+    # 11 de Noviembre (decisión de Diego). En los remates en UF (ley de bancos) se suman las costas ENTERAS al 10% de las UF.
+    # Ej. 344,0359 UF más $328.400 de costas, el vale vista es el 10% de las UF más $328.400. En pesos solo cuenta el mínimo en pesos.
+    v = None
+    costas = int(f["minimo_costas_clp"]) if f.get("minimo_moneda") == "UF" and f.get("minimo_costas_clp") else None
+    monto_clp = None
     if mf:
         gar, monto = "Monto fijo", plata(mf, f.get("garantia_moneda") or "CLP")
     elif p is not None and base == "tasacion":
@@ -165,9 +171,16 @@ def dinero(f):
         v = f["minimo_monto"] * p / 100
         monto = plata(v, f.get("minimo_moneda"))
         uf = round(v, 4) if f.get("minimo_moneda") == "UF" else None
+        if uf and costas:
+            monto += f" más ${numero(costas)} de costas"
+        if f.get("minimo_moneda") == "CLP":
+            monto_clp = math.ceil(v)
     else:
         gar, monto = "Sin dato", "Sin dato"
+    if mf and (f.get("garantia_moneda") or "CLP") == "CLP":
+        monto_clp = math.ceil(mf)
     return {"minimo": minimo or "Sin dato", "garantia": gar, "monto": monto, "uf": uf, "uf_txt": monto if uf else None,
+            "costas": costas if uf else None, "monto_clp": monto_clp, "uf_vv": v if uf else None,
             "otro_porcentaje": (f"{p:g}%" if p is not None and p != 10 else None)}
 
 
@@ -268,6 +281,20 @@ def uf_de_texto(t):
     return float(m.group(1).replace(".", "").replace(",", ".")) if m else None
 
 
+def costas_de_texto(t):
+    """11 de Noviembre. Las costas escritas en el monto de una causa a mano ("... más $323.600 de costas") o None."""
+    m = re.search(r"\$\s?(\d{1,3}(?:\.\d{3})+|\d+)\s*(?:de|por)\s+costas", t or "", re.I)
+    return int(m.group(1).replace(".", "")) if m else None
+
+
+def pesos_de_texto(t):
+    """11 de Noviembre. El monto en pesos de una causa a mano sin UF ("$7.500.000") o None."""
+    if uf_de_texto(t):
+        return None
+    m = re.search(r"\$\s?(\d{1,3}(?:\.\d{3})+|\d+)", t or "")
+    return int(m.group(1).replace(".", "")) if m else None
+
+
 def manuales(con):
     out = []
     cur = con.execute("SELECT * FROM agenda_manual ORDER BY id")
@@ -297,6 +324,7 @@ def manuales(con):
             "remate_corto": corta(m["fecha_remate"]) + (f" a las {m['hora_remate']}" if m["hora_remate"] else ""),
             "mod": modo(m["modalidad"]), "mod_txt": modalidad_texto(m["modalidad"]), "direccion": m["direccion"] or "Agregada a mano, sin dirección.",
             "minimo": "Sin dato", "garantia": "Sin dato", "monto": m["monto_vv"] or "Sin dato", "uf": uf_de_texto(m["monto_vv"]), "uf_txt": None,
+            "costas": costas_de_texto(m["monto_vv"]) if uf_de_texto(m["monto_vv"]) else None, "monto_clp": pesos_de_texto(m["monto_vv"]),
             "otro_porcentaje": None, "asumido": False, "vv_desde": vd, "vv_hasta": vh, "vv_txt": texto_vv(vd, vh), "vv_tipo": tipo_vv(vd, vh),
             "vv_llegada": nota_llegada(m["tribunal"], vd, "texto"),
             "vv_color": "verde" if vh else "rojo", "vv_regla": None, "alertas": al, "vv_forma": FV.como_llenar(m["tribunal"], None), "pubs": [], "pub_txt": "Agregada a mano. No viene de El Mercurio.",

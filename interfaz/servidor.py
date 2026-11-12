@@ -134,6 +134,22 @@ class Manejador(BaseHTTPRequestHandler):
                 except ValueError as e:
                     raise D.ErrorDato(str(e))
                 return self._json({**U.obtener(self.uf_ruta, hoy_chile(), self.uf_abrir), "tabla": U.tabla_sii(self.uf_ruta, hoy_chile(), self.uf_abrir)})
+            if u.path == "/api/papeleta":             # 11 de Noviembre. Papeleta del vale vista para el banco (.docx)
+                from interfaz import papeleta as PAP
+                vales = p.get("vales") or []
+                try:
+                    cuerpo = PAP.generar(vales)
+                except (ValueError, KeyError, TypeError) as e:
+                    raise D.ErrorDato(f"No pude armar la papeleta ({e}).")
+                nombre = PAP.nombre_archivo(vales)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                self.send_header("Content-Disposition", f'attachment; filename="{nombre}"')
+                self.send_header("Content-Length", str(len(cuerpo)))
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(cuerpo)
+                return
             con = self._con()
             try:
                 acciones = {
