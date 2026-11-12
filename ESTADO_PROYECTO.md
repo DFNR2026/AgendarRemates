@@ -75,7 +75,7 @@ Cambios de la parte 3.5, TODOS APLICADOS el 15 de Octubre (se dejan como registr
 5. Cajón o campos de alertas por aviso.
 6. Filtro nuevo. Los remates de JUEZ PARTIDOR se descartan del todo (ver decisiones).
 
-Conocimiento de Diego del 12 de Noviembre. CORRETAJE DE PROPIEDADES (tema futuro, sin tocar el programa todavía). El mínimo no dicta el precio final. Si la deuda del mandamiento supera el mínimo, el banco puja por su deuda. El caso para comprar barato es cuando la deuda es menor que el mínimo, sumando los gastos pendientes de la propiedad. Todo en CORRETAJE_PROPIEDADES.md, con el caso C-15362-2025 del 11° Civil y sus PDF en la carpeta Corretaje (fuera de git porque traen nombres de personas).
+Conocimiento de Diego del 12 de Noviembre. CORRETAJE DE PROPIEDADES (tema futuro, sin tocar el programa todavía). El mínimo no dicta el precio final. Si la deuda del mandamiento supera el mínimo, el banco puja por su deuda. El caso para comprar barato es cuando la deuda es menor que el mínimo, sumando los gastos pendientes de la propiedad. PENDIENTE FUTURO (no ahora, después de pulir el Excel del Mercurio). Rellenar la columna de mandamiento del Excel diario entrando a la OJV en el Chrome de Diego, y sacar el valor de venta de Incity. Todo en CORRETAJE_PROPIEDADES.md, con el caso C-15362-2025 del 11° Civil y sus PDF en la carpeta Corretaje (fuera de git porque traen nombres de personas).
 
 ## Evidencia reunida (leer antes de diseñar o cambiar la lectura)
 

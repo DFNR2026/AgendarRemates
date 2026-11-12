@@ -31,3 +31,23 @@ Observación de Claude (no la dijo Diego, queda para conversarla). Aunque el ban
   Conclusión. A mano o con Claude manejando el Chrome de Diego para unas pocas causas elegidas sí se puede. Un programa propio que consulte muchas causas solo, sin navegador, NO se probó y es justo lo que el reCAPTCHA y el WAF están hechos para frenar. No se intentará saltarlos. Falta leer las Condiciones de uso de la Consulta causas antes de cualquier uso repetido.
   Ojo. El mandamiento es la deuda a una fecha (805,1377 UF al 5 de Noviembre de 2025 en el ejemplo). Al día del remate la deuda real es mayor por intereses y costas.
 - Registrar el resultado de los remates (precio de adjudicación y número de postores) para aprender cuánto sube el precio sobre el mínimo.
+
+## PENDIENTE PARA EL FUTURO. Rellenar la columna de mandamiento (Diego, 12 de Noviembre)
+
+Diego lo deja anotado para retomarlo DESPUÉS de terminar de pulir el Excel del Mercurio, que es su prioridad actual. No se hace ahora.
+
+El flujo de hoy (lo explicó Diego). GitHub Actions del proyecto Mercurio corre cerca de las 5:03 y dura unos 3 minutos, con los filtros que usan los abogados para el corretaje. Sale un Excel que se envía al correo del abogado (queda en Supabase, pero al parecer no se puede descargar de forma automática). Con ese Excel los abogados buscan A MANO el mandamiento de cada causa, unas 7 causas al día en promedio.
+
+La idea. Que Claude rellene la columna Mandamiento entrando a la Oficina Judicial Virtual en el Chrome de Diego, sin que el PJUD bloquee la IP (F5) ni salga un captcha.
+
+Lo que propuso Claude (sin decidir, para conversarlo al retomar).
+1. Diego pasa el Excel del día. Por cada causa, Consulta causas como Invitado con tribunal, rol y año, abrir el detalle y buscar el mandamiento (cuaderno de apremio, folio "Mandamiento", o la resolución "Ordena despachar mandamiento" del cuaderno Principal). Leer el monto en UF y en pesos con su fecha y llenarlo en una copia del Excel. Marcar las causas reservadas, sin mandamiento o con dos.
+2. Una causa a la vez, sin pestañas en paralelo, sin proxies, sin trucos de sigilo y sin resolver captchas.
+3. Freno. Ante la página de F5 ("The requested URL was rejected") o un captcha visible se detiene y no reintenta. Diego presente en el PC mientras corre. Claude no lo deja programado sin nadie mirando, porque eso lo vuelve el bot de Matriz_Causas_Activas.
+4. Medirlo de a poco. Piloto con 2 causas, después las 7 del Excel, anotando en cada corrida cuántas pasaron, el tiempo y si apareció algo. Unos 5 días con las 7 sin bloqueo antes de darlo por sostenible.
+
+Descartado (Diego). El método de D:\Matriz_Causas_Activas (obsoleto, no se retoma) y "Mis Causas" de la OJV (ya se probó y no sirve).
+
+## El otro eslabón. Valor de venta (Diego, 12 de Noviembre)
+
+El mandamiento solo cubre la DEUDA. Para el delta teórico VALOR DE VENTA / MANDAMIENTO falta el valor de venta de la propiedad. Diego piensa sacarlo de Incity (la página). Portal Inmobiliario queda descartado porque tiene fuertes protecciones anti bot al ser de Mercado Libre. Este tema tampoco se toca ahora.
