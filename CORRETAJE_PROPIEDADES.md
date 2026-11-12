@@ -23,5 +23,8 @@ Observación de Claude (no la dijo Diego, queda para conversarla). Aunque el ban
 
 ## Ideas para más adelante (sin decidir)
 
-- Que el programa muestre la deuda del mandamiento junto al mínimo para ver el margen. Hoy el aviso no trae la deuda, hay que sacarla del expediente en pjud.cl.
+- Que el programa muestre la deuda del mandamiento junto al mínimo para ver el margen. Hoy el aviso no trae la deuda, hay que sacarla del expediente.
+  EL GRAN PROBLEMA (Diego, 12 de Noviembre). El mandamiento está siempre en la Oficina Judicial Virtual (oficinajudicialvirtual.pjud.cl), que tiene una protección fuerte contra la automatización (WAF y bloqueo por IP). Eso impide automatizar el delta teórico que quiere Diego, VALOR COMERCIAL / MANDAMIENTO.
+  Camino sin saltarse esa protección (idea de Claude, sin decidir). Diego descarga a mano el PDF del mandamiento con su Clave Única y lo deja en una carpeta de la causa. El programa lo lee de ahí. El mandamiento de C-15362-2025 trae texto (no es escaneado), así que el monto se puede leer con código. Falta definir de dónde sale el valor comercial.
+  Ojo. El mandamiento es la deuda a una fecha (805,1377 UF al 5 de Noviembre de 2025 en el ejemplo). Al día del remate la deuda real es mayor por intereses y costas.
 - Registrar el resultado de los remates (precio de adjudicación y número de postores) para aprender cuánto sube el precio sobre el mínimo.
