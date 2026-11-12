@@ -84,8 +84,37 @@ revisar("buscador. rol 9854 es la publicación del 10-10 y trae los 3 avisos, el
         len(r9) == 1 and r9[0]["edicion"] == "2026-10-10" and [(p["edicion"], p["ant"]) for p in r9[0]["pubs"]]
         == [("2026-09-01", True), ("2026-10-09", False), ("2026-10-10", False)] and r9[0]["pubs"][1]["href"].startswith(D.BASE_URL + "/2026/10/09/"),
         str([(p["edicion"], p["ant"]) for p in r9[0]["pubs"]] if r9 else r9))
-t21 = D.buscar(con, HOY, tribunal="21")["resultados"]
-revisar("buscador. tribunal 21 solo trae el 21° Civil", t21 and all("21" in r["tribunal"] for r in t21), str(len(t21)))
+# Corrección 11 de Noviembre. El tribunal ahora viene de una lista fija y se compara entero, ya no un pedazo escrito.
+t21 = D.buscar(con, HOY, tribunal="21° Juzgado Civil de Santiago")["resultados"]
+revisar("buscador. tribunal 21 solo trae el 21° Civil", t21 and all(r["tribunal"] == "21° Juzgado Civil de Santiago" for r in t21), str(len(t21)))
+# 11 de Noviembre (Diego). Lista fija de tribunales, día del remate y modalidad.
+_t1 = D.buscar(con, HOY, tribunal="1° Juzgado Civil de Santiago", limite=10000)["resultados"]
+revisar("buscador. el 1° Civil no trae el 11°, el 21° ni otros que terminan en 1", _t1 and {r["tribunal"] for r in _t1} == {"1° Juzgado Civil de Santiago"}, str({r["tribunal"] for r in _t1}))
+_lt = D.tribunales(con)
+revisar("buscador. lista fija con los civiles de Santiago primero y en orden de número", _lt == sorted(_lt, key=D.orden_tribunal) and _lt[0].startswith("1° Juzgado Civil de Santiago")
+        and [x for x in _lt if x.endswith("Civil de Santiago")] == _lt[:len([x for x in _lt if x.endswith("Civil de Santiago")])] and "tribunales" in D.estado(con, HOY), str(_lt[:12]))
+_todo = D.buscar(con, HOY, limite=10000, pasados=True)["resultados"]
+_dias = {}
+for r in _todo:
+    if r["fecha_remate"]:
+        _dias.setdefault(r["fecha_remate"][:10], []).append(r)
+_dia = max(_dias, key=lambda d: len(_dias[d]))
+_fd = D.buscar(con, HOY, fecha=_dia, limite=10000)
+revisar("día. trae todos los remates de ese día y solo de ese día, aunque ya haya pasado", _fd["total"] == len(_dias[_dia]) and all(r["fecha_remate"][:10] == _dia for r in _fd["resultados"]), f"{_dia} {_fd['total']} {len(_dias[_dia])}")
+_m = {k: D.buscar(con, HOY, fecha=_dia, modalidad=k, limite=10000)["resultados"] for k in ("ambas", "presencial", "video", "mixta")}
+_sd = [r for r in _fd["resultados"] if r["modalidad"] in (None, "sin_dato")]
+revisar("modalidad. presencial, video y mixto traen solo lo suyo y los sin modalidad siempre, al fondo",
+        all({r["modalidad"] or "sin_dato" for r in _m[k]} <= D.MODALIDADES[k] | {"sin_dato"} for k in _m)
+        and all([r["modalidad"] in (None, "sin_dato") for r in _m[k]] == sorted(r["modalidad"] in (None, "sin_dato") for r in _m[k]) for k in _m)
+        and all(len([r for r in _m[k] if r["modalidad"] in (None, "sin_dato")]) == len(_sd) for k in _m), str({k: len(v) for k, v in _m.items()}))
+revisar("día. un día que ya pasó hace meses se muestra igual", D.buscar(con, "2027-06-01", fecha=_dia, limite=10000)["total"] == len(_dias[_dia]))
+_sdm = lambda r: r["modalidad"] in (None, "sin_dato")
+_d2 = [d for d, rs in sorted(_dias.items()) if any(_sdm(a) and not _sdm(b) for i, a in enumerate(rs) for b in rs[i + 1:])]
+_a2 = D.buscar(con, HOY, fecha=_d2[0], modalidad="ambas", limite=10000)["resultados"] if _d2 else []
+revisar("modalidad. en un día donde un sin modalidad venía antes, ahora queda al fondo", _a2 and [_sdm(r) for r in _a2] == sorted(_sdm(r) for r in _a2), str(_d2[:3]))
+revisar("modalidad. ambas es la suma de presencial, video y mixto sin repetir los sin modalidad",
+        len(_m["ambas"]) == len(_m["presencial"]) + len(_m["video"]) + len(_m["mixta"]) - 2 * len(_sd) and len(_m["ambas"]) == _fd["total"])
+revisar("modalidad. zoom y en línea van en videoconferencia", D.MODALIDADES["video"] == {"zoom", "en_linea"} and D.MODALIDADES["presencial"] == {"presencial"} and D.MODALIDADES["mixta"] == {"mixta"})
 revisar("buscador. año 2019 solo trae roles de 2019", all(r["anio"] == "2019" for r in D.buscar(con, HOY, anio="2019")["resultados"]))
 e13 = D.buscar(con, HOY, edicion="2026-10-13", pasados=True)["resultados"]
 revisar("buscador. con edición, solo lo publicado ese día", e13 and all(r["edicion"] == "2026-10-13" for r in e13), str(len(e13)))
@@ -382,6 +411,22 @@ revisar("papeleta. pregunta si mantener el monto mínimo o escribir otro, con el
 revisar("papeleta. el monto mínimo usa la UF del día del remate y suma las costas enteras",
         "return v?Math.ceil(ufVV(it)*v)+(it.costas||0):null;" in html and "return it.monto_clp||null;" in html)
 revisar("papeleta. un monto escrito menor que el mínimo se rechaza", "if(m&&monto<m)return" in html)
+# 11 de Noviembre (Diego). Buscador y calendario.
+revisar("buscador. tribunal en lista fija, sin escribir", "${tribF()}" in html and "campoF('trib'" not in html and '<select class="campo" data-filtro="trib"' in html and "'trib'" in html[html.index("document.addEventListener('input'"):])
+revisar("buscador. abre con la última edición cargada una sola vez", "if(!UI.fIni){UI.fIni=true;UI.f.edicion=EST.ediciones[0]||'';}" in html)
+revisar("buscador. día del remate y modalidad, y con un día elegido busca en todas las ediciones", 'type="date" data-filtro="fecha"' in html and "${modF(f.mod,'b')}" in html
+        and "if(t.value&&UI.f.edicion){UI.f.edicion=''" in html and "fecha:f.fecha,mod:f.mod" in html)
+revisar("modalidad. cuatro botones, Ambas, Presencial, Videoconferencia y Mixto", "const MODS=[['ambas','Ambas'],['presencial','Presencial'],['video','Videoconferencia'],['mixta','Mixto']];" in html)
+revisar("modalidad. los sin modalidad llevan borde amarillo", "const sd=!it.modalidad||it.modalidad==='sin_dato'" in html and "border:2px solid var(--famb-borde)" in html)
+revisar("calendario. un clic en el día muestra sus remates en la zona de la ficha con el subfiltro", 'data-acc="dia" data-d="${d}"' in html and "h+=diaHTML();" in html and "${modF(D.mod,'d')}" in html
+        and "else if(a==='dia'){" in html and "fecha:D.d,mod:D.mod" in html and "if(UI.dia)await cargarDia(false);" in html)
+revisar("calendario. Revisar ficha también encuentra los remates de la lista del día", "...(UI.dia&&UI.dia.res&&UI.dia.res.resultados||[])].find(" in html)
+# RUT de los 30 civiles de Santiago, revisados uno por uno en pjud.cl el 11 de Noviembre (pedido de Diego). Ninguno distinto.
+_PJUD = ["60306001-6", "60306002-4", "60306003-2", "60306004-0", "60306005-9", "60306006-7", "60306007-5", "60306008-3", "60309014-4", "60306010-5",
+         "60306011-3", "60306012-1", "60306013-K", "60306014-8", "60306062-8", "60306064-4", "60306066-0", "60306056-3", "60306076-8", "61962700-8",
+         "60306065-2", "60306057-1", "60306058-K", "61933300-4", "60306072-5", "60306069-5", "60306070-9", "60306073-3", "60306074-1", "60306075-K"]
+from motor import forma_vale_vista as _FV
+revisar("RUT. los 30 civiles de Santiago iguales a pjud.cl", all(_FV.TABLA[f"{n}° Juzgado Civil de Santiago"]["rut"].replace(".", "") == _PJUD[n - 1] for n in range(1, 31)))
 revisar("filtro. ya no está Filtrar por tribunal en Causas agendadas", "Filtrar por tribunal" not in html and "ftrib" not in html)
 # Costas (decisión de Diego, 11 de Noviembre). En UF el vale vista es el 10% de las UF más las costas enteras.
 _d = D.dinero({"minimo_monto": 344.0359, "minimo_moneda": "UF", "minimo_costas_clp": 328400, "garantia_porcentaje": 10, "garantia_base": "minimo"})

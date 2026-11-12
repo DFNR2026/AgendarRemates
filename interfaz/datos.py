@@ -235,7 +235,7 @@ def armar(con, remate_id, extra=None):
         "inmueble": f["inmueble"], "fecha_remate": f["fecha_remate"], "hora": f["hora_remate"],
         "remate_txt": (larga(f["fecha_remate"]) + (f" a las {f['hora_remate']}" if f["hora_remate"] else "")) if f["fecha_remate"] else "Sin fecha del remate",
         "remate_corto": (corta(f["fecha_remate"]) + (f" a las {f['hora_remate']}" if f["hora_remate"] else "")) if f["fecha_remate"] else "Sin fecha",
-        "mod": modo(f["modalidad"]), "mod_txt": modalidad_texto(f["modalidad"], f["plataforma"]),
+        "modalidad": f["modalidad"], "mod": modo(f["modalidad"]), "mod_txt": modalidad_texto(f["modalidad"], f["plataforma"]),
         "direccion": ", ".join(x for x in (f["direccion"], f["comuna"]) if x) or "El programa todavía no lee la dirección de este aviso.",
         **din, "asumido": any("ASUMIDO" in a["texto"] for a in al),
         "vv_desde": f["vv_desde"], "vv_hasta": f["vv_hasta"], "vv_txt": texto_vv(f["vv_desde"], f["vv_hasta"], f["vv_desde_origen"], f["vv_regla"]), "vv_tipo": tipo_vv(f["vv_desde"], f["vv_hasta"], f["vv_regla"]),
@@ -432,14 +432,31 @@ def estado(con, hoy):
             "franja_ambar": s["franja_ambar"] + ([fer + "."] if fer else []),
             "agenda": agenda(con, hoy), **avisos_grandes(con), "quitados": quitados_que_volvieron(con),
             "feriados": {f: n for f, n in con.execute("SELECT fecha, nombre FROM feriados")},
-            "ediciones": [r[0] for r in con.execute("SELECT fecha FROM ediciones ORDER BY fecha DESC")],
+            "ediciones": [r[0] for r in con.execute("SELECT fecha FROM ediciones ORDER BY fecha DESC")], "tribunales": tribunales(con),
             "ediciones_txt": {r[0]: dia_mes(r[0]) for r in con.execute("SELECT fecha FROM ediciones")}}
 
 
 DIAS_FECHA_ERRADA = 60     # F2-04. Puesto por Claude.
 
 
-def buscar(con, hoy, tribunal="", rol="", anio="", edicion="", pasados=False, limite=300, direccion=""):
+# 11 de Noviembre (Diego). Subfiltro de modalidad del buscador y de la lista de un día. "Ambas" es presencial y videoconferencia
+# juntas, más el mixto. El mixto también va solo. Los remates sin modalidad siempre salen, al fondo (con borde amarillo en la página).
+MODALIDADES = {"presencial": {"presencial"}, "video": {"zoom", "en_linea"}, "mixta": {"mixta"},
+               "ambas": {"presencial", "zoom", "en_linea", "mixta"}}
+
+
+def orden_tribunal(t):
+    """Los 30 civiles de Santiago primero por número, después el resto por número y nombre."""
+    m = re.match(r"(\d+)°", t or "")
+    return (0 if (t or "").endswith("Civil de Santiago") else 1, int(m.group(1)) if m else 999, t or "")
+
+
+def tribunales(con):
+    """11 de Noviembre. Lista fija para el buscador, con los tribunales que aparecen en los avisos."""
+    return sorted((r[0] for r in con.execute("SELECT DISTINCT tribunal FROM v_buscador WHERE tribunal IS NOT NULL")), key=orden_tribunal)
+
+
+def buscar(con, hoy, tribunal="", rol="", anio="", edicion="", pasados=False, limite=300, direccion="", fecha="", modalidad=""):
     """Decisión de Diego. Por defecto los remates vigentes (que todavía no pasan) de todas las ediciones, la publicación
     más nueva de cada propiedad. Con edición, solo lo publicado ese día. Los cuatro campos filtran solos (la dirección, pedido de
     Diego del 22 de Octubre, busca en la dirección y la comuna, sin tildes ni mayúsculas). Los remates sin fecha
@@ -453,14 +470,18 @@ def buscar(con, hoy, tribunal="", rol="", anio="", edicion="", pasados=False, li
     # F2-04 (30 de Octubre). Una fecha anterior a la propia edición es un error de impresión, no un remate que ya pasó.
     # Antes escondía la propiedad. Se muestra mientras la edición sea de los últimos DIAS_FECHA_ERRADA días (con su alerta roja).
     v = "" if pasados else "AND (fecha_remate IS NULL OR fecha_remate >= ? OR (fecha_remate < edicion AND edicion >= ?))"
+    if fecha:                     # 11 de Noviembre. Remates de un día. Un día que ya pasó se muestra igual.
+        v, pasados = "AND fecha_remate = ?", True
+        par.append(fecha)
     if not pasados:
         par += [hoy, (dt.date.fromisoformat(hoy) - dt.timedelta(days=DIAS_FECHA_ERRADA)).isoformat()]
     ids = [r[0] for r in con.execute(sql.format(w=w, v=v), par)]
     t, r_, a_, d_ = normalizar(tribunal), re.sub(r"\D", "", rol or ""), re.sub(r"\D", "", anio or ""), normalizar(direccion)
     out = []
     for rid in ids:
-        f = con.execute("SELECT a.tribunal, a.rol, a.anio, r.direccion, r.comuna FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE r.id = ?", (rid,)).fetchone()
-        if t and t not in normalizar(f[0]):
+        f = con.execute("SELECT a.tribunal, a.rol, a.anio, r.direccion, r.comuna, r.modalidad FROM remates r JOIN avisos a ON a.id = r.aviso_id WHERE r.id = ?", (rid,)).fetchone()
+        # 11 de Noviembre. El tribunal viene de la lista fija y se compara entero (antes "1°" también traía el 11°, el 21°...).
+        if t and t != normalizar(f[0]):
             continue
         if r_ and r_ not in (f[1] or ""):
             continue
@@ -468,7 +489,12 @@ def buscar(con, hoy, tribunal="", rol="", anio="", edicion="", pasados=False, li
             continue
         if d_ and d_ not in normalizar(f"{f[3] or ''} {f[4] or ''}"):
             continue
-        out.append(rid)
+        if modalidad in MODALIDADES and (f[5] or "sin_dato") not in MODALIDADES[modalidad] | {"sin_dato"}:
+            continue
+        out.append((rid, f[5]))
+    if modalidad in MODALIDADES:   # los sin modalidad al fondo, en el mismo orden de siempre
+        out.sort(key=lambda x: (x[1] or "sin_dato") == "sin_dato")
+    out = [x[0] for x in out]
     total = len(out)
     agendados = {r[0] for r in con.execute("SELECT bien_id FROM agenda")}
     res = []
