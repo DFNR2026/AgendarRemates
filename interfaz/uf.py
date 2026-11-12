@@ -92,7 +92,8 @@ def guardar_manual(ruta, valor, hoy):
 # --- Tabla del SII (11 de Noviembre, aprobado por Diego) ----------------------------------------------------------------------
 # Página https://www.sii.cl/valores_y_fechas/uf/uf{año}.htm. Trae todos los meses del año, cada uno en un bloque <div ... id="mes_noviembre">
 # con filas "<th><strong>18</strong></th> <td>41.357,30</td>". Los días aún no publicados van vacíos. Formato visto en las páginas que Diego
-# guardó el 11 de Noviembre (D:\\Agendar_Remates\\SII).
+# guardó el 11 de Noviembre (D:\\Agendar_Remates\\SII). La página que recibe Python usa comillas simples (id='mes_noviembre') y la
+# guardada por el navegador comillas dobles. Se aceptan las dos.
 URL_SII = "https://www.sii.cl/valores_y_fechas/uf/uf{}.htm"
 _MESES_SII = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 DIAS_TABLA = 45              # la página recibe solo los días de hoy en adelante, hasta 45 días. Puesto por Claude.
@@ -102,7 +103,7 @@ def leer_tabla_sii(html, anio):
     """{AAAA-MM-DD: valor} de la página del SII de ese año. Solo los días con valor. Un valor fuera de rango no se usa."""
     import re
     out = {}
-    marcas = [(m.start(), m.group(1).lower()) for m in re.finditer(r'id="mes_([a-z]+)"', html)]
+    marcas = [(m.start(), m.group(1).lower()) for m in re.finditer(r"id=[\"']mes_([a-z]+)[\"']", html)]
     for i, (ini, mes) in enumerate(marcas):
         if mes not in _MESES_SII:
             continue

@@ -319,6 +319,8 @@ revisar("UF. un valor que no es UF en pesos se rechaza", _rech)
 SII = (RAIZ / "banco_pruebas" / "uf_sii_2026_extracto.htm").read_text(encoding="utf-8")
 _tab = U.leer_tabla_sii(SII, 2026)
 revisar("UF SII. lee noviembre y diciembre hasta el 9, sin los días vacíos", (len(_tab), _tab["2026-11-18"], _tab["2026-12-09"], "2026-12-10" in _tab, _tab["2026-11-01"]) == (39, 41357.3, 41501.94, False, 41252.94), str(len(_tab)))
+_crudo = U.leer_tabla_sii((RAIZ / "banco_pruebas" / "uf_sii_2026_crudo_python.htm").read_text(encoding="utf-8"), 2026)
+revisar("UF SII. lee también lo que recibe Python (comillas simples)", _crudo == _tab, str(len(_crudo)))
 _rsii = Path(tmp.name) / "uf_sii.json"
 pedidas.clear()
 _t1 = U.tabla_sii(_rsii, "2026-11-11", fuente({"www.sii.cl": SII}), _ah)
