@@ -284,6 +284,8 @@ r = post("/api/agendar", {"remate_id": bus["resultados"][0]["remate_id"]})
 est = json.loads(get(f"/api/estado?hoy={HOY}"))
 revisar("servidor. agendar desde la página", r.get("ok") and any("6443" in a["rol"] for a in est["agenda"]), str(r))
 revisar("ficha. el estado entrega cómo llenar el vale vista de cada causa", all(x.get("vv_forma") and x["vv_forma"]["rut"] for x in est["agenda"]), str([x.get("vv_forma") for x in est["agenda"]])[:300])
+# 13 de Noviembre (Diego). Requisitos para participar, leídos del aviso de cada causa. La causa a mano va sin aviso.
+revisar("ficha. el estado entrega los requisitos para participar de cada causa", all(isinstance(x.get("requisitos"), dict) and x["requisitos"]["a_mano"] == (x["tipo"] == "manual") for x in est["agenda"]), str([x.get("requisitos") for x in est["agenda"]])[:300])
 revisar("causas agendadas. el estado entrega la dirección de cada causa del diario", all(x["direccion"] for x in est["agenda"] if x["tipo"] == "diario"), str([x["direccion"] for x in est["agenda"]]))
 revisar("servidor. un pedido malo devuelve el error en palabras", post("/api/manual", {}) == {"ok": False, "error": "Falta la fecha del remate."})
 # F3-03 (4 de Noviembre). Un error del programa sigue llegando a la página y además queda anotado. Con pythonw el stderr del

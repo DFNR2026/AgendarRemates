@@ -10,6 +10,7 @@ import sqlite3
 from db.carga import normalizar
 from db.crear_base import aviso_feriados
 from motor import forma_vale_vista as FV
+from motor import requisitos as RQ
 from motor.republicaciones import CAMPOS
 from motor.sincronizacion import estado_sincronizacion
 
@@ -265,6 +266,8 @@ def armar(con, remate_id, extra=None):
         "vv_llegada": nota_llegada(f["tribunal"], f["vv_desde"], f["vv_desde_origen"], f["vv_regla"], f["hora_remate"]),
         "vv_de_publicacion": f.get("vv_de_publicacion"), "alertas": al,
         "vv_forma": forma_vv(con, f["tribunal"], f.get("aviso_texto"), f["fecha_remate"]),     # cómo llenar el vale vista (Diego, 6 de Noviembre)
+        # 13 de Noviembre (Diego). Requisitos para participar además del vale vista, leídos del aviso de ESTA causa, solo para la ficha.
+        "requisitos": RQ.para_ficha(f["tribunal"], f.get("aviso_texto"), f["modalidad"]),
         "pubs": pubs, "pub_txt": "Publicado en El Mercurio los días " + ", ".join(p["texto"] for p in vigentes) if vigentes else "",
         "edicion": f["edicion"],
     }
@@ -349,7 +352,8 @@ def manuales(con):
             "costas": costas_de_texto(m["monto_vv"]) if uf_de_texto(m["monto_vv"]) else None, "monto_clp": pesos_de_texto(m["monto_vv"]),
             "otro_porcentaje": None, "asumido": False, "vv_desde": vd, "vv_hasta": vh, "vv_txt": texto_vv(vd, vh), "vv_tipo": tipo_vv(vd, vh),
             "vv_llegada": nota_llegada(m["tribunal"], vd, "texto"),
-            "vv_color": "verde" if vh else "rojo", "vv_regla": None, "alertas": al, "vv_forma": forma_vv(con, m["tribunal"], None, m["fecha_remate"]), "pubs": [], "pub_txt": "Agregada a mano. No viene de El Mercurio.",
+            "vv_color": "verde" if vh else "rojo", "vv_regla": None, "alertas": al, "vv_forma": forma_vv(con, m["tribunal"], None, m["fecha_remate"]),
+            "requisitos": RQ.para_ficha(m["tribunal"], None, m["modalidad"]), "pubs": [], "pub_txt": "Agregada a mano. No viene de El Mercurio.",
             "vv_entregado": bool(m["vv_entregado"]), "cambio_fecha": False, "cambios_sin_ver": False, "nuevo_llamado": False,
             "publicado": pub})
     return out

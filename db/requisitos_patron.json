@@ -1,0 +1,318 @@
+{
+ "medido_el": "13 de Noviembre de 2026",
+ "ediciones": [
+  "2026-10-21",
+  "2026-11-12"
+ ],
+ "causas": 574,
+ "cuenta_por": "causa, con su aviso más nuevo",
+ "tribunales": {
+  "1° Juzgado Civil de Santiago": {
+   "causas": 21,
+   "requisitos": {
+    "clave": 1,
+    "cedula": 12,
+    "contacto": 12,
+    "formulario": 11
+   }
+  },
+  "2° Juzgado Civil de Santiago": {
+   "causas": 15,
+   "requisitos": {
+    "cedula": 13,
+    "contacto": 13,
+    "tercero": 1,
+    "link_por_correo": 12
+   }
+  },
+  "3° Juzgado Civil de Santiago": {
+   "causas": 25,
+   "requisitos": {
+    "correo": 23,
+    "ojv": 23,
+    "cedula": 1,
+    "contacto": 25,
+    "formulario": 1,
+    "link_por_correo": 24,
+    "equipo": 1,
+    "ayuda": 1
+   }
+  },
+  "4° Juzgado Civil de Santiago": {
+   "causas": 15,
+   "requisitos": {
+    "correo": 15,
+    "cedula": 15,
+    "contacto": 13,
+    "link_por_correo": 15,
+    "equipo": 13
+   }
+  },
+  "5° Juzgado Civil de Santiago": {
+   "causas": 15,
+   "requisitos": {
+    "ojv": 14,
+    "clave": 2,
+    "cedula": 1,
+    "contacto": 14,
+    "persona_juridica": 1,
+    "link": 14,
+    "equipo": 2,
+    "ayuda": 8
+   }
+  },
+  "6° Juzgado Civil de Santiago": {
+   "causas": 20,
+   "requisitos": {
+    "ojv": 17,
+    "clave": 14,
+    "cedula": 1,
+    "contacto": 15,
+    "link_por_correo": 15,
+    "equipo": 1
+   }
+  },
+  "7° Juzgado Civil de Santiago": {
+   "causas": 39,
+   "requisitos": {
+    "clave": 37,
+    "cedula": 38,
+    "contacto": 34,
+    "link": 29,
+    "equipo": 1
+   }
+  },
+  "8° Juzgado Civil de Santiago": {
+   "causas": 16,
+   "requisitos": {
+    "ayuda": 6
+   }
+  },
+  "9° Juzgado Civil de Santiago": {
+   "causas": 27,
+   "requisitos": {
+    "correo": 1,
+    "ojv": 1,
+    "clave": 1,
+    "cedula": 24,
+    "contacto": 8,
+    "persona_juridica": 24,
+    "link": 27,
+    "link_por_correo": 1,
+    "minutos": 11,
+    "equipo": 14
+   }
+  },
+  "10° Juzgado Civil de Santiago": {
+   "causas": 12,
+   "requisitos": {
+    "cedula": 1,
+    "contacto": 1,
+    "persona_juridica": 1
+   }
+  },
+  "11° Juzgado Civil de Santiago": {
+   "causas": 16,
+   "requisitos": {
+    "cedula": 16,
+    "persona_juridica": 1
+   }
+  },
+  "12° Juzgado Civil de Santiago": {
+   "causas": 23,
+   "requisitos": {
+    "ojv": 22,
+    "clave": 19,
+    "persona_juridica": 5,
+    "link": 21,
+    "equipo": 18
+   }
+  },
+  "13° Juzgado Civil de Santiago": {
+   "causas": 20,
+   "requisitos": {
+    "correo": 19,
+    "ojv": 13,
+    "clave": 1,
+    "contacto": 13,
+    "link_por_correo": 10,
+    "equipo": 8
+   }
+  },
+  "14° Juzgado Civil de Santiago": {
+   "causas": 12,
+   "requisitos": {}
+  },
+  "15° Juzgado Civil de Santiago": {
+   "causas": 16,
+   "requisitos": {
+    "correo": 14,
+    "clave": 3,
+    "contacto": 13,
+    "link": 1,
+    "equipo": 1
+   }
+  },
+  "16° Juzgado Civil de Santiago": {
+   "causas": 19,
+   "requisitos": {
+    "clave": 2,
+    "contacto": 17,
+    "formulario": 17,
+    "link_por_correo": 7,
+    "minutos": 3,
+    "equipo": 18,
+    "ayuda": 17
+   }
+  },
+  "17° Juzgado Civil de Santiago": {
+   "causas": 24,
+   "requisitos": {
+    "correo": 6,
+    "clave": 4,
+    "cedula": 2,
+    "contacto": 6,
+    "persona_juridica": 2,
+    "tercero": 14
+   }
+  },
+  "18° Juzgado Civil de Santiago": {
+   "causas": 35,
+   "requisitos": {
+    "correo": 3,
+    "clave": 2,
+    "contacto": 35,
+    "persona_juridica": 13,
+    "tercero": 13,
+    "link_en_causa": 12,
+    "equipo": 19
+   }
+  },
+  "19° Juzgado Civil de Santiago": {
+   "causas": 18,
+   "requisitos": {
+    "ojv": 15,
+    "clave": 4,
+    "cedula": 15,
+    "contacto": 8,
+    "formulario": 8,
+    "link": 17,
+    "minutos": 1,
+    "camara": 7,
+    "equipo": 5,
+    "ayuda": 3
+   }
+  },
+  "20° Juzgado Civil de Santiago": {
+   "causas": 20,
+   "requisitos": {
+    "correo": 1,
+    "clave": 2,
+    "cedula": 1,
+    "persona_juridica": 1,
+    "link": 20,
+    "link_en_causa": 5,
+    "equipo": 12
+   }
+  },
+  "21° Juzgado Civil de Santiago": {
+   "causas": 20,
+   "requisitos": {
+    "cedula": 17,
+    "contacto": 17,
+    "persona_juridica": 17
+   }
+  },
+  "22° Juzgado Civil de Santiago": {
+   "causas": 16,
+   "requisitos": {
+    "correo": 4,
+    "clave": 4,
+    "cedula": 1,
+    "contacto": 15,
+    "formulario": 14,
+    "link": 16,
+    "link_en_causa": 1,
+    "equipo": 8
+   }
+  },
+  "23° Juzgado Civil de Santiago": {
+   "causas": 13,
+   "requisitos": {
+    "clave": 7,
+    "cedula": 11,
+    "contacto": 12,
+    "link_por_correo": 8,
+    "camara": 1,
+    "equipo": 6
+   }
+  },
+  "24° Juzgado Civil de Santiago": {
+   "causas": 10,
+   "requisitos": {
+    "cedula": 7,
+    "contacto": 1
+   }
+  },
+  "25° Juzgado Civil de Santiago": {
+   "causas": 1,
+   "requisitos": {
+    "ojv": 1,
+    "clave": 1,
+    "contacto": 1
+   }
+  },
+  "26° Juzgado Civil de Santiago": {
+   "causas": 6,
+   "requisitos": {
+    "cedula": 1,
+    "formulario": 6,
+    "tercero": 6
+   }
+  },
+  "27° Juzgado Civil de Santiago": {
+   "causas": 19,
+   "requisitos": {
+    "ojv": 1,
+    "clave": 17,
+    "formulario": 18,
+    "link": 19,
+    "equipo": 1
+   }
+  },
+  "28° Juzgado Civil de Santiago": {
+   "causas": 41,
+   "requisitos": {
+    "correo": 4,
+    "clave": 29,
+    "contacto": 36,
+    "tercero": 4,
+    "link_por_correo": 16,
+    "camara": 6,
+    "equipo": 23
+   }
+  },
+  "29° Juzgado Civil de Santiago": {
+   "causas": 25,
+   "requisitos": {
+    "correo": 23,
+    "ojv": 24,
+    "clave": 17,
+    "cedula": 21,
+    "contacto": 21,
+    "link": 24,
+    "equipo": 14
+   }
+  },
+  "30° Juzgado Civil de Santiago": {
+   "causas": 15,
+   "requisitos": {
+    "clave": 13,
+    "cedula": 15,
+    "contacto": 15,
+    "link_por_correo": 11,
+    "equipo": 4
+   }
+  }
+ }
+}
