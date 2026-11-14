@@ -7,6 +7,7 @@ import json
 import math
 import re
 import sqlite3
+from pathlib import Path
 from db.carga import normalizar
 from db.crear_base import aviso_feriados
 from motor import forma_vale_vista as FV
@@ -320,6 +321,26 @@ def pesos_de_texto(t):
     return int(m.group(1).replace(".", "")) if m else None
 
 
+_A_MANO = Path(__file__).resolve().parent.parent / "db" / "avisos_a_mano.json"
+
+
+def aviso_a_mano(tribunal, rol, anio):
+    """13 de Noviembre (Diego). Texto del aviso de una causa agregada a mano, copiado del recorte del diario (db\\avisos_a_mano.json).
+    None si no está. Solo se usa para los requisitos para participar."""
+    try:
+        d = json.loads(_A_MANO.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return d.get(f"{(tribunal or '').strip()}|{rol}-{anio}")
+
+
+def requisitos_manual(m):
+    a = aviso_a_mano(m["tribunal"], m["rol"], m["anio"])
+    q = RQ.para_ficha(m["tribunal"], a["texto"] if a else None, m["modalidad"])
+    q["fuente"] = a["fuente"] if a else None
+    return q
+
+
 def manuales(con):
     out = []
     cur = con.execute("SELECT * FROM agenda_manual ORDER BY id")
@@ -353,7 +374,7 @@ def manuales(con):
             "otro_porcentaje": None, "asumido": False, "vv_desde": vd, "vv_hasta": vh, "vv_txt": texto_vv(vd, vh), "vv_tipo": tipo_vv(vd, vh),
             "vv_llegada": nota_llegada(m["tribunal"], vd, "texto"),
             "vv_color": "verde" if vh else "rojo", "vv_regla": None, "alertas": al, "vv_forma": forma_vv(con, m["tribunal"], None, m["fecha_remate"]),
-            "requisitos": RQ.para_ficha(m["tribunal"], None, m["modalidad"]), "pubs": [], "pub_txt": "Agregada a mano. No viene de El Mercurio.",
+            "requisitos": requisitos_manual(m), "pubs": [], "pub_txt": "Agregada a mano. No viene de El Mercurio.",
             "vv_entregado": bool(m["vv_entregado"]), "cambio_fecha": False, "cambios_sin_ver": False, "nuevo_llamado": False,
             "publicado": pub})
     return out

@@ -300,9 +300,9 @@ function formaHTML(it,vista){const f=it.vv_forma;if(!f)return '';
    (motor\requisitos.py), con el plazo, a quién escribir y la frase del aviso. Solo en la ficha. Si el tribunal tiene un patrón fuerte y
    este aviso no lo trae, sale la advertencia de patrón roto. Nada se asume. */
 function requisitosHTML(it){const q=it.requisitos;if(!q)return '';const rs=q.requisitos||[];
-  const fila=r=>`<tr><td class="k">${E(r.titulo)}</td><td><div style="font-weight:700">${E(r.detalle)}</div>${r.correo?`<div>Escribir a <b style="user-select:all">${E(r.correo)}</b></div>`:''}${r.plazo?`<div><span class="peq" style="font-weight:700;letter-spacing:.06em">PLAZO DEL AVISO</span> ${E(r.plazo)}</div>`:''}${r.zoom&&r.zoom.url?`<div><a href="${E(r.zoom.url)}" target="_blank" rel="noopener">Abrir en Zoom</a> <span class="peq">(link armado con el ID del aviso)</span></div>`:''}</td></tr>`;
+  const fila=r=>`<tr><td class="k">${E(r.titulo)}</td><td><div style="font-weight:700">${E(r.detalle)}</div>${r.correo?`<div>Escribir a <b style="user-select:all">${E(r.correo)}</b></div>`:''}${r.plazo?`<div><span class="peq" style="font-weight:700;letter-spacing:.06em">PLAZO DEL AVISO</span> ${E(r.plazo)}</div>`:''}${r.cuando?`<div><span class="peq" style="font-weight:700;letter-spacing:.06em">CUÁNDO</span> ${E(r.cuando)}</div>`:''}${r.zoom&&r.zoom.url?`<div><a href="${E(r.zoom.url)}" target="_blank" rel="noopener">Abrir en Zoom</a> <span class="peq">(link armado con el ID del aviso)</span></div>`:''}</td></tr>`;
   const vacio=q.a_mano?'Esta causa se agregó a mano y no tiene aviso que leer.':'El programa no encontró requisitos extra en el aviso de esta causa. Léelo igual antes de ir.';
-  return `<section class="caja" id="cajaRequisitos"><div class="fila"><h3>Requisitos para participar</h3><span class="peq">Además del vale vista. Leído del aviso de esta causa.</span></div>
+  return `<section class="caja" id="cajaRequisitos"><div class="fila"><h3>Requisitos para participar</h3><span class="peq">Además del vale vista. ${q.fuente?E(q.fuente)+'.':'Leído del aviso de esta causa.'}</span></div>
     ${rs.length?`<table class="planilla grande" aria-label="Requisitos para participar"><tbody>${rs.map(fila).join('')}</tbody></table>`:`<div class="gris" style="font-size:15px">${vacio}</div>`}
     ${(q.advertencias||[]).map(a=>`<div class="al ambar" style="font-size:14px">${E(a)}</div>`).join('')}
     ${(q.frases||[]).length?`<h3 style="margin-top:6px">El aviso dice</h3>${q.frases.map(f=>`<blockquote>“${E(f)}”</blockquote>`).join('')}`:''}</section>`;}
@@ -337,8 +337,8 @@ function fichaHTML(it,vista){const k=clave(it),al=it.alertas||[],grave=al.some(a
       ${vista?'':`<label class="chk" style="font-size:15px;margin-top:auto"><input type="checkbox" data-acc="entregado" data-k="${k}" ${it.vv_entregado?'checked':''}>Vale vista entregado</label>`}</section>
   </div>
   ${formaHTML(it,vista)}
-  ${requisitosHTML(it)}
   ${it.vv_regla?`<blockquote>“${E(it.vv_regla)}”</blockquote>`:''}
+  ${requisitosHTML(it)}
   <div class="dos">${alertas}<section style="display:flex;flex-direction:column;gap:8px"><h3 style="margin:0;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)">Avisos en El Mercurio</h3><div class="gris" style="font-size:14px">${E(it.pub_txt)}</div>${linksHTML(it.pubs,'Cada aviso publicado')}</section></div>
   ${vista?'':`<div class="fila" style="justify-content:flex-start"><button class="btn2" style="color:var(--rojo);border-color:var(--rojo);min-height:44px" data-acc="quitar" data-k="${k}">Quitar del calendario</button></div>`}</section>`;}
 function irAFicha(){const f=document.getElementById('ficha');if(f)f.scrollIntoView({block:'start',behavior:'smooth'});}

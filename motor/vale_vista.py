@@ -271,6 +271,25 @@ def detector_reglas(texto: str) -> list:
     return hallados
 
 
+_HABLA_DE_ENTREGA = re.compile(r"vale\s+(?:a\s+la\s+)?vista|garant[íi]a|cauci[óo]n|entreg|document", re.I)
+
+
+def _siguiente_si_trunca(texto: str, k: int, contra: str) -> str:
+    """13 de Noviembre (C-9156-2025 del 15° Civil). El aviso parte la orden del correo en dos oraciones. "Los postores a más tardar
+    a las 14:00 horas del día hábil anterior a la subasta. Deberá enviar un correo electrónico a jcsantiago15@pjud.cl". La IA copió
+    la primera como segundo plazo del vale vista, y como el correo venía DESPUÉS y no antes, no se descartaba. Si la oración del
+    segundo plazo no habla del vale vista, la garantía ni la entrega, se mira también la oración siguiente. Si la oración sí habla
+    de la entrega no se mira nada más, así el 3° Civil ("vale vista ... hasta las 12 hrs" y "el viernes anterior, de 11 a 14 hrs")
+    sigue siendo una contradicción."""
+    ini = texto.rfind(". ", 0, k)
+    fin = texto.find(". ", k + len(contra) - 1)
+    oracion = texto[ini + 2 if ini >= 0 else 0:fin + 1 if fin >= 0 else len(texto)]
+    if _HABLA_DE_ENTREGA.search(oracion) or fin < 0:
+        return texto[k + len(contra):fin + 1 if fin >= 0 else len(texto)]
+    fin2 = texto.find(". ", fin + 2)
+    return texto[k + len(contra):fin2 + 1 if fin2 >= 0 else len(texto)]
+
+
 def verificar(r: dict, texto: str, fecha_edicion: str | None = None) -> dict:
     """Revisa una respuesta de la IA contra el texto del aviso.
     Devuelve {ok, motivos [..], frase_regla, frases_extra, contradiccion} con las frases tal como están en el aviso."""
@@ -294,7 +313,7 @@ def verificar(r: dict, texto: str, fecha_edicion: str | None = None) -> dict:
     descartada = None
     if contra:
         k = texto.find(contra)
-        alrededor = texto[max(0, k - 120):k] + contra
+        alrededor = texto[max(0, k - 120):k] + contra + _siguiente_si_trunca(texto, k, contra)
         if _NO_ES_ENTREGA.search(alrededor):
             # 14-10 avisos 4, 10, 11, 13, 14, 15, 16, 48 y 49. El "segundo plazo" era el correo, el escrito por la OJV o el
             # cupón de pago, que no son la entrega material del vale vista (decisión de Diego). No es contradicción.

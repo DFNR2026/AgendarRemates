@@ -27,7 +27,7 @@ def claves(t):
     return [r["clave"] for r in R.leer(t)]
 
 
-_NADA = {"clave": None, "detalle": "", "plazo": None, "correo": None, "frase": "", "zoom": {"id": None, "url": None, "codigo": None}}
+_NADA = {"clave": None, "detalle": "", "plazo": None, "cuando": "sin leer", "correo": None, "frase": "", "zoom": {"id": None, "url": None, "codigo": None}}
 
 
 def uno(t, clave, n=0):
@@ -78,7 +78,9 @@ T2 = ("Los interesados deberán presentar el vale vista en dependencias del trib
 revisar("2° Civil. el correo y la Oficina Judicial Virtual del pago del saldo NO son requisitos para participar",
         claves(T2) == ["cedula", "contacto", "link_por_correo"], claves(T2))
 revisar("2° Civil. plataforma Zoom. El saldo corta la oración", "saldo" not in uno(T2, "cedula")["frase"], uno(T2, "cedula")["frase"][-80:])
-revisar("2° Civil. la cédula va junto con el vale vista y toma su plazo", uno(T2, "cedula")["detalle"] == "Copia de la cédula" and uno(T2, "cedula")["plazo"].startswith("el día hábil anterior a la fecha fijada para el remate"), uno(T2, "cedula"))
+revisar("2° Civil. la cédula va junto con el vale vista y toma su plazo con el horario (punto 1 de Diego, 13 de Noviembre)",
+        uno(T2, "cedula")["detalle"] == "Copia de la cédula" and uno(T2, "cedula")["plazo"] == "el día hábil anterior a la fecha fijada para el remate, entre las 12:00 y 14:00 horas"
+        and uno(T2, "contacto")["plazo"] == uno(T2, "cedula")["plazo"], uno(T2, "cedula"))
 
 T8 = "No se admitirá la entrega de vale vista de garantía en una oportunidad distinta. Consultas relativas a la subasta, comunicarse al correo electrónico jcsantiago8_ remates@pjud.cl. Demás bases en la causa."
 revisar("8° Civil. correo de consultas no es un requisito, queda como correo del tribunal", claves(T8) == ["ayuda"] and uno(T8, "ayuda")["correo"] == "jcsantiago8_remates@pjud.cl", R.leer(T8))
@@ -90,6 +92,10 @@ T16 = ("En momento presentar vale vista, postor deberá informar correo electró
 revisar("16° Civil. acta predeterminada y contacto, y la carpeta electrónica que llena el tribunal no es un trámite del postor",
         claves(T16) == ["contacto", "formulario", "minutos", "equipo", "ayuda"], claves(T16))
 revisar("16° Civil. entrar 10 minutos antes", uno(T16, "minutos")["detalle"] == "Entra 10 minutos antes")
+revisar("16° Civil. sin fecha en la frase, el correo y teléfono se dejan al entregar el vale vista (punto 1 de Diego)",
+        uno(T16, "contacto")["plazo"] is None and uno(T16, "contacto")["cuando"] == R.AL_ENTREGAR and uno(T16, "formulario")["cuando"] == R.AL_ENTREGAR, uno(T16, "contacto"))
+revisar("con plazo propio no se agrega el cuándo, y un requisito que no va con el vale vista tampoco",
+        uno(T2, "contacto")["cuando"] is None and uno(T3, "correo")["cuando"] is None and uno(T3, "contacto")["cuando"] is None, (uno(T2, "contacto"), uno(T3, "contacto")))
 
 revisar("clave. tener activa la Clave Única o firma electrónica avanzada es requisito",
         uno("Para participar en la subasta realizada por videoconferencia, todo postor deberá tener activa su clave única del estado o firma electrónica avanzada, para la eventual suscripción de la pertinente acta de remate.", "clave")["detalle"] == "Clave Única o firma electrónica avanzada")
@@ -189,13 +195,26 @@ html = (RAIZ / "interfaz" / "agenda.html").read_text(encoding="utf-8")
 datos = (RAIZ / "interfaz" / "datos.py").read_text(encoding="utf-8")
 fh = html[html.index("function fichaHTML("):html.index("function irAFicha(")]
 rq = html[html.index("function requisitosHTML("):html.index("/* vista=true")]
-revisar("ficha. la caja Requisitos para participar va después de Cómo llenar el vale vista", "${formaHTML(it,vista)}\n  ${requisitosHTML(it)}" in fh and "<h3>Requisitos para participar</h3>" in rq)
+# 13 de Noviembre (Diego, C-9156-2025). La frase de la regla del vale vista va pegada a Cómo llenar el vale vista y la caja de requisitos
+# después. Al revés la frase quedaba al final de la ficha, como si saliera de la nada.
+revisar("ficha. la caja Requisitos para participar va después de Cómo llenar el vale vista y de la frase del vale vista",
+        "${formaHTML(it,vista)}\n  ${it.vv_regla?`<blockquote>“${E(it.vv_regla)}”</blockquote>`:''}\n  ${requisitosHTML(it)}" in fh and "<h3>Requisitos para participar</h3>" in rq)
 revisar("ficha. la caja no está en el buscador ni en el calendario", html.count("requisitosHTML(") == 2)
-revisar("ficha. muestra el plazo, a quién escribir, la frase del aviso y las advertencias",
-        "${E(r.plazo)}" in rq and "Escribir a <b" in rq and "${E(r.correo)}" in rq and "q.frases.map(f=>`<blockquote>“${E(f)}”</blockquote>`)" in rq and '(q.advertencias||[]).map(a=>`<div class="al ambar"' in rq)
-revisar("ficha. todo texto del aviso pasa por E antes de mostrarse", "${r." not in rq.replace("${r.correo?", "").replace("${r.plazo?", "").replace("${r.zoom&&r.zoom.url?", ""))
-revisar("datos. la causa del diario lee su propio aviso y la causa a mano va sin texto",
-        '"requisitos": RQ.para_ficha(f["tribunal"], f.get("aviso_texto"), f["modalidad"])' in datos and '"requisitos": RQ.para_ficha(m["tribunal"], None, m["modalidad"])' in datos)
+revisar("ficha. muestra el plazo, el cuándo, a quién escribir, la frase del aviso y las advertencias",
+        "${E(r.plazo)}" in rq and "${r.cuando?`<div><span class=\"peq\" style=\"font-weight:700;letter-spacing:.06em\">CUÁNDO</span> ${E(r.cuando)}" in rq and "Escribir a <b" in rq and "${E(r.correo)}" in rq and "q.frases.map(f=>`<blockquote>“${E(f)}”</blockquote>`)" in rq and '(q.advertencias||[]).map(a=>`<div class="al ambar"' in rq)
+revisar("ficha. todo texto del aviso pasa por E antes de mostrarse", "${r." not in rq.replace("${r.correo?", "").replace("${r.plazo?", "").replace("${r.cuando?", "").replace("${r.zoom&&r.zoom.url?", ""))
+revisar("datos. la causa del diario lee su propio aviso y la causa a mano lee el texto guardado si lo hay",
+        '"requisitos": RQ.para_ficha(f["tribunal"], f.get("aviso_texto"), f["modalidad"])' in datos and '"requisitos": requisitos_manual(m)' in datos and 'q = RQ.para_ficha(m["tribunal"], a["texto"] if a else None, m["modalidad"])' in datos)
+# 13 de Noviembre (Diego). Causa a mano C-8034-2020 del 2° Civil con el texto del recorte del diario (db\avisos_a_mano.json).
+from interfaz import datos as D
+_am = D.aviso_a_mano("2° Juzgado Civil de Santiago", "8034", "2020")
+_qm = D.requisitos_manual({"tribunal": "2° Juzgado Civil de Santiago", "rol": "8034", "anio": "2020", "modalidad": "zoom"})
+revisar("a mano. C-8034-2020 lee su aviso copiado de la foto, cédula, contacto y link por correo con el plazo y su horario",
+        _am and [r["clave"] for r in _qm["requisitos"]] == ["cedula", "contacto", "link_por_correo"] and not _qm["a_mano"] and _qm["advertencias"] == []
+        and _qm["requisitos"][0]["plazo"] == "el día hábil anterior a la fecha fijada para el remate, entre las 12:00 y 14:00 horas" and _qm["fuente"].startswith("Copiado a mano"), _qm)
+_qn = D.requisitos_manual({"tribunal": "2° Juzgado Civil de Santiago", "rol": "1", "anio": "2000", "modalidad": "zoom"})
+revisar("a mano. una causa a mano sin texto guardado sigue mostrando la costumbre del tribunal como advertencia", _qn["a_mano"] and _qn["fuente"] is None and _qn["advertencias"][-1] == R.A_MANO, _qn)
+revisar("ficha. la fuente del texto a mano se muestra en la caja", "${q.fuente?E(q.fuente)+'.':'Leído del aviso de esta causa.'}" in rq)
 revisar("requisitos. el motor no importa nada de IA ni de internet", not re.search(r"anthropic|urllib|requests|haiku", (RAIZ / "motor" / "requisitos.py").read_text(encoding="utf-8").split('"""', 2)[2], re.I))
 
 print("\nRESULTADO.", "TODO OK" if not FALLAS else f"{len(FALLAS)} fallas")

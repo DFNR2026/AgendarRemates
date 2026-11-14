@@ -442,6 +442,30 @@ _x = V.resolver([_L("dias_habiles_antes", _f18, dias=3, contradiccion="hasta las
                 VV + _f18 + " Garantía hasta las 12 hrs del día hábil anterior a la fecha fijada.", "2026-11-26", "10:30", "2026-11-04")
 if _x.get("vv_hasta") or _x.get("leido_por_codigo"):
     fallas.append("grupo 3. un aviso con dos plazos no se toca")
+# 13 de Noviembre. C-9156-2025 del 15° Civil (frases copiadas del aviso). El aviso parte la orden del correo en dos oraciones y la IA
+# copió la primera como segundo plazo del vale vista. El correo viene DESPUÉS, así que no es una contradicción.
+_t15 = ("Todo postor a excepción del ejecutante deberá consignar garantía suficiente por el 10% del mínimo mediante vale vista a nombre del "
+        "Décimo Quinto Juzgado Civil de Santiago. Deberán comparecer el viernes anterior a la fecha de la subasta de 12:00 a 13:00 horas a fin "
+        "de entregar el vale vista. El saldo del precio de la subasta se deberá pagarse al contado dentro de quinto día hábil. Los postores a más "
+        "tardar a las 14:00 horas del día hábil anterior a la subasta. Deberá enviar un correo electrónico a jcsantiago15@pjud.cl, indicando en asunto remate.")
+_l15 = _L("viernes_anterior", "Deberán comparecer el viernes anterior a la fecha de la subasta de 12:00 a 13:00 horas a fin de entregar el vale vista.",
+          contradiccion="Los postores a más tardar a las 14:00 horas del día hábil anterior a la subasta.")
+_l15.update(hora_desde="12:00", hora_hasta="13:00")
+_x = V.resolver([_l15, dict(_l15)], _t15, "2026-11-26", "12:45", "2026-11-10")
+if (_x.get("vv_desde"), _x.get("vv_hasta")) != ("2026-11-20 12:00", "2026-11-20 13:00") or _x.get("contradiccion"):
+    fallas.append(f"15° Civil. el plazo del correo partido en dos oraciones no es contradicción {_x.get('vv_desde')} {_x.get('vv_hasta')} {_x.get('motivos')}")
+# Si la oración siguiente no habla de correo, la contradicción se mantiene.
+_x = V.resolver([_l15, dict(_l15)], _t15.replace("Deberá enviar un correo electrónico a jcsantiago15@pjud.cl, indicando en asunto remate.", "Deberán presentarse en secretaría."),
+                "2026-11-26", "12:45", "2026-11-10")
+if _x.get("vv_hasta") or not any("dos plazos" in m for m in _x.get("motivos", [])):
+    fallas.append(f"15° Civil. sin correo en la oración siguiente, los dos plazos siguen en rojo {_x.get('vv_hasta')} {_x.get('motivos')}")
+# Si la oración del segundo plazo habla del vale vista, no se mira la siguiente (3° Civil, contradicción real aunque después venga un escrito por O.J.V.).
+_t3 = ("Garantía mediante vale vista a nombre del Tercer Juzgado Civil de Santiago, hasta las 12 hrs. del día hábil anterior a la fecha fijada para el remate. "
+       "Asimismo, deberán ingresar escrito por O.J.V. con una copia legible del vale vista.")
+_l3 = _L("dias_habiles_antes", "Garantía mediante vale vista a nombre del Tercer Juzgado Civil de Santiago", dias=1, contradiccion="hasta las 12 hrs. del día hábil anterior a la fecha fijada para el remate.")
+_x = V.resolver([_l3, dict(_l3)], _t3, "2026-11-25", "12:00", "2026-11-10")
+if _x.get("vv_hasta") or not any("dos plazos" in m for m in _x.get("motivos", [])):
+    fallas.append(f"3° Civil. la oración siguiente no se mira si la del segundo plazo habla del vale vista {_x.get('vv_hasta')} {_x.get('motivos')}")
 print("\n".join(fallas) if fallas else f"{medidos} avisos del 14 de Octubre y casos en rojo revisados.")
 print("RESULTADO.", "FALLAS" if fallas else "TODO OK")
 sys.exit(1 if fallas else 0)

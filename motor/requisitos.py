@@ -39,6 +39,7 @@ ROTO = ("Se rompió el patrón del tribunal. Busca la respuesta en las bases apr
 A_MANO = ("Esta causa se agregó a mano y no tiene aviso que leer. Lo de arriba es la costumbre del tribunal, no un dato de esta causa. "
           "Búscalo en las bases aprobadas o propuestas y, si no está ahí, pregunta en el tribunal.")
 ORDEN = list(TITULO)
+AL_ENTREGAR = "Al entregar el vale vista. La fecha está en la caja Entrega del vale vista."
 
 _P = "\x00"            # punto protegido, para que una abreviatura o un correo no corten la oración
 _ABREV = re.compile(r"\b(hrs|hs|Sra|Sr|Srta|Excma|Iltma|art|arts|Art|inc|N|No|Nro|fs|Fs|sig|sgte|sgtes|S\.A|S\.S|s\.s|Ltda|Cía|Av|Avda|"
@@ -98,7 +99,10 @@ _PLAZO = re.compile(r"(?:a\s+m[áa]s\s+tardar,?\s|hasta\s+(?:las\s+)?\d|hasta\s+
                     r"al\s+menos\s+(?:veinticuatro|un|una|\d+)\s+(?:horas?|d[íi]as?|semanas?)|"
                     r"(?:el\s+)?d[íi]a\s+(?:h[áa]bil\s+)?(?:inmediatamente\s+)?(?:anterior|precedente)|"
                     r"(?:el\s+)?(?:d[íi]a\s+)?(?:lunes|martes|mi[ée]rcoles|jueves|viernes)\s+(?:(?:inmediatamente\s+)?anterior|de\s+la\s+semana\s+anterior))"
-                    r"[^,;.]{0,150}(?:,?\s+y\s+si\s+dicho\s+d[íi]a\s+fuer[ae]\s+s[áa]bado,?\s+[^,;.]{0,80})?", re.I)
+                    r"[^,;.]{0,150}(?:,?\s+y\s+si\s+dicho\s+d[íi]a\s+fuer[ae]\s+s[áa]bado,?\s+[^,;.]{0,80})?"
+                    # 13 de Noviembre (Diego, punto 1). El horario que viene pegado después de la coma, "el día hábil anterior a la fecha
+                    # fijada para el remate, entre las 12:00 y 14:00 horas" (2° Civil), también es parte del plazo.
+                    r"(?:,?\s+(?:entre|de|desde)\s+(?:las\s+)?\d{1,2}(?:[:.]\d{2})?\s+(?:y|a|hasta)\s+(?:las\s+)?\d{1,2}(?:[:.]\d{2})?(?:\s*(?:horas|hrs\.?|hs\.?))?)?", re.I)
 # Los avisos telegráficos no ponen comas. El plazo se corta donde empieza la orden siguiente.
 _PLAZO_FIN = re.compile(r"\s(?:deber\w*|postores|interesados|indicando|mediante|debiendo|ingresando|acompañando|oportunidad|y\s+cuya|a\s+fin\s+de|en\s+cuyo)\b", re.I)
 _CON_PLAZO = ("correo", "ojv", "cedula", "contacto", "formulario")
@@ -196,7 +200,8 @@ def _leer(texto: str | None) -> tuple:
         if k in vistos:
             return
         vistos.add(k)
-        out.append({"clave": clave, "titulo": TITULO[clave], "detalle": detalle, "plazo": mas.get("plazo"),
+        cuando = mas.get("cuando") if not mas.get("plazo") else None
+        out.append({"clave": clave, "titulo": TITULO[clave], "detalle": detalle, "plazo": mas.get("plazo"), "cuando": cuando,
                     "correo": mas.get("correo"), "zoom": mas.get("zoom"), "frase": frase})
 
     for o in oraciones(texto):
@@ -235,17 +240,20 @@ def _leer(texto: str | None) -> tuple:
             pon("ojv", o, m.start(), det, plazo=_plazo(o, m.start()))
         if not _DESPUES_SUAVE.search(o) and not no_postor:
             junto = "Junto con el vale vista" if _VV.search(o) else None
+            # 13 de Noviembre (Diego, punto 1). Si la frase va junto con la entrega del vale vista y no trae su propia fecha, el momento es
+            # esa entrega, cuya fecha está en la caja Entrega del vale vista. No se calcula ni se asume otra fecha.
+            al_vv = AL_ENTREGAR if junto else None
             m = _CEDULA.search(o)
             if m:
                 det = ("Copia de la cédula" if re.search(r"copia", o, re.I) else "Muestra tu cédula" if re.match(r"exhib", m.group(0), re.I)
                        else "Lleva tu cédula vigente")
-                pon("cedula", o, m.start(), det, plazo=_plazo(o, m.start()) if junto else None)
+                pon("cedula", o, m.start(), det, plazo=_plazo(o, m.start()) if junto else None, cuando=al_vv)
             m = _CONTACTO.search(o)
             if m and not (ms and _AYUDA.search(o) and _AYUDA.search(o).start() < ms[0][0]):
-                pon("contacto", o, m.start(), "Deja tu correo y tu teléfono", plazo=_plazo(o, m.start()) if junto else None)
+                pon("contacto", o, m.start(), "Deja tu correo y tu teléfono", plazo=_plazo(o, m.start()) if junto else None, cuando=al_vv)
             m = _FORM.search(o)
             if m:
-                pon("formulario", o, m.start(), "Se llena al entregar el vale vista" if junto else "Formulario", plazo=_plazo(o, m.start()) if junto else None)
+                pon("formulario", o, m.start(), "Se llena al entregar el vale vista" if junto else "Formulario", plazo=_plazo(o, m.start()) if junto else None, cuando=al_vv)
             m = _PJ.search(o)
             if m:
                 pon("persona_juridica", o, m.start(), "Si participas como empresa")
