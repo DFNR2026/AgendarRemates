@@ -29,6 +29,13 @@ M=[(R,'if ay and ay.start() < pos:','if ay:'),
  (H,'${r.cuando?`<div>','${false?`<div>'),
  (D,'q = RQ.para_ficha(m["tribunal"], a["texto"] if a else None, m["modalidad"])','q = RQ.para_ficha(m["tribunal"], None, m["modalidad"])'),
  (D,'return d.get(f"{(tribunal or \'\').strip()}|{rol}-{anio}")','return d.get(f"{rol}-{anio}")'),
+ (H,"'Frase '+(fr.indexOf(r.frase)+1)","'Frase '+fr.indexOf(r.frase)"),
+ (H,'rs.filter(r=>r.frase===f).map(r=>','rs.map(r=>'),
+ (R,"|(?<![\\s.][A-ZÁÉÍÓÚÑ])\\.(?:-)?\\s+(?=[a-záéíóúñ]{2,}\\b)\")","\")"),
+ (R,"|(?<![\\s.][A-ZÁÉÍÓÚÑ])\\.(?:-)?","|\\.(?:-)?"),
+ (R,'plazo=_plazo(o, pos) or plazo_previo)','plazo=_plazo(o, pos))'),
+ (R,'and not _DESPUES.search(previa) and not correos(previa) else None)','and not correos(previa) else None)'),
+ (R,'if k in vistos or (not mas.get("plazo") and any(v[:3] == k[:3] for v in vistos)):','if k in vistos:'),
 ]
 def limpia():
     for d in ('motor/__pycache__','interfaz/__pycache__','pruebas/__pycache__'): shutil.rmtree(d,ignore_errors=True)

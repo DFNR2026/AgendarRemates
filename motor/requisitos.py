@@ -46,7 +46,10 @@ _ABREV = re.compile(r"\b(hrs|hs|Sra|Sr|Srta|Excma|Iltma|art|arts|Art|inc|N|No|Nr
                     r"Dpto|Depto|Of|aprox|pág|O\.J\.V|OJ\.V|O\.J|R\.U\.T|U\.F)\.", re.I)
 # Puntos de adentro de una dirección de internet ("zoom. us", "www.pjud.cl"). "plataforma Zoom. El saldo" sí corta la oración.
 _DOMINIO = re.compile(r"\b(?:zoom|pjud-?\s?cl|www|pjud|poderjudicial|docs|google|reca)\.\s?(?=(?:us|cl|com|pjud|zoom|google|poderjudicial)\b)", re.I)
-_CORTE = re.compile(r"\.(?:-)?\s+(?=[A-ZÁÉÍÓÚÑ¿‘“\"'(]|\d\)\s)")
+# 13 de Noviembre. Algunos avisos ponen punto y siguen con minúscula ("problemas de conexión. título de dominio se encuentra inscrito",
+# 29° Civil C-10404-2025) y la frase arrastraba la oración siguiente. También se corta ahí, porque las abreviaturas ya van protegidas.
+# Una inicial de un nombre ("María J. de la Fuente") no corta.
+_CORTE = re.compile(r"\.(?:-)?\s+(?=[A-ZÁÉÍÓÚÑ¿‘“\"'(]|\d\)\s)|(?<![\s.][A-ZÁÉÍÓÚÑ])\.(?:-)?\s+(?=[a-záéíóúñ]{2,}\b)")
 # El diario parte los correos con espacios ("xandrade @pjud.cl", "jcsantiago8_ remates@pjud.cl", "22jcivil santiago_remates@pjud.cl").
 _MAIL = re.compile(r"(?<![\w.])((?:\d+jcivil\s?)?[A-Za-z][\w.]*(?:_\s?[A-Za-z]\w*)?_?)\s?@\s?pjud\.\s?cl\b", re.I)
 # Solo cuentan las direcciones del Poder Judicial. El aviso C-5164-2025 del 29° trae pegado un correo de gmail que no es del tribunal.
@@ -105,6 +108,7 @@ _PLAZO = re.compile(r"(?:a\s+m[áa]s\s+tardar,?\s|hasta\s+(?:las\s+)?\d|hasta\s+
                     r"(?:,?\s+(?:entre|de|desde)\s+(?:las\s+)?\d{1,2}(?:[:.]\d{2})?\s+(?:y|a|hasta)\s+(?:las\s+)?\d{1,2}(?:[:.]\d{2})?(?:\s*(?:horas|hrs\.?|hs\.?))?)?", re.I)
 # Los avisos telegráficos no ponen comas. El plazo se corta donde empieza la orden siguiente.
 _PLAZO_FIN = re.compile(r"\s(?:deber\w*|postores|interesados|indicando|mediante|debiendo|ingresando|acompañando|oportunidad|y\s+cuya|a\s+fin\s+de|en\s+cuyo)\b", re.I)
+_HABLA_ENTREGA = re.compile(r"vale\s+(?:a\s+la\s+)?vista|garant[íi]a|cauci[óo]n|entreg|document", re.I)
 _CON_PLAZO = ("correo", "ojv", "cedula", "contacto", "formulario")
 
 
@@ -197,16 +201,24 @@ def _leer(texto: str | None) -> tuple:
     def pon(clave, o, pos, detalle, **mas):
         frase = frases.setdefault(o, _frase(o, pos))          # una sola cita por oración, aunque traiga varios requisitos
         k = (clave, detalle, mas.get("correo"), mas.get("plazo"))
-        if k in vistos:
-            return
+        if k in vistos or (not mas.get("plazo") and any(v[:3] == k[:3] for v in vistos)):
+            return          # la misma orden repetida sin plazo no suma otra fila (C-9156-2025 nombra el correo dos veces)
         vistos.add(k)
         cuando = mas.get("cuando") if not mas.get("plazo") else None
         out.append({"clave": clave, "titulo": TITULO[clave], "detalle": detalle, "plazo": mas.get("plazo"), "cuando": cuando,
                     "correo": mas.get("correo"), "zoom": mas.get("zoom"), "frase": frase})
 
+    previa = ""
     for o in oraciones(texto):
         if _NO_AVISO.search(o):
+            previa = ""
             continue
+        # 13 de Noviembre (C-9156-2025 del 15° Civil). "Los postores a más tardar a las 14:00 horas del día hábil anterior a la
+        # subasta. Deberá enviar un correo electrónico a jcsantiago15@pjud.cl". El aviso deja el plazo solo en la oración anterior. Si
+        # esa oración anterior es SOLO un plazo (no habla del vale vista, la garantía ni la entrega), vale para el correo de esta.
+        plazo_previo = (_plazo(previa, len(previa)) if previa and len(previa) < 160 and not _HABLA_ENTREGA.search(previa)
+                        and not _DESPUES.search(previa) and not correos(previa) else None)
+        previa = o
         despues, no_postor = bool(_DESPUES.search(o)), bool(_NO_POSTOR.search(o))
         ms = correos(o)
         oc = _limpia(o)          # mismo largo que o, así las posiciones valen para los dos
@@ -225,7 +237,7 @@ def _leer(texto: str | None) -> tuple:
                     det = "Avisa por correo quién irá a dejar el vale vista"
                 else:
                     det = "Escribe al tribunal antes del remate"
-                pon("correo", o, pos, det, correo=dire, plazo=_plazo(o, pos))
+                pon("correo", o, pos, det, correo=dire, plazo=_plazo(o, pos) or plazo_previo)
         # trámite previo por la Oficina Judicial Virtual
         m = _OJV.search(oc)
         if m and _OJV_PRE.search(o) and not despues and not no_postor and not _OJV_NO.search(oc):

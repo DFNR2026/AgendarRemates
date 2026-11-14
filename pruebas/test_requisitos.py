@@ -60,6 +60,12 @@ T29 = ("Los postores interesados deberán ingresar comprobante legible de rendic
 revisar("29° Civil. problemas de conexión después de la dirección sigue siendo un requisito, no un correo de consultas",
         claves(T29) == ["correo", "ojv", "cedula", "contacto"], claves(T29))
 revisar("29° Civil. el plazo trae la regla del sábado", uno(T29, "correo")["plazo"] == "hasta las 12:00 hrs. del día hábil anterior a la subasta, y si dicho día fuera sábado, hasta las 12:00 hrs. del viernes anterior a la subasta", uno(T29, "correo")["plazo"])
+_t29b = T29 + " título de dominio se encuentra inscrito a fojas 3110 número 3531 del Registro de Propiedad del Conservador de Bienes Raíces de Santiago."
+revisar("punto y minúscula corta la oración, la frase no arrastra el título de dominio (C-10404-2025)",
+        "título de dominio" not in uno(_t29b, "correo")["frase"] and uno(_t29b, "correo")["frase"].endswith("por problemas de conexión") and uno(_t29b, "correo")["clave"] == "correo", uno(_t29b, "correo")["frase"][-80:])
+revisar("punto y minúscula no corta una abreviatura, una inicial ni el plazo", (uno(_t29b, "correo")["plazo"] or "").endswith("hasta las 12:00 hrs. del viernes anterior a la subasta")
+        and len(R.oraciones("La Sra. secretaria recibirá el vale vista hasta las 12:00 hrs. del día hábil anterior.")) == 1
+        and len(R.oraciones("Lo entrega doña María J. de la Fuente en secretaría.")) == 1)
 revisar("29° Civil. una sola cita aunque la oración traiga cuatro requisitos", len(R.para_ficha("29° Juzgado Civil de Santiago", T29, "zoom", {})["frases"]) == 1)
 
 # Oración larga de aviso telegráfico (armada repitiendo un tramo real, porque en el diario pasan de 900 letras). Dos requisitos lejos uno del otro.
@@ -135,6 +141,15 @@ T15 = ("Para ello deberán comunicar su asistencia al tribunal al correo electr�
 revisar("15° Civil. dos correos distintos, uno para dejar el vale vista y otro para participar",
         [r["detalle"] for r in R.leer(T15)] == ["Avisa por correo quién irá a dejar el vale vista", "Escribe al tribunal antes del remate"] and uno(T15, "correo", 0)["plazo"] is None
         and uno(T15, "correo", 1)["plazo"] == "a más tardar a las 14:00 horas del día hábil anterior a la realización de la subasta", R.leer(T15))
+# 13 de Noviembre. C-9156-2025 del 15° Civil, frases tal como están en el aviso. El plazo del correo quedó solo en la oración anterior.
+T15b = ("Todo interesado en participar en la subasta como postor, deberá tener activa su clave única del estado. Los postores a más tardar a las "
+        "14:00 horas del día hábil anterior a la subasta. Deberá enviar un correo electrónico a jcsantiago15@pjud.cl, indicando en asunto remate. "
+        "Junto con el rol y fecha de la realización de la subasta al correo electrónico a jcsantiago15@pjud.cl, manifestando su intención de participar.")
+revisar("15° Civil. el plazo que quedó solo en la oración anterior vale para el correo, y el correo nombrado dos veces es una sola fila",
+        [r["plazo"] for r in R.leer(T15b) if r["clave"] == "correo"] == ["a más tardar a las 14:00 horas del día hábil anterior a la subasta"], R.leer(T15b))
+T13s = ("El saldo del precio se pagará a más tardar al quinto día hábil de efectuada la subasta. Todo interesado deberá coordinarse al correo "
+        "jcsantiago13_remates@pjud.cl.")
+revisar("13° Civil. el plazo del pago del saldo de la oración anterior no se toma para el correo", uno(T13s, "correo")["plazo"] is None and uno(T13s, "correo")["clave"] == "correo", R.leer(T13s))
 T22 = "se rematará a través de la plataforma Zoom, ID de la reunión 950 8480 2601, debiendo el interesado solicitar el código de acceso al correo 22jcivil santiago_remates @pjud.cl."
 revisar("22° Civil. pedir el código de acceso por correo, con la dirección partida por el diario",
         uno(T22, "correo")["detalle"].startswith("Pide por correo el código de acceso") and uno(T22, "correo")["correo"] == "22jcivilsantiago_remates@pjud.cl", R.leer(T22))
@@ -201,7 +216,7 @@ revisar("ficha. la caja Requisitos para participar va después de Cómo llenar e
         "${formaHTML(it,vista)}\n  ${it.vv_regla?`<blockquote>“${E(it.vv_regla)}”</blockquote>`:''}\n  ${requisitosHTML(it)}" in fh and "<h3>Requisitos para participar</h3>" in rq)
 revisar("ficha. la caja no está en el buscador ni en el calendario", html.count("requisitosHTML(") == 2)
 revisar("ficha. muestra el plazo, el cuándo, a quién escribir, la frase del aviso y las advertencias",
-        "${E(r.plazo)}" in rq and "${r.cuando?`<div><span class=\"peq\" style=\"font-weight:700;letter-spacing:.06em\">CUÁNDO</span> ${E(r.cuando)}" in rq and "Escribir a <b" in rq and "${E(r.correo)}" in rq and "q.frases.map(f=>`<blockquote>“${E(f)}”</blockquote>`)" in rq and '(q.advertencias||[]).map(a=>`<div class="al ambar"' in rq)
+        "${E(r.plazo)}" in rq and "${r.cuando?`<div><span class=\"peq\" style=\"font-weight:700;letter-spacing:.06em\">CUÁNDO</span> ${E(r.cuando)}" in rq and "Escribir a <b" in rq and "${E(r.correo)}" in rq and "<h3>El aviso dice</h3>" in rq and '<td class="k">FRASE ${n+1}</td><td style="font-size:14px;line-height:1.5">${E(f)}</td>' in rq and '(q.advertencias||[]).map(a=>`<div class="al ambar"' in rq)
 revisar("ficha. todo texto del aviso pasa por E antes de mostrarse", "${r." not in rq.replace("${r.correo?", "").replace("${r.plazo?", "").replace("${r.cuando?", "").replace("${r.zoom&&r.zoom.url?", ""))
 revisar("datos. la causa del diario lee su propio aviso y la causa a mano lee el texto guardado si lo hay",
         '"requisitos": RQ.para_ficha(f["tribunal"], f.get("aviso_texto"), f["modalidad"])' in datos and '"requisitos": requisitos_manual(m)' in datos and 'q = RQ.para_ficha(m["tribunal"], a["texto"] if a else None, m["modalidad"])' in datos)
@@ -214,6 +229,11 @@ revisar("a mano. C-8034-2020 lee su aviso copiado de la foto, cédula, contacto 
         and _qm["requisitos"][0]["plazo"] == "el día hábil anterior a la fecha fijada para el remate, entre las 12:00 y 14:00 horas" and _qm["fuente"].startswith("Copiado a mano"), _qm)
 _qn = D.requisitos_manual({"tribunal": "2° Juzgado Civil de Santiago", "rol": "1", "anio": "2000", "modalidad": "zoom"})
 revisar("a mano. una causa a mano sin texto guardado sigue mostrando la costumbre del tribunal como advertencia", _qn["a_mano"] and _qn["fuente"] is None and _qn["advertencias"][-1] == R.A_MANO, _qn)
+# 13 de Noviembre (Diego eligió la opción B). "El aviso dice" en su propio recuadro, encasillado y numerado, cada frase con los
+# requisitos que salen de ella, y cada requisito dice de qué frase sale. Nada de citas sueltas.
+revisar("ficha. El aviso dice va en su propio recuadro con FRASE 1, 2 y los requisitos de cada frase",
+        '<section class="caja" id="cajaAvisoDice"><h3>El aviso dice</h3>' in rq and "rs.filter(r=>r.frase===f).map(r=>`<span class=\"chip\"" in rq
+        and "<blockquote>" not in rq and "'Frase '+(fr.indexOf(r.frase)+1)" in rq and rq.index('id="cajaRequisitos"') < rq.index('id="cajaAvisoDice"'))
 revisar("ficha. la fuente del texto a mano se muestra en la caja", "${q.fuente?E(q.fuente)+'.':'Leído del aviso de esta causa.'}" in rq)
 revisar("requisitos. el motor no importa nada de IA ni de internet", not re.search(r"anthropic|urllib|requests|haiku", (RAIZ / "motor" / "requisitos.py").read_text(encoding="utf-8").split('"""', 2)[2], re.I))
 
