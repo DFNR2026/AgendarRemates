@@ -575,5 +575,11 @@ revisar("llegada. con hora de apertura leída del aviso resta media hora", nota_
 revisar("llegada. un desde estimado no se toma como hora de apertura", nota_llegada("1° Juzgado Civil de Santiago", "2026-11-02 10:00", "estimado_dia_siguiente_edicion").startswith("Llega media hora antes de que abra"))
 revisar("llegada. entrega en el remate, media hora antes del remate", nota_llegada(None, None, None, "en_el_remate", "13:00").startswith("Llega a las 12:30, media hora antes del remate"))
 revisar("llegada. todas dicen que es por orden de llegada", all("orden de llegada" in nota_llegada(*a) for a in [("x",), ("3° Juzgado Civil de Santiago",)]))
+# 14 de Noviembre (Diego). Calendario con Mar y Mié en vez de dos M, y una línea delgada antes de cada lunes (cambio de semana),
+# en la fila de los días y en cada carril, salvo cuando el lunes es la primera columna del mes.
+revisar("calendario. martes y miércoles abreviados Mar y Mié", "const INI=['D','L','Mar','Mié','J','V','S'];" in html)
+revisar("calendario. línea delgada antes del lunes, no en la primera columna",
+        "const SEMANA=(d,isos)=>new Date(d+'T12:00').getDay()===1&&d!==isos[0]?'border-left:1px solid var(--finde);':'';" in html
+        and html.count("${SEMANA(d,isos)}") == 2)
 print("\nRESULTADO.", "TODO OK" if not FALLAS else f"{len(FALLAS)} fallas")
 sys.exit(1 if FALLAS else 0)

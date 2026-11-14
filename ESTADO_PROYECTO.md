@@ -229,6 +229,7 @@ Unir todas las páginas de remates en un solo rollo en orden de lectura. Quitar 
 ✅ El aviso dice con la opción B que eligió Diego, recuadro propio encasillado y numerado (13 de Noviembre, noche)
 ✅ Arreglo de C-9156-2025 aplicado en la base real con respaldo (7 avisos)
 ✅ Requisitos para participar además del vale vista, 13 de Noviembre. Investigación de 574 causas guardada (REQUISITOS_PARTICIPAR.md), motor\requisitos.py, caja en la ficha con advertencia de patrón roto, prueba 20 y 20 mutaciones. Sin tocar la base. Diego lo tiene que mirar en su pantalla
+✅ Calendario con Mar y Mié y línea delgada antes de cada lunes, 14 de Noviembre (BITACORA_2026-11-14.md)
 ⬜ (Futuro) Después de adjudicar por tribunal (firma del acta, pago del saldo, devolución), anotado en REQUISITOS_PARTICIPAR.md
 ⬜ (Futuro) Google Calendar o celular
 

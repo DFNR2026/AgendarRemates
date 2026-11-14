@@ -126,7 +126,9 @@ blockquote{margin:0;padding:8px 12px;background:var(--fondo);border-radius:calc(
 <script>
 // Agenda de remates (18 de Octubre). Lee todo de /api/estado y manda las acciones de Diego al servidor local.
 const MES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const INI=['D','L','M','M','J','V','S'];
+// 14 de Noviembre (Diego). Martes y miércoles ya no van los dos como "M". Una línea delgada antes de cada lunes marca el cambio de semana.
+const INI=['D','L','Mar','Mié','J','V','S'];
+const SEMANA=(d,isos)=>new Date(d+'T12:00').getDay()===1&&d!==isos[0]?'border-left:1px solid var(--finde);':'';
 const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SVG={
  pres:s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2.5l8.5 8.5-3.2 3.2-8.5-8.5z"/><path d="M14.1 9.9L4.5 19.5"/><path d="M3 21.5h9"/></svg>`,
@@ -240,13 +242,13 @@ function mes(y,m,tam,ags){
   let h=`<section class="mes" style="padding:${g?'20px 20px 16px':'14px 18px'}"><div class="fila"><h2 style="margin:0;font-weight:800;font-size:${g?'30px':'18px'};color:${g?'var(--tinta)':'var(--suave)'}">${MES[m]} ${y}</h2><div style="display:flex;gap:10px;align-items:center"><span class="gris" style="font-size:12px">${nR?(nR===1?'1 remate':nR+' remates'):''}</span>${g?`<div class="nav">${UI.off>0?'<button class="btn2" data-acc="mesAnt">◀ Mes anterior</button>':''}<button class="btn2" data-acc="mesHoy">Volver a hoy</button><button class="btn2" data-acc="mesSig">Mes siguiente ▶</button></div>`:''}</div></div>`;
   h+=`<div class="grilla" style="${cols}"><div class="gris" style="font-size:11px;align-self:end;padding:4px 0">Causa</div>`;
   for(const d of isos){const dw=new Date(d+'T12:00').getDay(),fer=EST.feriados[d],hoy=d===H,fin=dw===0||dw===6;
-    h+=`<div title="${E(fer?fer+'. ':'')}Ver los remates de este día" role="button" tabindex="0" data-acc="dia" data-d="${d}" style="cursor:pointer;${UI.dia&&UI.dia.d===d?'background:var(--sel);':''}display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;padding:4px 0;min-width:0;color:${fer?'var(--rojo)':(fin?'var(--finde)':'var(--suave)')};${hoy?'box-shadow:'+sh+',inset 0 3px 0 '+negro+(lanes.length?';border-radius:calc(6px*var(--r)) calc(6px*var(--r)) 0 0':',inset 0 -3px 0 '+negro+';border-radius:calc(6px*var(--r))'):''}"><span>${INI[dw]}</span><span style="font-size:${g?13:11}px;font-weight:700;color:${fer?'var(--rojo)':'var(--tinta)'}">${+d.slice(8)}</span></div>`;}
+    h+=`<div title="${E(fer?fer+'. ':'')}Ver los remates de este día" role="button" tabindex="0" data-acc="dia" data-d="${d}" style="cursor:pointer;${SEMANA(d,isos)}${UI.dia&&UI.dia.d===d?'background:var(--sel);':''}display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;padding:4px 0;min-width:0;color:${fer?'var(--rojo)':(fin?'var(--finde)':'var(--suave)')};${hoy?'box-shadow:'+sh+',inset 0 3px 0 '+negro+(lanes.length?';border-radius:calc(6px*var(--r)) calc(6px*var(--r)) 0 0':',inset 0 -3px 0 '+negro+';border-radius:calc(6px*var(--r))'):''}"><span>${INI[dw]}</span><span style="font-size:${g?13:11}px;font-weight:700;color:${fer?'var(--rojo)':'var(--tinta)'}">${+d.slice(8)}</span></div>`;}
   h+='</div>';
   lanes.forEach((a,ia)=>{
     const sub=a.remate?(isos.includes(a.remate)?'Remate '+diaCorto(a.remate)+(a.hora?' '+a.hora:''):'Remate el '+diaCorto(a.remate)):'Sin fecha del remate';
     h+=`<div class="grilla" style="${cols}"><button class="carril" data-acc="ficha" data-k="${a.k}"><b>${E(a.tc)} · <span class="rol" style="font-size:12px">${E(a.rol)}</span></b><span class="gris" style="font-size:11px">${a.manual?'A mano · ':''}${E(sub)}</span></button>`;
     for(const d of isos){const enVV=a.vd&&!a.ent&&a.vd<=d&&d<=a.vh,esR=a.remate===d,hoy=d===H;const ini=enVV&&(d===a.vd||d===isos[0]),fin=enVV&&(d===a.vh||d===isos[dim-1]);
-      let st=`height:${ALTO[tam]}px;min-width:0;display:flex;align-items:center;justify-content:center;`;
+      let st=`height:${ALTO[tam]}px;min-width:0;display:flex;align-items:center;justify-content:center;${SEMANA(d,isos)}`;
       if(enVV)st+='background:var(--vv);'+(ini?'border-top-left-radius:calc(6px*var(--r));border-bottom-left-radius:calc(6px*var(--r));':'')+(fin?'border-top-right-radius:calc(6px*var(--r));border-bottom-right-radius:calc(6px*var(--r));':'');
       if(hoy)st+='box-shadow:'+sh+(ia===lanes.length-1?',inset 0 -3px 0 '+negro+';border-bottom-left-radius:calc(6px*var(--r));border-bottom-right-radius:calc(6px*var(--r));':';');
       let c='';if(esR){const s=g?28:24,mar=UI.sel===a.k;
